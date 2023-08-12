@@ -1,6 +1,10 @@
 package au.edu.qut.bpmn.helper;
 
 import au.edu.unimelb.processmining.optimization.AutomatedProcessDiscoveryOptimizer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
 import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
@@ -14,11 +18,6 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.kutoolbox.utils.FakePluginContext;
 import org.processmining.plugins.pnml.importing.PnmlImportNet;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
 public class Petrinet2BPMNConverter {
 
@@ -35,7 +34,6 @@ public class Petrinet2BPMNConverter {
 
         } catch(Exception e) {
             e.printStackTrace();
-            return;
         }
     }
 

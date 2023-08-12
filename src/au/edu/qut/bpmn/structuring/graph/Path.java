@@ -31,12 +31,12 @@ import java.util.*;
 public class Path {
 //    private static final Logger LOGGER = LoggerFactory.getLogger(Path.class);
 
-    private int PID;
+    private final int PID;
+    private final LinkedList<Integer> chain;
     private String entry, exit;
     private int weight;
     private Set<Integer> brothers;
     private Set<Integer> reverseBrothers;
-    private LinkedList<Integer> chain;
     private boolean loop;
 
     private boolean hasBrothers;
@@ -44,8 +44,8 @@ public class Path {
     public Path(int PID, int oPID, String entry, String exit, int weight, boolean loop) {
         //this wraps an originalPath(that is a sequence of tasks) into a Path
         this.PID = PID;
-        this.entry = new String(entry);
-        this.exit = new String(exit);
+        this.entry = entry;
+        this.exit = exit;
         this.weight = weight;
         brothers = new HashSet<>();
         reverseBrothers = new HashSet<>();
@@ -60,8 +60,8 @@ public class Path {
     public Path(int PID, Path first, Path second) {
         //this creates a new path concatenating two other paths: first and second
         this.PID = PID;
-        this.entry = new String(first.entry);
-        this.exit = new String(second.exit);
+        this.entry = first.entry;
+        this.exit = second.exit;
         this.weight = first.weight + second.weight;
         brothers = new HashSet<>();
         reverseBrothers = new HashSet<>();
@@ -79,8 +79,8 @@ public class Path {
         //duplication of a path, to call before extend a path
         //this creates a new path equal to the given mould
         this.PID = PID;
-        this.entry = new String(mould.entry);
-        this.exit = new String(mould.exit);
+        this.entry = mould.entry;
+        this.exit = mould.exit;
         this.weight = mould.weight;
         brothers = new HashSet<>(mould.brothers);
         reverseBrothers = new HashSet<>(mould.reverseBrothers);
@@ -96,8 +96,11 @@ public class Path {
     public int getPID() { return PID; }
     public int getWeight() { return weight; }
     public String getEntry() { return entry; }
-    public String getExit() { return exit; }
+
     public void setEntry(String entry) { this.entry = entry; }
+
+    public String getExit() { return exit; }
+
     public void setExit(String exit) { this.exit = exit; }
     public List<Integer> getChain() { return chain; }
     public Set<Integer> getBrothers() { return brothers; }

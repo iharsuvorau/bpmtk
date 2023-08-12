@@ -17,44 +17,65 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "discover", mixinStandardHelpOptions = true, description = "SplitMiner BPMN model discovery")
+@Command(
+    name = "discover",
+    mixinStandardHelpOptions = true,
+    description = "SplitMiner BPMN model discovery")
 public class ServiceProvider implements Callable<Integer> {
-    @Option(names = {"-e", "--eta"})
-    private double eta;
-    @Option(names = {"-p", "--epsilon"})
-    private double epsilon;
-    @Option(names = {"-f", "--parallelismFirst"})
-    private boolean parallelismFirst;
-    @Option(names = {"-r", "--replaceIORs"})
-    private boolean replaceIORs;
-    @Option(names = {"-l", "--removeLoopActivityMarkers"})
-    private boolean removeLoopActivityMarkers;
-    @Option(names = {"-i", "--logPath"}, required = true)
-    private String logPath;
-    @Option(names = {"-o", "--outputPath"}, required = true)
-    private String outputPath;
+  @Option(names = {"-e", "--eta"})
+  private double eta;
 
-    public static void main(String[] args) {
-        int exitCode = new CommandLine(new ServiceProvider()).execute(args);
-        System.exit(exitCode);
-    }
+  @Option(names = {"-p", "--epsilon"})
+  private double epsilon;
 
-    @Override
-    public Integer call() throws Exception {
-        SplitMiner yam = new SplitMiner();
-        XLog log = LogImporter.importFromFile(new XFactoryNaiveImpl(), logPath);
-        long etime = System.currentTimeMillis();
-        BPMNDiagram output = yam.mineBPMNModel(log, new XEventNameClassifier(), eta,
-                epsilon, DFGPUIResult.FilterType.FWG, parallelismFirst, replaceIORs, removeLoopActivityMarkers, SplitMinerUIResult.StructuringTime.NONE);
-        etime = System.currentTimeMillis() - etime;
+  @Option(names = {"-f", "--parallelismFirst"})
+  private boolean parallelismFirst;
 
-        System.out.println("eTIME - " + (double) etime / 1000.0 + "s");
+  @Option(names = {"-r", "--replaceIORs"})
+  private boolean replaceIORs;
 
-        BpmnExportPlugin bpmnExportPlugin = new BpmnExportPlugin();
-        UIContext context = new UIContext();
-        UIPluginContext uiPluginContext = context.getMainPluginContext();
-        bpmnExportPlugin.export(uiPluginContext, output, new File(outputPath + ".bpmn"));
-        return 0;
-    }
+  @Option(names = {"-l", "--removeLoopActivityMarkers"})
+  private boolean removeLoopActivityMarkers;
 
+  @Option(
+      names = {"-i", "--logPath"},
+      required = true)
+  private String logPath;
+
+  @Option(
+      names = {"-o", "--outputPath"},
+      required = true)
+  private String outputPath;
+
+  public static void main(String[] args) {
+    int exitCode = new CommandLine(new ServiceProvider()).execute(args);
+    System.exit(exitCode);
+  }
+
+  @Override
+  public Integer call() throws Exception {
+    SplitMiner yam = new SplitMiner();
+    XLog log = LogImporter.importFromFile(new XFactoryNaiveImpl(), logPath);
+    long etime = System.currentTimeMillis();
+    BPMNDiagram output =
+        yam.mineBPMNModel(
+            log,
+            new XEventNameClassifier(),
+            eta,
+            epsilon,
+            DFGPUIResult.FilterType.FWG,
+            parallelismFirst,
+            replaceIORs,
+            removeLoopActivityMarkers,
+            SplitMinerUIResult.StructuringTime.NONE);
+    etime = System.currentTimeMillis() - etime;
+
+    System.out.println("eTIME - " + (double) etime / 1000.0 + "s");
+
+    BpmnExportPlugin bpmnExportPlugin = new BpmnExportPlugin();
+    UIContext context = new UIContext();
+    UIPluginContext uiPluginContext = context.getMainPluginContext();
+    bpmnExportPlugin.export(uiPluginContext, output, new File(outputPath + ".bpmn"));
+    return 0;
+  }
 }

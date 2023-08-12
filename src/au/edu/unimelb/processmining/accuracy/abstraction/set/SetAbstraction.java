@@ -2,7 +2,6 @@ package au.edu.unimelb.processmining.accuracy.abstraction.set;
 
 import au.edu.unimelb.processmining.accuracy.abstraction.Abstraction;
 import au.edu.unimelb.processmining.accuracy.abstraction.Edge;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,8 +11,8 @@ import java.util.Set;
  * Created by Adriano on 26/01/18.
  */
 public class SetAbstraction extends Abstraction {
-    private Map<Edge, Double> edges;
-    private Map<String, Double> nodes;
+    private final Map<Edge, Double> edges;
+    private final Map<String, Double> nodes;
 
     public SetAbstraction() {
         edges = new HashMap<>();

@@ -6,9 +6,9 @@ import java.util.BitSet;
  * Created by Adriano on 26/01/18.
  */
 public class SetLabel {
-    private BitSet original;
-    private BitSet extra;
-    private int size;
+    private final BitSet original;
+    private final BitSet extra;
+    private final int size;
 
     public SetLabel(int size) {
         this.size = size;
@@ -21,6 +21,24 @@ public class SetLabel {
         original = (BitSet) label.original.clone();
         extra = (BitSet) label.extra.clone();
         add(next);
+    }
+
+    public static String reverseAdd(String label, int next) {
+        int size = label.length();
+        int start = 0;
+        String result = "";
+
+        if( next < 0 ) {
+            start = (size+1)/2;
+            result += label.substring(0, start);
+            next = -next;
+        }
+        for(int i=start; i<size; i++) {
+            if(i==next) result += "1";
+            else result += label.charAt(i);
+        }
+
+        return result;
     }
 
     public void add(int next) {
@@ -40,24 +58,6 @@ public class SetLabel {
             e += extra.get(i)?"1":"0";
         }
         return o + "-" + e;
-    }
-
-    public static String reverseAdd(String label, int next) {
-        int size = label.length();
-        int start = 0;
-        String result = "";
-
-        if( next < 0 ) {
-            start = (size+1)/2;
-            result += label.substring(0, start);
-            next = -next;
-        }
-        for(int i=start; i<size; i++) {
-            if(i==next) result += "1";
-            else result += label.charAt(i);
-        }
-
-        return result;
     }
 
     @Override

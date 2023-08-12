@@ -3,6 +3,7 @@ package au.edu.unimelb.processmining.optimization;
 import au.edu.qut.processmining.log.LogParser;
 import au.edu.qut.processmining.log.SimpleLog;
 import com.raffaeleconforti.log.util.LogImporter;
+import java.io.File;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.deckfour.xes.factory.XFactoryNaiveImpl;
 import org.deckfour.xes.model.XLog;
@@ -11,17 +12,15 @@ import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.plugins.bpmn.plugins.BpmnExportPlugin;
 
-import java.io.File;
-
 public class AutomatedProcessDiscoveryOptimizer {
 
-    private static int MAXIT = 50;
-    private static int NEIGHBOURHOOD = 5;
-    private static int TIMEOUT = 300000;
+    private static final int MAXIT = 50;
+    private static final int NEIGHBOURHOOD = 5;
+    private static final int TIMEOUT = 300000;
+    private final int order;
+    private final MetaOpt metaheuristics;
+    private final MinerProxy.MinerTAG miner;
     private MinerProxy minerProxy;
-    private int order;
-    private MetaOpt metaheuristics;
-    private MinerProxy.MinerTAG miner;
     private SimpleLog slog;
     private BPMNDiagram bpmn;
     private String modelName;

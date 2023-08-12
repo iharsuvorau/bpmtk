@@ -1,17 +1,15 @@
 package au.edu.unimelb.processmining.accuracy.abstraction.subtrace;
 
 public class Subtrace implements Comparable {
-    private int[] label;
-    private int order;
+    public final static int INIT = 0;
+    private final static int START = 0;
+    private final int[] label;
+    private final int order;
+    protected double frequency;
     private int i;
     private boolean full;
     private boolean complete;
     private String print;
-
-    protected double frequency;
-
-    public final static int INIT = 0;
-    private final static int START = 0;
 
     public Subtrace(int order) {
         this.order = order;
@@ -98,7 +96,7 @@ public class Subtrace implements Comparable {
         } else {
             if( complete ) {
                 ia = new int[i];
-                for(int j=0; j<i; j++) ia[j] = label[j];
+                System.arraycopy(label, 0, ia, 0, i);
             } else return null;
         }
 

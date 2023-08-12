@@ -23,6 +23,7 @@ package au.edu.qut.processmining.miners.splitminer.dfgp;
 import au.edu.qut.processmining.log.ComplexLog;
 import au.edu.qut.processmining.log.SimpleLog;
 import au.edu.qut.processmining.miners.splitminer.ui.dfgp.DFGPUIResult;
+import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -32,16 +33,13 @@ import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.bpmn.elements.Activity;
 import org.processmining.models.graphbased.directed.bpmn.elements.Event;
 
-import java.util.*;
-
 /**
  * Created by Adriano on 24/10/2016.
  */
 public class DirectlyFollowGraphPlus {
 
-    private static boolean completeCloning = false;
+    private static final boolean completeCloning = false;
 
-    ;
     private SimpleLog log;
     private int startcode;
     private int endcode;
@@ -250,8 +248,7 @@ public class DirectlyFollowGraphPlus {
     }
 
     public boolean areInclusive(int A, int B) {
-        if (relations != null && relations.get(new ImmutablePair<>(A, B)) == Gate.OR) return true;
-        else return false;
+        return relations != null && relations.get(new ImmutablePair<>(A, B)) == Gate.OR;
     }
 
     public void buildDFGP() {
@@ -1435,9 +1432,7 @@ public class DirectlyFollowGraphPlus {
             }
         }
 
-        if (!unvisited.isEmpty()) return false;
-
-        return true;
+        return unvisited.isEmpty();
     }
 
     public void addLoops1() {

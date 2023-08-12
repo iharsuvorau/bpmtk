@@ -4,18 +4,19 @@ import au.edu.unimelb.processmining.accuracy.abstraction.subtrace.Subtrace;
 import au.edu.unimelb.processmining.accuracy.abstraction.subtrace.SubtraceAbstraction;
 
 public class ConfusionMatrix {
-    private int logSize, modelSize;
-    private Subtrace[] rows; // traces of the log
-    private Subtrace[] columns; // traces of the model
+    private final int logSize;
+    private final int modelSize;
+    private final Subtrace[] rows; // traces of the log
+    private final Subtrace[] columns; // traces of the model
 
-    private int[] bestCostsLog; // this array stores the best costs for each log trace
-    private int[] bestCostsModel; // this array stores the best costs for each model trace
+    private final int[] bestCostsLog; // this array stores the best costs for each log trace
+    private final int[] bestCostsModel; // this array stores the best costs for each model trace
 
-    private int[] movesOnLog; // this array stores the number of move on log for the min cost alignment of a log trace
-    private int[] movesOnModel; // this array stores the number of move on model for the min cost alignment of a model trace
+    private final int[] movesOnLog; // this array stores the number of move on log for the min cost alignment of a log trace
+    private final int[] movesOnModel; // this array stores the number of move on model for the min cost alignment of a model trace
 
-    private int[] syncMovesModel; // this array stores the number of move on model for the min cost alignment of a model trace
-    private int[] syncMovesLog;
+    private final int[] syncMovesModel; // this array stores the number of move on model for the min cost alignment of a model trace
+    private final int[] syncMovesLog;
 
     private int FP, FN, TP; // false positives, false negatives, and true positives
 

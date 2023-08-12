@@ -20,18 +20,16 @@
 
 package au.edu.qut.processmining.log;
 
-import org.deckfour.xes.model.XLog;
-
-import java.util.HashMap;
 import java.util.Map;
+import org.deckfour.xes.model.XLog;
 
 /**
  * Created by Adriano on 27/10/2016.
  */
 public class SimpleLog {
-    private XLog xlog;
-    private Map<String, Integer> traces;
-    private Map<Integer, String> events;
+    private final XLog xlog;
+    private final Map<String, Integer> traces;
+    private final Map<Integer, String> events;
     private Map<String, Integer> reverseMap;
     private int size;
     private long totalEvents;
@@ -43,13 +41,6 @@ public class SimpleLog {
     private int endcode;
 
     private int[] exclusiveness;
-    public int[] getExclusiveness() {
-        return exclusiveness;
-    }
-    public void setExclusiveness(int[] exclusiveness) {
-        this.exclusiveness = exclusiveness;
-    }
-
     public SimpleLog(Map<String, Integer> traces, Map<Integer, String> events, XLog xlog) {
         this.traces = traces;
         this.events = events;
@@ -64,6 +55,14 @@ public class SimpleLog {
         this.xlog = xlog;
     }
 
+    public int[] getExclusiveness() {
+        return exclusiveness;
+    }
+
+    public void setExclusiveness(int[] exclusiveness) {
+        this.exclusiveness = exclusiveness;
+    }
+
     public XLog getXLog() { return xlog; }
 
     public Map<String, Integer> getTraces() { return traces; }
@@ -75,23 +74,28 @@ public class SimpleLog {
     public Map<String, Integer> getReverseMap() { return reverseMap; }
     public void setReverseMap(Map<String, Integer> reverseMap) { this.reverseMap = reverseMap; }
 
-    public void setStartcode(int startcode){ this.startcode = startcode; }
     public int getStartcode(){ return startcode; }
 
-    public void setEndcode(int endcode){ this.endcode = endcode; }
+    public void setStartcode(int startcode){ this.startcode = startcode; }
+
     public int getEndcode(){ return endcode; }
 
-    public void setTotalEvents(long totalEvents) { this.totalEvents = totalEvents; }
+    public void setEndcode(int endcode){ this.endcode = endcode; }
+
     public long getTotalEvents() { return totalEvents; }
+
+    public void setTotalEvents(long totalEvents) { this.totalEvents = totalEvents; }
 
     public int getDistinctTraces() { return traces.size(); }
     public int getDistinctEvents() { return (events.size()-2); }
 
-    public void setLongestTrace(long length) { longestTrace = length; }
     public long getLongestTrace() { return longestTrace; }
 
-    public void setShortestTrace(long length) { shortestTrace = length; }
+    public void setLongestTrace(long length) { longestTrace = length; }
+
     public long getShortestTrace() {return shortestTrace; }
+
+    public void setShortestTrace(long length) { shortestTrace = length; }
 
     public int getAvgTraceLength(){ return (int)totalEvents/size; }
 }

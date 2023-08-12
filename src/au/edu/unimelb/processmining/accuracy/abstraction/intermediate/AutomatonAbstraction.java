@@ -3,7 +3,6 @@ package au.edu.unimelb.processmining.accuracy.abstraction.intermediate;
 import au.edu.qut.processmining.log.SimpleLog;
 import de.drscc.automaton.Automaton;
 import de.drscc.automaton.Transition;
-
 import java.util.*;
 
 /**

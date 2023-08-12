@@ -20,23 +20,20 @@
 
 package au.edu.qut.processmining.miners.splitminer.oracle;
 
-import org.processmining.models.graphbased.directed.bpmn.elements.Gateway;
-
 import java.util.*;
+import org.processmining.models.graphbased.directed.bpmn.elements.Gateway;
 
 /**
  * Created by Adriano on 1/11/2016.
  */
 public class OracleItem implements Comparable {
-    private Set<Integer> past;
-    private Set<Integer> future;
-
+    private final Set<Integer> past;
+    private final Set<Integer> future;
+    private final Set<OracleItem> xorBrothers;
+    private final Set<OracleItem> andBrothers;
     private String oracle;
     private String oraclePast;
     private String oracleFuture;
-
-    private Set<OracleItem> xorBrothers;
-    private Set<OracleItem> andBrothers;
 
     public OracleItem() {
         past = new HashSet<>();
@@ -45,13 +42,87 @@ public class OracleItem implements Comparable {
         andBrothers = new HashSet<>();
     }
 
+    public static OracleItem mergeXORs(Set<OracleItem> xorBrothers) {
+        /*
+        * merging two or more XOR oracle items means:
+        * 1. create a new oracle item that contains all the oracle items to be merged as xorBrothers
+        * 2. its future will be the same shared future of all the xorBrothers in input (see also isXOR)
+        * 3. its past will be the union of the pasts of all the xorBrothers in input
+        *
+        * eg: inputs = { (:A:|:C:D:), (:B:|:C:D:) } output = (:A:B:|:C:D:)
+        */
+
+        OracleItem oiUnion = new OracleItem();
+        oiUnion.xorBrothers.addAll(xorBrothers);
+
+        for( OracleItem xor : xorBrothers ) {
+            oiUnion.future.addAll(xor.future);
+            break;
+        }
+
+        for( OracleItem xor : xorBrothers ) oiUnion.past.addAll(xor.past);
+
+        oiUnion.engrave();
+        return oiUnion;
+    }
+
+    public static OracleItem mergeANDs(Set<OracleItem> andBrothers) {
+        /*
+        * merging two or more AND oracle items means:
+        * 1. create a new oracle item that contains all the oracle items to be merged as andBrothers
+        * 2. its future will be only the part of shared future of all the andBrothers in input
+        * 3. its past will be the union of the pasts of all the andBrothers in input
+        *
+        * eg: inputs = { (:A:|:B:C:D:), (:B:|:A:C:D:) } output = (:A:B:|:C:D:)
+        */
+
+        OracleItem oiUnion = new OracleItem();
+        oiUnion.andBrothers.addAll(andBrothers);
+
+        for( OracleItem and : andBrothers ) oiUnion.future.addAll(and.future);
+        for( OracleItem and : andBrothers ) oiUnion.future.retainAll(and.future);
+
+        for( OracleItem and : andBrothers ) oiUnion.past.addAll(and.past);
+
+        oiUnion.engrave();
+        return oiUnion;
+    }
+
+    public static OracleItem forcedMergeANDs(Set<OracleItem> andBrothers) {
+        /*
+        * forcing the merging of two or more AND oracle items means:
+        * 1. create a new oracle item that contains all the oracle items to be merged as andBrothers
+        * 2. its future will be the union of the future minus the union of the past of all the andBrothers
+        * 3. its past will be the union of the pasts of all the andBrothers in input
+        *
+        * eg: inputs = { (:A:|:B:C:D:), (:B:|:A:C:) } output = (:A:B:|:C:D:)
+        * note: in this example we are missing the activity 'D' in the future of the second input,
+        *       but we proceed as it was there too, that is why we are 'forcing' the merging:
+        *       somehow the concurrency between 'B' and 'D' was not caught OR
+        *       the concurrency between 'A' and 'D' was noise
+        */
+
+        OracleItem oiUnion = new OracleItem();
+        oiUnion.andBrothers.addAll(andBrothers);
+
+        for( OracleItem and : andBrothers ) oiUnion.future.addAll(and.future);
+        for( OracleItem and : andBrothers ) oiUnion.past.addAll(and.past);
+        oiUnion.future.removeAll(oiUnion.past);
+
+        oiUnion.engrave();
+        return oiUnion;
+    }
+
     public void fillPast(int p) { past.add(p); }
+
     public void fillFuture(int f) { future.add(f); }
 
     public void fillPast(Collection<Integer> past) { this.past.addAll(past); }
+
     public void fillFuture(Collection<Integer> future) { this.future.addAll(future); }
 
     public Set<OracleItem> getXorBrothers() { return xorBrothers; }
+
     public Set<OracleItem> getAndBrothers() { return andBrothers; }
 
     public void engrave() {
@@ -95,53 +166,8 @@ public class OracleItem implements Comparable {
     }
 
     public boolean isXOR(OracleItem oItem) { return oItem.oracleFuture.equals(oracleFuture); }
-    public static OracleItem mergeXORs(Set<OracleItem> xorBrothers) {
-        /*
-        * merging two or more XOR oracle items means:
-        * 1. create a new oracle item that contains all the oracle items to be merged as xorBrothers
-        * 2. its future will be the same shared future of all the xorBrothers in input (see also isXOR)
-        * 3. its past will be the union of the pasts of all the xorBrothers in input
-        *
-        * eg: inputs = { (:A:|:C:D:), (:B:|:C:D:) } output = (:A:B:|:C:D:)
-        */
-
-        OracleItem oiUnion = new OracleItem();
-        oiUnion.xorBrothers.addAll(xorBrothers);
-
-        for( OracleItem xor : xorBrothers ) {
-            oiUnion.future.addAll(xor.future);
-            break;
-        }
-
-        for( OracleItem xor : xorBrothers ) oiUnion.past.addAll(xor.past);
-
-        oiUnion.engrave();
-        return oiUnion;
-    }
 
     public boolean isAND(OracleItem oItem) { return oItem.oracle.equals(oracle); }
-    public static OracleItem mergeANDs(Set<OracleItem> andBrothers) {
-        /*
-        * merging two or more AND oracle items means:
-        * 1. create a new oracle item that contains all the oracle items to be merged as andBrothers
-        * 2. its future will be only the part of shared future of all the andBrothers in input
-        * 3. its past will be the union of the pasts of all the andBrothers in input
-        *
-        * eg: inputs = { (:A:|:B:C:D:), (:B:|:A:C:D:) } output = (:A:B:|:C:D:)
-        */
-
-        OracleItem oiUnion = new OracleItem();
-        oiUnion.andBrothers.addAll(andBrothers);
-
-        for( OracleItem and : andBrothers ) oiUnion.future.addAll(and.future);
-        for( OracleItem and : andBrothers ) oiUnion.future.retainAll(and.future);
-
-        for( OracleItem and : andBrothers ) oiUnion.past.addAll(and.past);
-
-        oiUnion.engrave();
-        return oiUnion;
-    }
-
 
     public int getANDDistance(OracleItem oi) {
         HashSet<Integer> union = new HashSet<>();
@@ -161,32 +187,6 @@ public class OracleItem implements Comparable {
         distance = union.size() - intersection.size();
         return distance;
     }
-
-    public static OracleItem forcedMergeANDs(Set<OracleItem> andBrothers) {
-        /*
-        * forcing the merging of two or more AND oracle items means:
-        * 1. create a new oracle item that contains all the oracle items to be merged as andBrothers
-        * 2. its future will be the union of the future minus the union of the past of all the andBrothers
-        * 3. its past will be the union of the pasts of all the andBrothers in input
-        *
-        * eg: inputs = { (:A:|:B:C:D:), (:B:|:A:C:) } output = (:A:B:|:C:D:)
-        * note: in this example we are missing the activity 'D' in the future of the second input,
-        *       but we proceed as it was there too, that is why we are 'forcing' the merging:
-        *       somehow the concurrency between 'B' and 'D' was not caught OR
-        *       the concurrency between 'A' and 'D' was noise
-        */
-
-        OracleItem oiUnion = new OracleItem();
-        oiUnion.andBrothers.addAll(andBrothers);
-
-        for( OracleItem and : andBrothers ) oiUnion.future.addAll(and.future);
-        for( OracleItem and : andBrothers ) oiUnion.past.addAll(and.past);
-        oiUnion.future.removeAll(oiUnion.past);
-
-        oiUnion.engrave();
-        return oiUnion;
-    }
-
 
     public Gateway.GatewayType getGateType(){
 //        note: we CANNOT have both xorBrothers and andBrothers filled

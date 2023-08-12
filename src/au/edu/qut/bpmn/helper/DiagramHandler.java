@@ -29,13 +29,12 @@ import de.hpi.bpt.graph.algo.rpst.RPSTNode;
 import de.hpi.bpt.graph.algo.tctree.TCType;
 import de.hpi.bpt.hypergraph.abs.IVertex;
 import de.hpi.bpt.hypergraph.abs.Vertex;
+import java.util.*;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
 import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.bpmn.elements.*;
-
-import java.util.*;
 
 /**
  * Created by Adriano on 16/05/2016.
@@ -447,7 +446,7 @@ public class DiagramHandler {
     }
 
     private void generateRPSTNodeCode(RPST rpst, RPSTNode node, HashMap<RPSTNode, String> rpstNodeToID, Map<String, BPMNNode> mapping) {
-        String code = new String();
+    String code = "";
         LinkedList<String> childrenCodes = new LinkedList<>();
         BPMNNode entry = mapping.get(node.getEntry().getName());
         BPMNNode exit = mapping.get(node.getExit().getName());

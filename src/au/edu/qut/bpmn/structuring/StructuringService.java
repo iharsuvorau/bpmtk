@@ -22,13 +22,12 @@ package au.edu.qut.bpmn.structuring;
 
 import au.edu.qut.bpmn.helper.DiagramHandler;
 import au.edu.qut.bpmn.structuring.core.StructuringCore;
+import java.util.*;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.bpmn.elements.*;
 import org.processmining.plugins.bpmn.BpmnAssociation;
-
-import java.util.*;
 
 /**
  * Created by Adriano on 29/02/2016.
@@ -42,7 +41,7 @@ public class StructuringService {
     private static final int MAX_SOL = 500;
     private static final int MAX_STATES = 100;
     private static final int MAX_MINUTES = 2;
-
+    private final DiagramHandler diagramHandler;
     private String policy;
     private int maxDepth;
     private int maxSolutions;
@@ -53,10 +52,7 @@ public class StructuringService {
     private boolean keepBisimulation;
     private boolean forceStructuring;
     private boolean removeClones;
-
     private BPMNDiagram diagram;        //initial diagram
-    private DiagramHandler diagramHandler;
-
     private Set<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> unmappableEdges;
     private Set<BPMNNode> unmappableNodes;
     private Map<String, BPMNNode> originalNodes;
@@ -658,8 +654,8 @@ public class StructuringService {
             if (blackList.containsKey(srcID) || blackList.containsKey(tgtID) ||
                     whiteList.containsKey(srcID) || whiteList.containsKey(tgtID)) continue;
 
-            if (unmappableNodes.contains(src)) unmappableNodes.remove(src);
-            if (unmappableNodes.contains(tgt)) unmappableNodes.remove(tgt);
+            unmappableNodes.remove(src);
+            unmappableNodes.remove(tgt);
 
             if (e instanceof MessageFlow) diagram.addMessageFlow(src, tgt, (Swimlane) null, e.getLabel());
             else if (e instanceof Flow) diagram.addFlow(src, tgt, e.getLabel());

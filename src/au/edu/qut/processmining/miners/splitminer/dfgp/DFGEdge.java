@@ -59,8 +59,9 @@ public class DFGEdge extends LogEdge {
 
     public int getFrequency(){ return frequency; }
 
-    public void setLoop(boolean isLoop) { this.isLoop = isLoop; }
     public boolean isLoop() { return isLoop; }
+
+    public void setLoop(boolean isLoop) { this.isLoop = isLoop; }
 
     @Override
     public String toString() { return Integer.toString(frequency); }

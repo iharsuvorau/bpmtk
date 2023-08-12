@@ -21,7 +21,6 @@
 package au.edu.qut.bpmn.structuring.core;
 
 import au.edu.qut.bpmn.structuring.graph.Graph;
-
 import java.util.*;
 
 /**
@@ -31,17 +30,15 @@ import java.util.*;
 public class Structurer {
 
     /* */
-    private StructuringCore.Policy policy;
-    private int maxDepth;
+    private final StructuringCore.Policy policy;
+    private final int maxDepth;
+    private final int maxStates;
+    private final int maxChildren;
+    private final boolean timeBounded;
+    private final long timeBound;
+    private final boolean stop;
     private int maxSol;
-    private int maxStates;
-    private int maxChildren;
-    private boolean timeBounded;
     private long startingTime;
-    private long timeBound;
-
-    private boolean stop;
-
     private StructuringState iState;
     private HashSet<StructuringState> solutions;
     private HashSet<StructuringState> zombies;
@@ -55,7 +52,7 @@ public class Structurer {
         this.maxStates = maxStates;
         this.timeBounded = timeBounded;
 
-        timeBound = 60000 * maxMinutes;
+        timeBound = 60000L * maxMinutes;
         stop = false;
     }
 
@@ -257,14 +254,13 @@ public class Structurer {
 
             default:
                 System.out.println("ERROR - wrong policy.");
-                return;
         }
     }
 
 
     private class SmartQueue {
+        private final int maxStates;
         HashMap<Integer, PriorityQueue<StructuringState>> states;
-        private int maxStates;
         private int size;
 
         SmartQueue(int maxStates) {

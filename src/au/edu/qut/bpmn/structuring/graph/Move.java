@@ -25,13 +25,10 @@ package au.edu.qut.bpmn.structuring.graph;
  */
 public class Move {
 
-    public enum MoveType {PULLUP, PUSHDOWN}
-
+    private final MoveType type;
+    private final int toExtend;
+    private final int extension;
     private int cost;
-    private MoveType type;
-    private int toExtend;
-    private int extension;
-
     public Move(int toExtend, int extension, MoveType type) {
         this.toExtend = toExtend;
         this.extension = extension;
@@ -39,13 +36,16 @@ public class Move {
         cost = Integer.MAX_VALUE;
     }
 
+    public int getCost() { return cost; }
+
     public void setCost(int cost) { this.cost = cost; }
 
-    public int getCost() { return cost; }
     public MoveType getType() { return type; }
 
     public int getExtension() { return extension; }
+
     public int getToExtend() { return toExtend; }
+    public enum MoveType {PULLUP, PUSHDOWN}
 
 
 }

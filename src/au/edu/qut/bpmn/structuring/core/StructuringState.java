@@ -22,18 +22,17 @@ package au.edu.qut.bpmn.structuring.core;
 
 import au.edu.qut.bpmn.structuring.graph.Graph;
 import au.edu.qut.bpmn.structuring.graph.Move;
-
 import java.util.*;
 
 /**
  * Created by Adriano on 29/02/2016.
  */
 public class StructuringState implements Comparable<StructuringState> {
-    private Graph rigid;
-    private int cost;
+    private final Graph rigid;
+    private final int cost;
+    private final boolean fake;
     private boolean solved;
     private boolean dead;
-    private boolean fake;
     private boolean valid;
     private boolean jsWarning;
 

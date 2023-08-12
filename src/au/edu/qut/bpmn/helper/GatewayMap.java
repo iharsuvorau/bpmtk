@@ -21,6 +21,7 @@
 package au.edu.qut.bpmn.helper;
 
 import ee.ut.comptech.DominatorTree;
+import java.util.*;
 import org.eclipse.collections.impl.set.mutable.primitive.IntHashSet;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
@@ -29,12 +30,12 @@ import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.bpmn.elements.Flow;
 import org.processmining.models.graphbased.directed.bpmn.elements.Gateway;
 
-import java.util.*;
-
 /**
  * Created by Adriano on 28/11/2016.
  */
 public class GatewayMap {
+    private final Set<Gateway> bondsEntries;
+    private final boolean applyHagen;
     HashMap<Gateway, Integer> gatesDepth;
     //    flows and gates IDs
     private int FID;
@@ -61,10 +62,6 @@ public class GatewayMap {
     private IORsHierarchy iorsHierarchy;
     private HashSet<Gateway> loopJoins;
     private DominatorTree domTree;
-
-    private Set<Gateway> bondsEntries;
-    private boolean applyHagen;
-
     private HashMap<Gateway, HashSet<GatewayMapFlow>> loopANDs;
 
 
@@ -419,7 +416,10 @@ public class GatewayMap {
         }
 
         visiting.remove(entry);
-        for (GatewayMapFlow iflow : incomings.get(entry)) if (!visitedEdges.contains(iflow)) visited = false;
+        for (GatewayMapFlow iflow : incomings.get(entry)) if (!visitedEdges.contains(iflow)) {
+            visited = false;
+            break;
+        }
         if (visited) visitedGates.put(entry, (loopEdge && !forwardEdge));
         else unvisited.add(entry);
 
@@ -1046,7 +1046,7 @@ public class GatewayMap {
 //    supporting private classes
 
     private void debug(String s) {
-        if (s.contains("DEBUG") && false) System.out.println(s);
+        if (false) System.out.println(s);
         else System.out.println(s);
     }
 

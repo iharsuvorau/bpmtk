@@ -52,16 +52,20 @@ public class LogEdge implements Comparable {
 
     public String getID() { return id; }
 
-    public void setLabel(String label) { this.label = label; }
     public String getLabel() { return label; }
 
-    public void setSource(LogNode source){ this.source = source; }
+    public void setLabel(String label) { this.label = label; }
+
     public LogNode getSource(){ return source; }
+
+    public void setSource(LogNode source){ this.source = source; }
+
     public int getSourceCode() { return source.getCode(); }
 
+    public LogNode getTarget(){ return target; }
 
     public void setTarget(LogNode target) { this.target = target; }
-    public LogNode getTarget(){ return target; }
+
     public int getTargetCode() { return target.getCode(); }
 
     @Override

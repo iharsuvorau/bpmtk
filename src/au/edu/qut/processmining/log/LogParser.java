@@ -20,15 +20,14 @@
 
 package au.edu.qut.processmining.log;
 
-import org.deckfour.xes.classification.XEventClassifier;
-import org.deckfour.xes.model.XEvent;
-import org.deckfour.xes.model.XLog;
-import org.deckfour.xes.model.XTrace;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import org.deckfour.xes.classification.XEventClassifier;
+import org.deckfour.xes.model.XEvent;
+import org.deckfour.xes.model.XLog;
+import org.deckfour.xes.model.XTrace;
 
 /**
  * Created by Adriano on 14/06/2016.
@@ -208,7 +207,7 @@ public class LogParser {
             traceSize = trace.size();
 
             oldTotalEvents = totalEvents;
-            sTrace = "::" + Integer.toString(STARTCODE) + ":";
+            sTrace = "::" + STARTCODE + ":";
             for( eIndex = 0; eIndex < traceSize; eIndex++ ) {
                 totalEvents++;
                 event = trace.get(eIndex);
@@ -216,7 +215,7 @@ public class LogParser {
                 sTrace += ":" + labelsToIDs.get(label).toString() + ":";
                 executed.add(labelsToIDs.get(label));
             }
-            sTrace += ":" + Integer.toString(ENDCODE) + "::";
+            sTrace += ":" + ENDCODE + "::";
 
             traceLength = totalEvents - oldTotalEvents;
             if( longestTrace < traceLength ) longestTrace = traceLength;
@@ -253,36 +252,6 @@ public class LogParser {
         sLog.setShortestTrace(shortestTrace);
         sLog.setLongestTrace(longestTrace);
 
-        return sLog;
-    }
-
-    public SimpleLog getSimpleLog(XLog log, XEventClassifier xEventClassifier, double percentage) {
-        SimpleLog sLog = getSimpleLog(log, xEventClassifier);
-        Map<String, Integer> traces = sLog.getTraces();
-
-        TracesComparator tracesComparator = new TracesComparator(traces);
-        TreeMap<String, Integer> sortedTraces = new TreeMap(tracesComparator);
-        sortedTraces.putAll(traces);
-
-        int maxTraces = (int) (sLog.size() * percentage);
-        int parsed = 0;
-        int leastFrequent = 0;
-
-        for( String trace : sortedTraces.keySet() ) {
-            if( parsed < maxTraces ) {
-//                System.out.println("DEBUG - trace, frequency: " + trace + "," + traces.get(trace) );
-                parsed += traces.get(trace);
-                leastFrequent = traces.get(trace);
-            } else sLog.getTraces().remove(trace);
-        }
-
-//        System.out.println("DEBUG - log size: " + sLog.size());
-        System.out.println("INFO - log parsed at " + percentage*100 + "%");
-//        System.out.println("DEBUG - to parse: " + maxTraces);
-//        System.out.println("DEBUG - parsed: " + parsed);
-//        System.out.println("DEBUG - min frequency: " + leastFrequent);
-
-        sLog.setSize(parsed);
         return sLog;
     }
 
@@ -417,7 +386,7 @@ public class LogParser {
 
             oldTotalEvents = totalEvents;
 
-            sTrace = "::" + Integer.toString(STARTCODE) + ":";
+            sTrace = "::" + STARTCODE + ":";
             lastComplete = STARTCODE;
             executing = new HashSet<>();
             executed = new HashSet<>();
@@ -444,7 +413,7 @@ public class LogParser {
 
                 if(event.getAttributes().get("lifecycle:transition").toString().equalsIgnoreCase("COMPLETE")) {
                     completeEvents++;
-                    if( executing.contains(LID) ) executing.remove(LID);
+                    executing.remove(LID);
 //                    else dfg[lastComplete*totalActivities + LID]++;
                     dfg[lastComplete*totalActivities + LID]++;
                     lastComplete = LID;
@@ -517,6 +486,36 @@ public class LogParser {
         sLog.setTotalEvents(totalEvents);
         sLog.setShortestTrace(shortestTrace);
         sLog.setLongestTrace(longestTrace);
+        return sLog;
+    }
+
+    public SimpleLog getSimpleLog(XLog log, XEventClassifier xEventClassifier, double percentage) {
+        SimpleLog sLog = getSimpleLog(log, xEventClassifier);
+        Map<String, Integer> traces = sLog.getTraces();
+
+        TracesComparator tracesComparator = new TracesComparator(traces);
+        TreeMap<String, Integer> sortedTraces = new TreeMap(tracesComparator);
+        sortedTraces.putAll(traces);
+
+        int maxTraces = (int) (sLog.size() * percentage);
+        int parsed = 0;
+        int leastFrequent = 0;
+
+        for( String trace : sortedTraces.keySet() ) {
+            if( parsed < maxTraces ) {
+//                System.out.println("DEBUG - trace, frequency: " + trace + "," + traces.get(trace) );
+                parsed += traces.get(trace);
+                leastFrequent = traces.get(trace);
+            } else sLog.getTraces().remove(trace);
+        }
+
+//        System.out.println("DEBUG - log size: " + sLog.size());
+        System.out.println("INFO - log parsed at " + percentage*100 + "%");
+//        System.out.println("DEBUG - to parse: " + maxTraces);
+//        System.out.println("DEBUG - parsed: " + parsed);
+//        System.out.println("DEBUG - min frequency: " + leastFrequent);
+
+        sLog.setSize(parsed);
         return sLog;
     }
 

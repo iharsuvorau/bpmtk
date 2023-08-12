@@ -24,13 +24,12 @@ import au.edu.qut.bpmn.helper.DiagramHandler;
 import au.edu.qut.bpmn.structuring.core.StructuringCore;
 import au.edu.qut.bpmn.structuring.graph.Graph;
 import au.edu.qut.bpmn.structuring.graph.Path;
+import java.util.*;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.bpmn.elements.Flow;
 import org.processmining.models.graphbased.directed.bpmn.elements.Gateway;
-
-import java.util.*;
 
 /**
  * Created by Adriano on 18/02/2016.
@@ -39,21 +38,18 @@ public class iBPStruct {
 //    private static final Logger LOGGER = LoggerFactory.getLogger(iBPStruct.class);
 
 
+    private final StructuringCore.Policy policy;
+    private final int maxDepth;
+    private final int maxSol;
+    private final int maxChildren;
+    private final int maxStates;
+    private final int maxMinutes;
+    private final boolean timeBounded;
+    private final boolean keepBisimulation;
+    private final DiagramHandler diagramHandler;
     /* class' support data structs */
     private boolean isValid;
-    private StructuringCore.Policy policy;
-    private int maxDepth;
-    private int maxSol;
-    private int maxChildren;
-    private int maxStates;
-    private int maxMinutes;
-    private boolean timeBounded;
-    private boolean keepBisimulation;
     private int g = 0;
-
-    private DiagramHandler diagramHandler;
-
-
     /* setup and rebuild data structs */
     private Map<String, BPMNNode> nodes;
     private Map<String, Gateway.GatewayType> gateways;

@@ -1,5 +1,7 @@
 package au.edu.unimelb.processmining.accuracy.abstraction;
 
+import static au.edu.unimelb.processmining.accuracy.abstraction.subtrace.Subtrace.INIT;
+
 import au.edu.unimelb.processmining.accuracy.abstraction.intermediate.AAEdge;
 import au.edu.unimelb.processmining.accuracy.abstraction.intermediate.AANode;
 import au.edu.unimelb.processmining.accuracy.abstraction.intermediate.AutomatonAbstraction;
@@ -7,11 +9,7 @@ import au.edu.unimelb.processmining.accuracy.abstraction.set.SetAbstraction;
 import au.edu.unimelb.processmining.accuracy.abstraction.set.SetLabel;
 import au.edu.unimelb.processmining.accuracy.abstraction.subtrace.Subtrace;
 import au.edu.unimelb.processmining.accuracy.abstraction.subtrace.SubtraceAbstraction;
-
 import java.util.*;
-
-import static au.edu.unimelb.processmining.accuracy.abstraction.subtrace.Subtrace.INIT;
-
 
 /**
  * Created by Adriano on 23/01/18.

@@ -4,32 +4,25 @@ import au.edu.qut.processmining.log.LogParser;
 import au.edu.qut.processmining.log.SimpleLog;
 import au.edu.qut.processmining.miners.splitminer.dfgp.DFGEdge;
 import au.edu.qut.processmining.miners.splitminer.dfgp.DirectlyFollowGraphPlus;
+import java.util.*;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.bpmn.elements.Event;
 
-import java.util.*;
-
 public class SimpleDirectlyFollowGraph extends DirectlyFollowGraphPlus {
 
-    public enum PERTYPE {FIT, PREC};
-
-    private static Random random = new Random(1);
-
-    private SimpleLog slog;
-    private int startcode;
-    private int endcode;
-
+    private static final Random random = new Random(1);
+    private final SimpleLog slog;
+    private final int startcode;
+    private final int endcode;
+    private final Set<Integer> loopsL1;
+    private final BitSet dfg;
+    private final Integer[] outgoings;
+    private final Integer[] incomings;
+    private final int size;
     private Map<Integer, HashSet<Integer>> parallelisms;
-    private Set<Integer> loopsL1;
     private Set<Integer> tabu;
-
-    private BitSet dfg;
-    private Integer[] outgoings;
-    private Integer[] incomings;
-    private int size;
-
     public SimpleDirectlyFollowGraph(SimpleDirectlyFollowGraph sdfg) {
         this.slog = sdfg.slog;
         this.startcode = sdfg.startcode;
@@ -117,6 +110,7 @@ public class SimpleDirectlyFollowGraph extends DirectlyFollowGraphPlus {
     }
 
     public Set<Integer> getTabuSet() { return this.tabu; }
+
     public void setTabuSet(Set<Integer> tabu) { this.tabu = new HashSet<>(tabu); }
 
     public void setParallelisms(Map<Integer, HashSet<Integer>> parallelisms) { this.parallelisms = parallelisms; }
@@ -200,7 +194,7 @@ public class SimpleDirectlyFollowGraph extends DirectlyFollowGraphPlus {
         }
 
         if( !trace.hasMoreTokens() ) {
-            if( enhancement == strength ) return new String();
+            if( enhancement == strength ) return "";
             else return null;
         }
 
@@ -232,7 +226,7 @@ public class SimpleDirectlyFollowGraph extends DirectlyFollowGraphPlus {
 
 
         if( !trace.hasMoreTokens() ) {
-            if( reduction == strength ) return new String();
+            if( reduction == strength ) return "";
             else return null;
         }
 
@@ -282,7 +276,7 @@ public class SimpleDirectlyFollowGraph extends DirectlyFollowGraphPlus {
                 }
                 break;
         }
-        System.out.println("DEBUG - attempts(" + pertype.toString() + ") & perturbations(left): " + attempts + " & " + perturbations);
+        System.out.println("DEBUG - attempts(" + pertype + ") & perturbations(left): " + attempts + " & " + perturbations);
     }
 
     private boolean isAddable(int src, int tgt) {
@@ -294,7 +288,6 @@ public class SimpleDirectlyFollowGraph extends DirectlyFollowGraphPlus {
         }
         return (src != tgt) && (src != (size-1)) && (tgt != 0);// && !areConcurrent(src, tgt) ;
     }
-
 
     private boolean isRemovable(int src, int tgt) {
         return outgoings[src] > 1 && incomings[tgt] > 1 && !tabu.contains(src*size+tgt) ;
@@ -391,5 +384,7 @@ public class SimpleDirectlyFollowGraph extends DirectlyFollowGraphPlus {
             return dfg.equals(((SimpleDirectlyFollowGraph) o).dfg);
         else return false;
     }
+
+    public enum PERTYPE {FIT, PREC}
 
 }

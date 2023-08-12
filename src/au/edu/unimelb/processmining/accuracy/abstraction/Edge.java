@@ -6,8 +6,9 @@ import java.util.Objects;
  * Created by Adriano on 23/01/18.
  */
 public class Edge implements Comparable<Edge> {
-    private String src, tgt;
-    private String label;
+    private final String src;
+    private final String tgt;
+    private final String label;
 
     public Edge(String src, String tgt) {
         this.src = src;

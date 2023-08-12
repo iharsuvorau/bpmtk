@@ -2,6 +2,9 @@ package au.edu.unimelb.processmining.optimization;
 
 import au.edu.qut.bpmn.helper.DiagramHandler;
 import au.edu.qut.bpmn.helper.Petrinet2BPMNConverter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.processmining.acceptingpetrinet.models.AcceptingPetriNet;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
@@ -16,11 +19,6 @@ import org.processmining.plugins.InductiveMiner.efficienttree.UnknownTreeNodeExc
 import org.processmining.plugins.inductiveminer2.withoutlog.MiningParametersWithoutLog;
 import org.processmining.plugins.inductiveminer2.withoutlog.dfgmsd.DfgMsdImpl;
 import org.processmining.plugins.inductiveminer2.withoutlog.variants.MiningParametersIMWithoutLog;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 
 public class IMdProxy {
 

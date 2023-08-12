@@ -4,12 +4,11 @@ import au.edu.qut.processmining.log.SimpleLog;
 import au.edu.qut.processmining.miners.splitminer.SplitMiner;
 import au.edu.qut.processmining.miners.splitminer.dfgp.DirectlyFollowGraphPlus;
 import au.edu.qut.processmining.miners.splitminer.ui.dfgp.DFGPUIResult;
+import java.util.ArrayList;
+import java.util.Random;
 import org.processmining.fodina.Fodina;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.plugins.bpmnminer.types.MinerSettings;
-
-import java.util.ArrayList;
-import java.util.Random;
 
 public class MinerProxy {
 

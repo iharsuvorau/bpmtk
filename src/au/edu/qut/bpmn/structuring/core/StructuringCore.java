@@ -24,7 +24,6 @@ package au.edu.qut.bpmn.structuring.core;
 //import org.slf4j.LoggerFactory;
 
 import au.edu.qut.bpmn.structuring.graph.Graph;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,19 +33,15 @@ import java.util.Set;
 public class StructuringCore {
 //    private static final Logger LOGGER = LoggerFactory.getLogger(StructuringCore.class);
 
-    public enum Policy {DEPTH, ASTAR, LIM_ASTAR, BREADTH, LIM_DEPTH}
-
-    private Policy policy;
-    private int maxDepth;
-    private int maxSol;
-    private int maxChildren;
-    private int maxStates;
-    private int maxMinutes;
-    private boolean timeBounded;
-
+    private final Policy policy;
+    private final int maxDepth;
+    private final int maxSol;
+    private final int maxChildren;
+    private final int maxStates;
+    private final int maxMinutes;
+    private final boolean timeBounded;
     private Set<Graph> structuredRigids;
     private Structurer structurer;
-
     public StructuringCore(Policy policy, int maxDepth, int maxSol, int maxChildren, int maxStates, int maxMinutes, boolean timeBounded) {
         this.policy = policy;
         this.maxDepth = maxDepth;
@@ -63,5 +58,7 @@ public class StructuringCore {
         for( Graph g : rigids ) structuredRigids.add(structurer.getStructuredRigid(new StructuringState(g, 0)));
         return structuredRigids;
     }
+
+    public enum Policy {DEPTH, ASTAR, LIM_ASTAR, BREADTH, LIM_DEPTH}
 
 }

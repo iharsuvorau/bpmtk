@@ -1,8 +1,7 @@
 package au.edu.qut.processmining.log;
 
-import org.deckfour.xes.model.XLog;
-
 import java.util.Map;
+import org.deckfour.xes.model.XLog;
 
 public class ComplexLog extends SimpleLog {
 

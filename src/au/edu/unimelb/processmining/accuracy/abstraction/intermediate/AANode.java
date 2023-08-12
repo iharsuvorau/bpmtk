@@ -1,17 +1,16 @@
 package au.edu.unimelb.processmining.accuracy.abstraction.intermediate;
 
 import au.edu.unimelb.processmining.accuracy.abstraction.subtrace.Subtrace;
-
 import java.util.*;
 
 /**
  * Created by Adriano on 24/01/18.
  */
 public class AANode {
-    private int id;
-    private Set<String> labels;
-    private Set<Subtrace> subtraces;
-    private String name;
+    private final int id;
+    private final Set<String> labels;
+    private final Set<Subtrace> subtraces;
+    private final String name;
 
     public AANode(int id) {
         this.id = id;

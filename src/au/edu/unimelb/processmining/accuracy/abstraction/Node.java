@@ -4,7 +4,7 @@ package au.edu.unimelb.processmining.accuracy.abstraction;
  * Created by Adriano on 23/01/18.
  */
 public class Node {
-    private String label;
+    private final String label;
 
     public Node(String label) {
         this.label = label;

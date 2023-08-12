@@ -38,6 +38,7 @@ import de.hpi.bpt.graph.algo.rpst.RPST;
 import de.hpi.bpt.graph.algo.rpst.RPSTNode;
 import de.hpi.bpt.graph.algo.tctree.TCType;
 import de.hpi.bpt.hypergraph.abs.Vertex;
+import java.util.*;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.model.XLog;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
@@ -45,8 +46,6 @@ import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
 import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.bpmn.elements.*;
-
-import java.util.*;
 
 /**
  * Created by Adriano on 24/10/2016.

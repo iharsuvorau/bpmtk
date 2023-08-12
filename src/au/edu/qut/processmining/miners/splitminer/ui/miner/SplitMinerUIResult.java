@@ -8,9 +8,9 @@ import au.edu.qut.processmining.miners.splitminer.ui.dfgp.DFGPUIResult;
 public class SplitMinerUIResult extends DFGPUIResult {
 
     public static final StructuringTime STRUCT_POLICY = StructuringTime.NONE;
-    private boolean replaceIORs;
-    private boolean removeLoopActivities;
-    private StructuringTime structuringTime;
+    private final boolean replaceIORs;
+    private final boolean removeLoopActivities;
+    private final StructuringTime structuringTime;
 
     public SplitMinerUIResult() {
         structuringTime = STRUCT_POLICY;

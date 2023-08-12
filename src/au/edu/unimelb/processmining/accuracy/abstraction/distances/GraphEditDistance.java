@@ -2,9 +2,7 @@ package au.edu.unimelb.processmining.accuracy.abstraction.distances;
 
 import au.edu.unimelb.processmining.accuracy.abstraction.Edge;
 import au.edu.unimelb.processmining.accuracy.abstraction.subtrace.Subtrace;
-
 import java.util.*;
-
 
 /**
  * Created by Adriano on 09/02/18.

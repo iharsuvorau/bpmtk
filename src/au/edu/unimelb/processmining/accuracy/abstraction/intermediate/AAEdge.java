@@ -6,7 +6,7 @@ import static au.edu.unimelb.processmining.accuracy.abstraction.intermediate.Aut
  * Created by Adriano on 24/01/18.
  */
 public class AAEdge {
-    private int id;
+    private final int id;
     protected int EID;
     protected AANode src, tgt;
     protected String label;

@@ -8,12 +8,11 @@ package au.edu.unimelb.processmining.accuracy.abstraction.markovian;
  * Created by Adriano on 24/01/18.
  */
 public class MarkovLabel {
-    private Integer[] label;
-    private int order;
-    private int i;
-//    private int last;
-
     public final static int INIT = 0;
+    private final Integer[] label;
+    private final int order;
+//    private int last;
+    private int i;
 
     public MarkovLabel(int order) {
         this.order = order;
@@ -26,7 +25,7 @@ public class MarkovLabel {
     public MarkovLabel(MarkovLabel label) {
         this.order = label.order;
         this.label = new Integer[order];
-        for(i = 0; i < order; i++) this.label[i] = new Integer(label.label[i]);
+        for(i = 0; i < order; i++) this.label[i] = label.label[i];
         this.i = label.i;
 //            this.last = label.last;
     }
@@ -34,7 +33,7 @@ public class MarkovLabel {
     public MarkovLabel(MarkovLabel label, int next) {
         this.order = label.order;
         this.label = new Integer[order];
-        for(i = 0; i < order; i++) this.label[i] = new Integer(label.label[i]);
+        for(i = 0; i < order; i++) this.label[i] = label.label[i];
         this.i = label.i;
 //            this.last = label.last;
         add(next);

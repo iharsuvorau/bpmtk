@@ -1,17 +1,16 @@
 package au.edu.unimelb.processmining.accuracy.abstraction;
 
+import static au.edu.unimelb.processmining.accuracy.abstraction.subtrace.Subtrace.INIT;
+
 import au.edu.qut.processmining.log.SimpleLog;
-import au.edu.unimelb.processmining.accuracy.abstraction.markovian.MarkovLabel;
 import au.edu.unimelb.processmining.accuracy.abstraction.markovian.MarkovAbstraction;
+import au.edu.unimelb.processmining.accuracy.abstraction.markovian.MarkovLabel;
 import au.edu.unimelb.processmining.accuracy.abstraction.set.SetAbstraction;
 import au.edu.unimelb.processmining.accuracy.abstraction.set.SetLabel;
 import au.edu.unimelb.processmining.accuracy.abstraction.subtrace.Subtrace;
 import au.edu.unimelb.processmining.accuracy.abstraction.subtrace.SubtraceAbstraction;
-
 import java.util.Map;
 import java.util.StringTokenizer;
-
-import static au.edu.unimelb.processmining.accuracy.abstraction.subtrace.Subtrace.INIT;
 
 /**
  * Created by Adriano on 23/01/18.

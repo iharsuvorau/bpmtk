@@ -27,9 +27,8 @@ import de.hpi.bpt.graph.algo.rpst.RPST;
 import de.hpi.bpt.graph.algo.rpst.RPSTNode;
 import de.hpi.bpt.hypergraph.abs.IVertex;
 import de.hpi.bpt.hypergraph.abs.Vertex;
-import org.processmining.models.graphbased.directed.bpmn.elements.Gateway;
-
 import java.util.*;
+import org.processmining.models.graphbased.directed.bpmn.elements.Gateway;
 
 /**
  * Created by Adriano on 28/02/2016.
@@ -39,19 +38,19 @@ public class Graph {
 
     final static boolean jsLimitation = true;
     private static final int PID_RANGE = 10000;
+    private final Map<String, Gateway.GatewayType> gateways;
+    private final Map<Integer, Path> allPaths;        //path history
+    private final Set<Integer> alivePaths;            //current alive and valid paths of the model
+    private final Map<String, List<Integer>> incoming; //incoming edges to a gateways
+    private final Map<String, List<Integer>> outgoing; //outgoing edges from a gateways
+    private final Map<String, Map<String, List<Integer>>> brothers;    //brothers matrix
+    private final boolean valid;
     private String entry;
     private String exit;
-    private Map<String, Gateway.GatewayType> gateways;
-    private Map<Integer, Path> allPaths;        //path history
-    private Set<Integer> alivePaths;            //current alive and valid paths of the model
-    private Map<String, List<Integer>> incoming; //incoming edges to a gateways
-    private Map<String, List<Integer>> outgoing; //outgoing edges from a gateways
-    private Map<String, Map<String, List<Integer>>> brothers;    //brothers matrix
     private Set<Graph> subgraphs;
     private int PID;
     private int move;
     private boolean jsWarning;
-    private boolean valid;
     private boolean keepBisimulation;
 
 
@@ -83,8 +82,8 @@ public class Graph {
 
         brothers = new HashMap<>();
 
-        this.entry = new String(entry);
-        this.exit = new String(exit);
+        this.entry = entry;
+        this.exit = exit;
 
         /* this is for sake of completeness */
         incoming.put(this.entry, new ArrayList<>()); //this set will remain always empty, no incoming path to the main entry
@@ -98,8 +97,8 @@ public class Graph {
     }
 
     public Graph(Graph mould) {
-        this.entry = new String(mould.getEntry());
-        this.exit = new String(mould.getExit());
+        this.entry = mould.getEntry();
+        this.exit = mould.getExit();
 
         allPaths = new HashMap<>();
         for (int pid : mould.allPaths.keySet()) allPaths.put(pid, new Path(pid, mould.allPaths.get(pid)));
@@ -199,7 +198,10 @@ public class Graph {
         }
 
         visiting.remove(entry);
-        for (int pid : incoming.get(entry)) if (!visitedEdges.contains(pid)) visited = false;
+        for (int pid : incoming.get(entry)) if (!visitedEdges.contains(pid)) {
+            visited = false;
+            break;
+        }
         if (visited) visitedGates.put(entry, (loopEdge && !forwardEdge));
         else unvisited.add(entry);
 

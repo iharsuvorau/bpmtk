@@ -10,18 +10,17 @@ import com.raffaeleconforti.conversion.bpmn.BPMNToPetriNetConverter;
 import com.raffaeleconforti.conversion.petrinet.PetriNetToBPMNConverter;
 import de.drscc.automaton.Automaton;
 import de.drscc.importer.ImportProcessModel;
+import java.util.*;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.semantics.petrinet.Marking;
 
-import java.util.*;
-
 public class SubtraceAbstraction extends Abstraction {
 
+    private final Map<String, Subtrace> subtraces;
+    private final int order;
     Random random;
-    private Map<String, Subtrace> subtraces;
     private ArrayList<String> differences;
-    private int order;
     private double globalGramsCount;
     private ConfusionMatrix matrix;
 
@@ -62,7 +61,7 @@ public class SubtraceAbstraction extends Abstraction {
 
     public void addSubtrace(Subtrace subtrace, int frequency) {
         if (!subtrace.isPrintable()) return;
-        globalGramsCount += (double) frequency;
+        globalGramsCount += frequency;
 
         if (subtraces.containsKey(subtrace.print())) subtraces.get(subtrace.print()).frequency += frequency;
         else {
