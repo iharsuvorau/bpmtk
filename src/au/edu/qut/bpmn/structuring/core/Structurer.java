@@ -68,8 +68,8 @@ public class Structurer {
 
         this.structure();
 
-        if( solutions.isEmpty() ) {
-            if( zombies.isEmpty() ) {
+        if (solutions.isEmpty()) {
+            if (zombies.isEmpty()) {
                 System.out.println("WARNING - no solutions found, returning the initial rigid.");
                 return iState.getGraph();
             }
@@ -95,28 +95,28 @@ public class Structurer {
         int c = 0;
         int depth = 0;
 
-        switch( policy ) {
+        switch (policy) {
             case DEPTH:
                 tmpChildren = new ArrayList<>();
                 toVisit = new LinkedList<>();
                 toVisit.addFirst(iState);
-                while( (toVisit.size() != 0) ) {
+                while ((toVisit.size() != 0)) {
                     state = toVisit.removeFirst();
                     children = state.generateChildren();
                     //System.out.println("DEBUG - [structurer: DEPTH] generated.");
-                    while( (next = children.poll()) != null ) {
-                        if( next.isSolved() ) {
+                    while ((next = children.poll()) != null) {
+                        if (next.isSolved()) {
                             solutions.add(next);
                             return;
                         }
-                        if( next.isDead() ) {
+                        if (next.isDead()) {
                             zombies.add(next);
                         } else {
                             tmpChildren.add(0, next);
                         }
                     }
                     //System.out.println("DEBUG - [structurer: DEPTH] parsed.");
-                    while( !tmpChildren.isEmpty() ) toVisit.addFirst(tmpChildren.remove(0));
+                    while (!tmpChildren.isEmpty()) toVisit.addFirst(tmpChildren.remove(0));
                     //System.out.println("DEBUG - [structurer: DEPTH] state(" + toVisit.size() + ")");
                 }
 
@@ -124,18 +124,18 @@ public class Structurer {
                 toVisit = new LinkedList<>();
                 toVisit.addFirst(iState);
                 toVisit.addLast(new StructuringState());
-                while( !toVisit.isEmpty() && (depth <= maxDepth) && (solutions.size() <= maxSol) ) {
+                while (!toVisit.isEmpty() && (depth <= maxDepth) && (solutions.size() <= maxSol)) {
                     state = toVisit.removeFirst();
-                    if( state.isFake() ) {
+                    if (state.isFake()) {
                         //this is to keep track of the depth in the breadth-first algorithm
                         depth++;
                         toVisit.addLast(new StructuringState());
                         continue;
                     }
                     children = state.generateChildren();
-                    while( (next = children.poll()) != null ) {
-                        if( next.isSolved() )  solutions.add(next);
-                        else if( next.isDead() ) zombies.add(next);
+                    while ((next = children.poll()) != null) {
+                        if (next.isSolved()) solutions.add(next);
+                        else if (next.isDead()) zombies.add(next);
                         else toVisit.addLast(next);
                     }
                     //System.out.println("DEBUG - [structurer: BREADTH] state(" + depth + ")(" + solutions.size() + ")(" + zombies.size() + ")");
@@ -146,8 +146,8 @@ public class Structurer {
                 startingTime = System.currentTimeMillis();
                 toVisitSorted = new PriorityQueue<>();
                 toVisitSorted.add(iState);
-                while( true ) {
-                    if( toVisitSorted.isEmpty() ) {
+                while (true) {
+                    if (toVisitSorted.isEmpty()) {
 //                        if( solutions.isEmpty() && !stop) {
 //                            for(StructuringState ss : zombies) ss.getGraph().enablePullUp();
 //                            timeBound = timeBound*2;
@@ -156,81 +156,81 @@ public class Structurer {
                         return;
                     }
                     state = toVisitSorted.poll();
-                    if( state.isSolved() ) {
+                    if (state.isSolved()) {
                         solutions.add(state);
                         return;
                     }
-                    if( state.isDead() ) {
+                    if (state.isDead()) {
                         zombies.add(state);
                         continue;
                     }
                     children = state.generateChildren();
-                    while( (next = children.poll()) != null ) {
+                    while ((next = children.poll()) != null) {
                         toVisitSorted.add(next);
-                        if( next.isSolved() ) solutions.add(next);
-                        if( next.isDead() ) zombies.add(next);
+                        if (next.isSolved()) solutions.add(next);
+                        if (next.isDead()) zombies.add(next);
                     }
                     //System.out.println("DEBUG - [structurer: A*] state(" + toVisitSorted.size() + ")");
-                    if( timeBounded )
-                        if( (System.currentTimeMillis() - startingTime) > timeBound ) {
+                    if (timeBounded)
+                        if ((System.currentTimeMillis() - startingTime) > timeBound) {
                             System.out.println("DEBUG - [structurer: A*] found " + solutions.size() + " solutions. Switching policy to LIMITED A*");
                             break;
                         }
                 }
 
             case LIM_ASTAR:
-                if( toVisitSorted == null  || toVisitSorted.isEmpty() ) toVisitSorted.add(iState);
-                if( timeBounded ) {
+                if (toVisitSorted == null || toVisitSorted.isEmpty()) toVisitSorted.add(iState);
+                if (timeBounded) {
                     System.out.println("DEBUG - [structurer: LIMITED A*] switched policy!");
                     startingTime = System.currentTimeMillis();
                 }
                 maxSol += solutions.size();
                 toVisitQuick = new SmartQueue(maxStates);
-                for( StructuringState ss : toVisitSorted ) toVisitQuick.add(ss);
-                while( true ) {
-                    if( toVisitQuick.isEmpty() || (solutions.size() > maxSol) ) return;
+                for (StructuringState ss : toVisitSorted) toVisitQuick.add(ss);
+                while (true) {
+                    if (toVisitQuick.isEmpty() || (solutions.size() > maxSol)) return;
                     c = 0;
                     state = toVisitQuick.poll();
-                    if( state.isSolved() ) {
+                    if (state.isSolved()) {
                         solutions.add(state);
                         return;
                     }
-                    if( state.isDead() ) {
+                    if (state.isDead()) {
                         zombies.add(state);
                         continue;
                     }
                     children = state.generateChildren();
-                    while( ((next = children.poll()) != null) && (c++ <= maxChildren) ) {
+                    while (((next = children.poll()) != null) && (c++ <= maxChildren)) {
                         toVisitQuick.add(next);
-                        if( next.isSolved() ) solutions.add(next);
+                        if (next.isSolved()) solutions.add(next);
                     }
                     //System.out.println("DEBUG - [structurer: LIMITED A*] state(" + toVisitQuick.size() + ")(" + toVisitQuick.minCost() + ")" + "(" +  toVisitQuick.maxCost() + ")" + "(" + solutions.size() + ")");
-                    if( (System.currentTimeMillis() - startingTime) > timeBound ) {
+                    if ((System.currentTimeMillis() - startingTime) > timeBound) {
                         System.out.println("DEBUG - [structurer: LIMITED A*] found " + solutions.size() + " solutions. Switching policy to LIMITED DEPTH");
                         break;
                     }
                 }
 
             case LIM_DEPTH:
-                if( timeBounded ) {
+                if (timeBounded) {
                     System.out.println("DEBUG - [structurer: LIMITED DEPTH] switched policy!");
                     startingTime = System.currentTimeMillis();
-                    if( toVisitQuick != null && !toVisitQuick.isEmpty() ) iState =  toVisitQuick.poll();
+                    if (toVisitQuick != null && !toVisitQuick.isEmpty()) iState = toVisitQuick.poll();
                 }
                 tmpChildren = new ArrayList<>();
                 toVisit = new LinkedList<>();
                 toVisit.addFirst(iState);
-                while( (toVisit.size() != 0) ) {
+                while ((toVisit.size() != 0)) {
                     c = 0;
                     state = toVisit.removeFirst();
                     children = state.generateChildren();
                     //System.out.println("DEBUG - [structurer: DEPTH] generated.");
-                    while( ((next = children.poll()) != null) && (c <= maxChildren)  ) {
-                        if( next.isSolved() ) {
+                    while (((next = children.poll()) != null) && (c <= maxChildren)) {
+                        if (next.isSolved()) {
                             solutions.add(next);
                             return;
                         }
-                        if( next.isDead() ) {
+                        if (next.isDead()) {
                             zombies.add(next);
                         } else {
                             c++;
@@ -238,9 +238,9 @@ public class Structurer {
                         }
                     }
                     //System.out.println("DEBUG - [structurer: DEPTH] parsed.");
-                    while( !tmpChildren.isEmpty() ) {
+                    while (!tmpChildren.isEmpty()) {
                         toVisit.addFirst(tmpChildren.get(0));
-                        if(tmpChildren.remove(0).getCost() == 0) {
+                        if (tmpChildren.remove(0).getCost() == 0) {
                             tmpChildren = new ArrayList<>();
 //                            System.out.println("DEBUG - [structurer: LIMITED DEPTH] move had cost 0.");
                             break;
@@ -248,7 +248,7 @@ public class Structurer {
                     }
                     //System.out.println("DEBUG - [structurer: DEPTH] state(" + toVisit.size() + ")");
 
-                    if( (System.currentTimeMillis() - startingTime) > timeBound ) {
+                    if ((System.currentTimeMillis() - startingTime) > timeBound) {
                         System.out.println("DEBUG - [structurer: LIMITED DEPTH] found no solutions. Returning best state reached.");
                         solutions.add(toVisit.removeFirst());
                         return;
@@ -267,7 +267,7 @@ public class Structurer {
         private int maxStates;
         private int size;
 
-        SmartQueue(int maxStates){
+        SmartQueue(int maxStates) {
             states = new HashMap<>();
             this.maxStates = maxStates;
         }
@@ -275,14 +275,14 @@ public class Structurer {
         void add(StructuringState s) {
             int cost = s.getCost();
 
-            if( !states.containsKey(cost) ) {
-                states.put(cost, new PriorityQueue<StructuringState>());
+            if (!states.containsKey(cost)) {
+                states.put(cost, new PriorityQueue<>());
                 states.get(cost).add(s);
                 size++;
                 return;
             }
 
-            if( states.get(cost).size() > maxStates ) return;
+            if (states.get(cost).size() > maxStates) return;
             else states.get(cost).add(s);
             size++;
         }
@@ -291,16 +291,27 @@ public class Structurer {
             int minCost = Collections.min(states.keySet());
             StructuringState best = states.get(minCost).poll();
 
-            if( states.get(minCost).isEmpty() ) states.remove(minCost);
+            if (states.get(minCost).isEmpty()) states.remove(minCost);
 
             size--;
             return best;
         }
 
-        boolean isEmpty() { return states.isEmpty(); }
-        int size() { return size; }
-        int minCost() { return Collections.min(states.keySet()); }
-        int maxCost() { return Collections.max(states.keySet()); }
+        boolean isEmpty() {
+            return states.isEmpty();
+        }
+
+        int size() {
+            return size;
+        }
+
+        int minCost() {
+            return Collections.min(states.keySet());
+        }
+
+        int maxCost() {
+            return Collections.max(states.keySet());
+        }
 
     }
 

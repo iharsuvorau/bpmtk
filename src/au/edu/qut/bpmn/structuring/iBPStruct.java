@@ -27,7 +27,8 @@ import au.edu.qut.bpmn.structuring.graph.Path;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
-import org.processmining.models.graphbased.directed.bpmn.elements.*;
+import org.processmining.models.graphbased.directed.bpmn.elements.Flow;
+import org.processmining.models.graphbased.directed.bpmn.elements.Gateway;
 
 import java.util.*;
 
@@ -74,15 +75,15 @@ public class iBPStruct {
 
 
     /* utilities methods */
-    public iBPStruct(   StructuringCore.Policy policy,
-                        int maxDepth,
-                        int maxSol,
-                        int maxChildren,
-                        int maxStates,
-                        int maxMinutes,
-                        boolean timeBounded,
-                        boolean keepBisimulation,
-                        boolean forceStructuring) {
+    public iBPStruct(StructuringCore.Policy policy,
+                     int maxDepth,
+                     int maxSol,
+                     int maxChildren,
+                     int maxStates,
+                     int maxMinutes,
+                     boolean timeBounded,
+                     boolean keepBisimulation,
+                     boolean forceStructuring) {
         isValid = false;
         this.policy = policy;
         this.maxDepth = maxDepth;
@@ -99,19 +100,19 @@ public class iBPStruct {
         System.out.println("iBPStruct - [Setting] policy: " + policy);
         System.out.println("iBPStruct - [Setting] pull-up: " + (!keepBisimulation));
 
-        if( policy == StructuringCore.Policy.ASTAR ) {
+        if (policy == StructuringCore.Policy.ASTAR) {
             System.out.println("iBPStruct - [A*] time bounded: " + timeBounded);
-            if( timeBounded )
+            if (timeBounded)
                 System.out.println("iBPStruct - [A*] max minutes: " + maxMinutes);
         }
 
-        if( (policy == StructuringCore.Policy.LIM_ASTAR) || timeBounded ) {
+        if ((policy == StructuringCore.Policy.LIM_ASTAR) || timeBounded) {
             System.out.println("iBPStruct - [Limited A*] max solutions to get: " + maxSol);
             System.out.println("iBPStruct - [Limited A*] max children to generate: " + maxChildren);
             System.out.println("iBPStruct - [Limited A*] max states to keep: " + maxStates);
         }
 
-        if( policy == StructuringCore.Policy.DEPTH )
+        if (policy == StructuringCore.Policy.DEPTH)
             System.out.println("iBPStruct - [Depth-First] max depth to reach: " + maxDepth);
 
     }
@@ -131,34 +132,34 @@ public class iBPStruct {
         this.children = new HashMap<>();
         this.parents = new HashMap<>();
 
-        for( BPMNNode n : nodes) {
+        for (BPMNNode n : nodes) {
             nodeID = n.getId().toString();
             this.nodes.put(nodeID, n);
-            if( n instanceof Gateway ) gateways.put(nodeID, ((Gateway) n).getGatewayType());
+            if (n instanceof Gateway) gateways.put(nodeID, ((Gateway) n).getGatewayType());
         }
 
         starts.addAll(this.nodes.keySet());
         ends.addAll(this.nodes.keySet());
 
-        for( Flow f : flows ) {
+        for (Flow f : flows) {
 
             srcID = f.getSource().getId().toString();
             tgtID = f.getTarget().getId().toString();
 
-            if( !(isValid = this.nodes.containsKey(srcID)) ) {
+            if (!(isValid = this.nodes.containsKey(srcID))) {
                 System.out.println("ERROR - found flow with an unknown source: " + srcID);
                 return false;
             }
 
-            if( !(isValid = this.nodes.containsKey(tgtID)) ) {
+            if (!(isValid = this.nodes.containsKey(tgtID))) {
                 System.out.println("ERROR - found flow with an unknown target: " + tgtID);
                 return false;
             }
 
-            if( !children.containsKey(srcID) ) children.put(srcID, new ArrayList<String>());
+            if (!children.containsKey(srcID)) children.put(srcID, new ArrayList<>());
             children.get(srcID).add(tgtID);
 
-            if( !parents.containsKey(tgtID) ) parents.put(tgtID, new ArrayList<String>());
+            if (!parents.containsKey(tgtID)) parents.put(tgtID, new ArrayList<>());
             parents.get(tgtID).add(srcID);
 
             ends.remove(srcID);
@@ -167,15 +168,15 @@ public class iBPStruct {
 
         this.graph = new Graph(keepBisimulation, gateways);
 
-        if( (ends.size() == 1) && (starts.size() == 1) ) {
+        if ((ends.size() == 1) && (starts.size() == 1)) {
             isValid = true;
 
-            for( String s : starts ) {
+            for (String s : starts) {
                 graph.setEntry(s);
                 //System.out.println("DEBUG - entry: " + s);
                 //System.out.println("DEBUG - graph.entry: " + graph.getEntry());
-                if( !parents.containsKey(s) ) {
-                    parents.put(s, new ArrayList<String>());
+                if (!parents.containsKey(s)) {
+                    parents.put(s, new ArrayList<>());
                     //System.out.println("DEBUG - added entry in parents.");
                 } else {
                     System.out.println("ERROR - found one single entry but with parent nodes.");
@@ -183,12 +184,12 @@ public class iBPStruct {
                 }
             }
 
-            for( String s : ends ) {
+            for (String s : ends) {
                 graph.setExit(s);
                 //System.out.println("DEBUG - exit: " + s);
                 //System.out.println("DEBUG - graph.exit: " + graph.getExit());
-                if( !children.containsKey(s) ) {
-                    children.put(s, new ArrayList<String>());
+                if (!children.containsKey(s)) {
+                    children.put(s, new ArrayList<>());
                     //System.out.println("DEBUG - added exit in children.");
                 } else {
                     System.out.println("ERROR - found one single exit but with children nodes.");
@@ -200,8 +201,9 @@ public class iBPStruct {
 
         } else {
             System.out.println("ERROR - found multiple entry(" + starts.size() + ") or exit(" + ends.size() + ") points.");
-            for(String s : starts) System.out.println("DEBUG - extra start(" + s + "): " + this.nodes.get(s).getLabel());
-            for(String s : ends) System.out.println("DEBUG - extra end(" + s + "): " + this.nodes.get(s).getLabel());
+            for (String s : starts)
+                System.out.println("DEBUG - extra start(" + s + "): " + this.nodes.get(s).getLabel());
+            for (String s : ends) System.out.println("DEBUG - extra end(" + s + "): " + this.nodes.get(s).getLabel());
             isValid = false;
         }
 
@@ -218,9 +220,9 @@ public class iBPStruct {
     public boolean structure() {
         Graph backup;
 
-        if( !isValid ) return false;
+        if (!isValid) return false;
 
-        if( !generatePaths() ) {
+        if (!generatePaths()) {
             System.out.println("ERROR - paths not generated correctly.");
             return false;
         }
@@ -233,7 +235,7 @@ public class iBPStruct {
         try {
             rigids = graph.decompose();
             System.out.println("DEBUG - got " + rigids.size() + " rigids.");
-        } catch( Exception e ) {
+        } catch (Exception e) {
             System.out.println("ERROR - jbpt threw an exception. Structuring the whole diagram.");
             System.out.println("DEBUG - backing up and re-trying.");
             //e.printStackTrace(System.out);
@@ -242,10 +244,10 @@ public class iBPStruct {
             rigids.add(graph.minimalDecomposition());
         }
 
-        core = new StructuringCore(policy, maxDepth, maxSol, maxChildren, maxStates,  maxMinutes, timeBounded);
+        core = new StructuringCore(policy, maxDepth, maxSol, maxChildren, maxStates, maxMinutes, timeBounded);
         structuredRigids = core.structureAll(rigids);
 
-        if( !graph.recompose(structuredRigids) ) {
+        if (!graph.recompose(structuredRigids)) {
             System.out.println("ERROR - impossible recompose the diagram.");
             return false;
         }
@@ -277,25 +279,25 @@ public class iBPStruct {
 
         //System.out.println("DEBUG - generating paths.");
 
-        while( toVisit.size() != 0 ) {
+        while (toVisit.size() != 0) {
 
             entry = toVisit.remove(0);
             visited.add(entry);
 
             //System.out.println("DEBUG - visiting: " + entry);
 
-            for( String child : children.get(entry) ) {
+            for (String child : children.get(entry)) {
 
                 tmpChild = child;
                 tasks = new LinkedList<>();
 
-                while( !gateways.containsKey(tmpChild) && (children.get(tmpChild).size() == 1) ) {
+                while (!gateways.containsKey(tmpChild) && (children.get(tmpChild).size() == 1)) {
                     //tmpChild is not a gateway neither the mainExit neither something weird
                     tasks.add(tmpChild);
                     tmpChild = children.get(tmpChild).get(0);
                 }
 
-                if( !gateways.containsKey(tmpChild) && !tmpChild.equals(exit) ) {
+                if (!gateways.containsKey(tmpChild) && !tmpChild.equals(exit)) {
                     //found a node with multiple children that is not a gateway OR a node with zero children that is not the mainExit
                     System.out.println("ERROR - found a weird node: " + tmpChild);
                     System.out.println("ERROR - exit: " + exit);
@@ -305,7 +307,7 @@ public class iBPStruct {
                 PID++;
                 originalPaths.put(-PID, tasks);
                 graph.addPath(new Path(PID, -PID, entry, tmpChild, tasks.size(), false));
-                if( !toVisit.contains(tmpChild) && !visited.contains(tmpChild) ) toVisit.add(0, tmpChild);
+                if (!toVisit.contains(tmpChild) && !visited.contains(tmpChild)) toVisit.add(0, tmpChild);
             }
         }
 
@@ -332,7 +334,7 @@ public class iBPStruct {
 
         System.out.println("DEBUG - starting building diagram (" + graph.getAlivePaths().size() + ")");
 
-        for( int pid : graph.getAlivePaths() ) {
+        for (int pid : graph.getAlivePaths()) {
             path = graph.getPath(pid);
 
             entry = path.getEntry();
@@ -345,7 +347,7 @@ public class iBPStruct {
 
             unfoldedPathExit = unfoldPath(pid, entryNode, exitNode);
 
-            if( (unfoldedPathExit instanceof Gateway) && (exitNode instanceof Gateway) ) {
+            if ((unfoldedPathExit instanceof Gateway) && (exitNode instanceof Gateway)) {
                 ((Gateway) exitNode).setGatewayType(((Gateway) unfoldedPathExit).getGatewayType());
             } else System.out.println("WARNING - unfolded path returned a non gateway exit!");
         }
@@ -358,13 +360,13 @@ public class iBPStruct {
         String exitID = path.getExit();
 
         BPMNNode entry = nodes.get(entryID);
-        BPMNNode exit  = nodes.get(exitID);
+        BPMNNode exit = nodes.get(exitID);
 
         Gateway.GatewayType entryType;
         Gateway.GatewayType exitType;
         Gateway.GatewayType correctType = null;
 
-        if( (entry instanceof Gateway) && (exit instanceof Gateway) ) {
+        if ((entry instanceof Gateway) && (exit instanceof Gateway)) {
             entryType = ((Gateway) entry).getGatewayType();
             exitType = ((Gateway) exit).getGatewayType();
             //correctType = bestType(entryType, exitType, path.isLoop() && (!path.getReverseBrothers().isEmpty()));
@@ -376,46 +378,46 @@ public class iBPStruct {
 
         //System.out.println("DEBUG - unfolding path (" + path.getChain().size() + ")(" + path.getBrothers().size() + ")(" + path.getReverseBrothers().size() + "): " + path.getPID() + " - (" + oEntry + ":" + oExit + ")");
 
-        if( path.getBrothers().size() != 0 ) {
+        if (path.getBrothers().size() != 0) {
             //System.out.println("DEBUG - path (" + path.getPID() + ") has brothers.");
-            if( !(oEntry instanceof Gateway) || (((Gateway) oEntry).getGatewayType() != correctType)) {
+            if (!(oEntry instanceof Gateway) || (((Gateway) oEntry).getGatewayType() != correctType)) {
                 //System.out.println("DEBUG - creating entry for the brother");
                 entry = createGateway(correctType);
                 diagram.addFlow(oEntry, entry, "");
                 //System.out.println("DEBUG - attaching edge: (" + oEntry + ":" + entry + ")");
             }
 
-            if( !(oExit instanceof Gateway) || (((Gateway) oExit).getGatewayType() != correctType)) {
+            if (!(oExit instanceof Gateway) || (((Gateway) oExit).getGatewayType() != correctType)) {
                 //System.out.println("DEBUG - creating exit for the brother");
                 exit = createGateway(correctType);
-                if(oExit != null) {
+                if (oExit != null) {
                     diagram.addFlow(exit, oExit, "");
                     //System.out.println("DEBUG - attaching edge: (" + exit + ":" + oExit + ")");
                 }
             }
 
-            for( int i : path.getBrothers() ) unfoldPath(i, entry, exit);
+            for (int i : path.getBrothers()) unfoldPath(i, entry, exit);
         }
 
-        if( path.getReverseBrothers().size() != 0 ) {
+        if (path.getReverseBrothers().size() != 0) {
             //System.out.println("DEBUG - path (" + path.getPID() + ") has reverse brothers.");
             //if( !(oEntry instanceof Gateway) || (((Gateway) oEntry).getGatewayType() != Gateway.GatewayType.DATABASED) ) {
-                //System.out.println("DEBUG - creating entry for the reverse brother (it will be the exit)");
-                entry = createGateway(Gateway.GatewayType.DATABASED);
-                diagram.addFlow(oEntry, entry, "");
-                //System.out.println("DEBUG - attaching edge: (" + oEntry + ":" + entry + ")");
+            //System.out.println("DEBUG - creating entry for the reverse brother (it will be the exit)");
+            entry = createGateway(Gateway.GatewayType.DATABASED);
+            diagram.addFlow(oEntry, entry, "");
+            //System.out.println("DEBUG - attaching edge: (" + oEntry + ":" + entry + ")");
             //}
 
             //if( !(oExit instanceof Gateway) || (((Gateway) oExit).getGatewayType() != Gateway.GatewayType.DATABASED)  ) {
-                //System.out.println("DEBUG - creating exit for reverse brother (it will be the entry)");
-                exit = createGateway(Gateway.GatewayType.DATABASED);
-                if(oExit != null) {
-                    diagram.addFlow(exit, oExit, "");
-                    //System.out.println("DEBUG - attaching edge: (" + exit + ":" + oExit + ")");
-                }
+            //System.out.println("DEBUG - creating exit for reverse brother (it will be the entry)");
+            exit = createGateway(Gateway.GatewayType.DATABASED);
+            if (oExit != null) {
+                diagram.addFlow(exit, oExit, "");
+                //System.out.println("DEBUG - attaching edge: (" + exit + ":" + oExit + ")");
+            }
             //}
 
-            for( int i : path.getReverseBrothers() ) unfoldPath(i, exit, entry);
+            for (int i : path.getReverseBrothers()) unfoldPath(i, exit, entry);
         }
 
         List<Integer> chain = path.getChain();
@@ -423,23 +425,22 @@ public class iBPStruct {
         int i = 0;
         int cPid = chain.get(i);
 
-        while( i < cSize - 1 ) {
-            if( cPid < 0 ) entry = generateNodes(cPid, entry);
+        while (i < cSize - 1) {
+            if (cPid < 0) entry = generateNodes(cPid, entry);
             else entry = unfoldPath(cPid, entry, null);
             i++;
             cPid = chain.get(i);
         }
 
-        if( cPid < 0 ) entry = generateNodes(cPid, entry);
+        if (cPid < 0) entry = generateNodes(cPid, entry);
         else entry = unfoldPath(cPid, entry, exit);
 
-        if( exit != null && (!entry.equals(exit)) ) {
+        if (exit != null && (!entry.equals(exit))) {
             diagram.addFlow(entry, exit, "");
             //System.out.println("DEBUG - attaching edge: (" + entry + ":" + exit + ")");
             return exit;
         } else return entry; //the exit of the last path in the chain if this path does not have brothers.
     }
-
 
 
     private void generateGates(String entry, String exit, boolean isLoop) {
@@ -449,12 +450,12 @@ public class iBPStruct {
         Gateway.GatewayType exitType;
         Gateway.GatewayType correctType;
 
-        if( !knownGates.containsKey(entry) ) {
+        if (!knownGates.containsKey(entry)) {
             entryNode = createNode(entry);
             knownGates.put(entry, entryNode);
         } else entryNode = knownGates.get(entry);
 
-        if( !knownGates.containsKey(exit) ) {
+        if (!knownGates.containsKey(exit)) {
             exitNode = createNode(exit);
             knownGates.put(exit, exitNode);
         } else exitNode = knownGates.get(exit);
@@ -473,7 +474,7 @@ public class iBPStruct {
     }
 
     private Gateway.GatewayType bestType(Gateway.GatewayType entryType, Gateway.GatewayType exitType, boolean isLoop) {
-        if( isLoop ) return Gateway.GatewayType.DATABASED;
+        if (isLoop) return Gateway.GatewayType.DATABASED;
         //if( keepBisimulation ) return entryType;
         return entryType;
         //if( (entryType == Gateway.GatewayType.PARALLEL) || (exitType == Gateway.GatewayType.PARALLEL) ) return Gateway.GatewayType.PARALLEL;
@@ -494,7 +495,7 @@ public class iBPStruct {
         int size = tasks.size();
         int i = 0;
 
-        while( i < size ) {
+        while (i < size) {
             diagram.addFlow(entry, (node = createNode(tasks.get(i))), "");
             //System.out.println("DEBUG - attaching edge: (" + entry + ":" + node + ")");
             entry = node;
@@ -510,7 +511,7 @@ public class iBPStruct {
         BPMNNode node;
         BPMNNode duplicate = null;
 
-        if( !nodes.containsKey(id) ) {
+        if (!nodes.containsKey(id)) {
             System.out.println("ERROR - looked up for a node that does not exist.");
             return null;
         }
@@ -522,24 +523,24 @@ public class iBPStruct {
 
 
     private void printGraph() {
-        System.out.println("Path created: " + graph.getPaths().size() );
-        for( Path p : graph.getPaths().values() ) {
+        System.out.println("Path created: " + graph.getPaths().size());
+        for (Path p : graph.getPaths().values()) {
             System.out.println("(" + p.getEntry() + " -> " + p.getEntry() + ") Path: " + p.getPID());
             System.out.print("(" + p.getBrothers().size() + ") Brothers: ");
-            for( int b : p.getBrothers() ) System.out.print(" " + b + " " );
+            for (int b : p.getBrothers()) System.out.print(" " + b + " ");
             System.out.println(".");
 
             System.out.print("(" + p.getReverseBrothers().size() + ") Reverse Brothers: ");
-            for( int r : p.getReverseBrothers() ) System.out.print(" " + r + " " );
+            for (int r : p.getReverseBrothers()) System.out.print(" " + r + " ");
             System.out.println(".");
 
             System.out.print("(" + p.getChain().size() + ") Chain: ");
-            for( int c : p.getChain() ) System.out.print(" " + c + " " );
+            for (int c : p.getChain()) System.out.print(" " + c + " ");
             System.out.println(".");
         }
 
         System.out.print("Alive paths: ");
-        for( int a : graph.getAlivePaths() ) System.out.print(" " + a + " " );
+        for (int a : graph.getAlivePaths()) System.out.print(" " + a + " ");
         System.out.println(".");
     }
 

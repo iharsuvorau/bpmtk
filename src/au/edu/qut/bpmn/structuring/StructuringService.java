@@ -20,9 +20,8 @@
 
 package au.edu.qut.bpmn.structuring;
 
-import au.edu.qut.bpmn.structuring.core.StructuringCore;
 import au.edu.qut.bpmn.helper.DiagramHandler;
-import au.edu.qut.bpmn.structuring.wrapper.BPStructWrapper;
+import au.edu.qut.bpmn.structuring.core.StructuringCore;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
@@ -44,18 +43,18 @@ public class StructuringService {
     private static final int MAX_STATES = 100;
     private static final int MAX_MINUTES = 2;
 
-    private String  policy;
-    private int     maxDepth;
-    private int     maxSolutions;
-    private int     maxChildren;
-    private int     maxStates;
-    private int     maxMinutes;
+    private String policy;
+    private int maxDepth;
+    private int maxSolutions;
+    private int maxChildren;
+    private int maxStates;
+    private int maxMinutes;
     private boolean timeBounded;
     private boolean keepBisimulation;
     private boolean forceStructuring;
     private boolean removeClones;
 
-    private BPMNDiagram diagram;		//initial diagram
+    private BPMNDiagram diagram;        //initial diagram
     private DiagramHandler diagramHandler;
 
     private Set<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> unmappableEdges;
@@ -80,7 +79,7 @@ public class StructuringService {
     /**** mapping between processes' IDs and their structured diagram version ****/
     private Map<String, BPMNDiagram> idToDiagram;
 
-    public StructuringService(){
+    public StructuringService() {
         diagramHandler = new DiagramHandler();
     }
 
@@ -96,12 +95,12 @@ public class StructuringService {
     }
 
     public BPMNDiagram structureDiagram(BPMNDiagram diagram,
-                                        String  policy,
-                                        int     maxDepth,
-                                        int     maxSolutions,
-                                        int     maxChildren,
-                                        int     maxStates,
-                                        int     maxMinutes,
+                                        String policy,
+                                        int maxDepth,
+                                        int maxSolutions,
+                                        int maxChildren,
+                                        int maxStates,
+                                        int maxMinutes,
                                         boolean timeBounded,
                                         boolean keepBisimulation,
                                         boolean forceStructuring) {
@@ -185,28 +184,28 @@ public class StructuringService {
         handleBoundaryEvents();
 
         /**** STEP2: get all the structured version for each subProcess ****/
-        for( SubProcess sp : diagram.getSubProcesses() ) {
+        for (SubProcess sp : diagram.getSubProcesses()) {
             subProcessesToParse.add(sp);
             originalNodes.put(sp.getId().toString(), sp);
             //System.out.println("SubProcess: " + sp.getId());
         }
 
-        for( Swimlane pool : diagram.getPools() ) parsePool(pool);
+        for (Swimlane pool : diagram.getPools()) parsePool(pool);
         parsePool(null);
         parseSubProcesses(null);
 
         /**** STEP3: remove all the edges and not mappable nodes from the diagram ****/
-        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getEdges() ) edgeToRemove.add(e);
-        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : edgeToRemove ) diagram.removeEdge(e);
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getEdges()) edgeToRemove.add(e);
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : edgeToRemove) diagram.removeEdge(e);
 
-        for( Gateway g : diagram.getGateways() ) nodeToRemove.add(g);
-        for( BPMNNode g : nodeToRemove ) removeNode(g);
+        for (Gateway g : diagram.getGateways()) nodeToRemove.add(g);
+        for (BPMNNode g : nodeToRemove) removeNode(g);
 
         /**** STEP4: reconnect all the elements inside the diagram exploiting .json files and support maps ****/
-        while( !rebuildOrder.isEmpty() ) {
+        while (!rebuildOrder.isEmpty()) {
             String idp = rebuildOrder.removeLast();
             boolean err = rebuildSubProcess(idp);
-            if( err ) throw new Exception("Unable to rebuild the subProcess: " + idp);
+            if (err) throw new Exception("Unable to rebuild the subProcess: " + idp);
         }
 
 //        System.out.println("Total gateways after structuring: " + xorGates + "(xor) + " + andGates + "(and) + " + orGates + "(or)." );
@@ -218,7 +217,7 @@ public class StructuringService {
 
         /**** STEP6: fixing possible not valid configurations ****/
         diagramHandler.removeDoubleEdges(diagram);
-        for( Gateway g : new HashSet<>(diagram.getGateways()) ) diagramHandler.checkFakeGateway(diagram, g);
+        for (Gateway g : new HashSet<>(diagram.getGateways())) diagramHandler.checkFakeGateway(diagram, g);
         diagramHandler.collapseJoinGateways(diagram);
     }
 
@@ -232,42 +231,42 @@ public class StructuringService {
 
         HashSet<SubProcess> analyzed = new HashSet<>();
 
-        for( SubProcess sp : subProcessesToParse )
-            if( sp.getParentSubProcess() == parent ) {
+        for (SubProcess sp : subProcessesToParse)
+            if (sp.getParentSubProcess() == parent) {
                 structureSubProcess(sp.getId().toString(), diagram.getFlows(sp));
                 analyzed.add(sp);
             }
 
-        for( SubProcess spa : analyzed ) subProcessesToParse.remove(spa);
-        for( SubProcess spa : analyzed ) parseSubProcesses(spa);
+        for (SubProcess spa : analyzed) subProcessesToParse.remove(spa);
+        for (SubProcess spa : analyzed) parseSubProcesses(spa);
     }
 
 
     private void removeMultipleStartEvents() {
         HashMap<SubProcess, HashSet<Event>> sp2se = new HashMap<>(); //subprocesses
-        HashMap<Swimlane, HashSet<Event>> pl2se = new HashMap<>();	//pools
+        HashMap<Swimlane, HashSet<Event>> pl2se = new HashMap<>();    //pools
         Gateway g;
         Event fakeStart;
 
-        for( SubProcess sp : diagram.getSubProcesses() ) sp2se.put(sp, new HashSet<Event>());
-        for( Swimlane pl : diagram.getPools() ) pl2se.put(pl, new HashSet<Event>());
-        pl2se.put(null, new HashSet<Event>());
+        for (SubProcess sp : diagram.getSubProcesses()) sp2se.put(sp, new HashSet<>());
+        for (Swimlane pl : diagram.getPools()) pl2se.put(pl, new HashSet<>());
+        pl2se.put(null, new HashSet<>());
 
-		/* adding each startEvent to the right set */
-        for( Event e : diagram.getEvents() )
-            if( e.getEventType() == Event.EventType.START ) {
-                if( e.getParentSubProcess() == null ) pl2se.get(e.getParentPool()).add(e);
+        /* adding each startEvent to the right set */
+        for (Event e : diagram.getEvents())
+            if (e.getEventType() == Event.EventType.START) {
+                if (e.getParentSubProcess() == null) pl2se.get(e.getParentPool()).add(e);
                 else sp2se.get(e.getParentSubProcess()).add(e);
             }
 
-		/* for all those processes with multiple endEvents it is created a fakeEndPoint */
-        for( SubProcess spe : sp2se.keySet() )
-            if( sp2se.get(spe).size() > 1 ) {
+        /* for all those processes with multiple endEvents it is created a fakeEndPoint */
+        for (SubProcess spe : sp2se.keySet())
+            if (sp2se.get(spe).size() > 1) {
                 g = diagram.addGateway("fakeStartXOR", Gateway.GatewayType.DATABASED, spe);
                 fakeStart = diagram.addEvent("fakeStart", Event.EventType.START, Event.EventTrigger.NONE, Event.EventUse.CATCH, spe, true, null);
                 fakeStartEvents.add(fakeStart);
 
-                for( Event e : sp2se.get(spe) ) {
+                for (Event e : sp2se.get(spe)) {
                     diagram.addFlow(g, e, "fakeMergingFlow");
                     startEvents.add(e);
                     matrices.put(e, fakeStart);
@@ -277,13 +276,13 @@ public class StructuringService {
                 System.out.println("DEBUG - added fakeStart (" + fakeStart.getId() + ") for subProcess: " + (spe == null ? "null" : spe.getId()));
             }
 
-        for( Swimlane ple : pl2se.keySet() )
-            if( pl2se.get(ple).size() > 1 ) {
+        for (Swimlane ple : pl2se.keySet())
+            if (pl2se.get(ple).size() > 1) {
                 g = diagram.addGateway("fakeStartXOR", Gateway.GatewayType.DATABASED, ple);
                 fakeStart = diagram.addEvent("fakeStart", Event.EventType.START, Event.EventTrigger.NONE, Event.EventUse.CATCH, ple, true, null);
                 fakeStartEvents.add(fakeStart);
 
-                for( Event e : pl2se.get(ple) ) {
+                for (Event e : pl2se.get(ple)) {
                     diagram.addFlow(g, e, "fakeMergingFlow");
                     startEvents.add(e);
                     matrices.put(e, fakeStart);
@@ -298,29 +297,29 @@ public class StructuringService {
 
     private void removeMultipleEndEvents() {
         HashMap<SubProcess, HashSet<Event>> sp2ee = new HashMap<>(); //subprocesses
-        HashMap<Swimlane, HashSet<Event>> pl2ee = new HashMap<>();	//pools
+        HashMap<Swimlane, HashSet<Event>> pl2ee = new HashMap<>();    //pools
         Gateway g;
         Event fakeEnd;
 
-        for( SubProcess sp : diagram.getSubProcesses() ) sp2ee.put(sp, new HashSet<Event>());
-        for( Swimlane pl : diagram.getPools() ) pl2ee.put(pl, new HashSet<Event>());
-        pl2ee.put(null, new HashSet<Event>());
+        for (SubProcess sp : diagram.getSubProcesses()) sp2ee.put(sp, new HashSet<>());
+        for (Swimlane pl : diagram.getPools()) pl2ee.put(pl, new HashSet<>());
+        pl2ee.put(null, new HashSet<>());
 
-		/* adding each endEvent to the right set */
-        for( Event e : diagram.getEvents() )
-            if( e.getEventType() == Event.EventType.END ) {
-                if( e.getParentSubProcess() == null ) pl2ee.get(e.getParentPool()).add(e);
+        /* adding each endEvent to the right set */
+        for (Event e : diagram.getEvents())
+            if (e.getEventType() == Event.EventType.END) {
+                if (e.getParentSubProcess() == null) pl2ee.get(e.getParentPool()).add(e);
                 else sp2ee.get(e.getParentSubProcess()).add(e);
             }
 
-		/* for all those processes with multiple endEvents it is created a fakeEndPoint */
-        for( SubProcess spe : sp2ee.keySet() )
-            if( sp2ee.get(spe).size() > 1 ) {
+        /* for all those processes with multiple endEvents it is created a fakeEndPoint */
+        for (SubProcess spe : sp2ee.keySet())
+            if (sp2ee.get(spe).size() > 1) {
                 g = diagram.addGateway("fakeEndXOR", Gateway.GatewayType.DATABASED, spe);
                 fakeEnd = diagram.addEvent("fakeEnd", Event.EventType.END, Event.EventTrigger.NONE, Event.EventUse.THROW, spe, true, null);
                 fakeEndEvents.add(fakeEnd);
 
-                for( Event e : sp2ee.get(spe) ) {
+                for (Event e : sp2ee.get(spe)) {
                     diagram.addFlow(e, g, "fakeMergingFlow");
                     endEvents.add(e);
                     matrices.put(e, fakeEnd);
@@ -330,13 +329,13 @@ public class StructuringService {
                 System.out.println("DEBUG - added fakeEnd (" + fakeEnd.getId() + ") for subProcess: " + (spe == null ? "null" : spe.getId()));
             }
 
-        for( Swimlane ple : pl2ee.keySet() )
-            if( pl2ee.get(ple).size() > 1 ) {
+        for (Swimlane ple : pl2ee.keySet())
+            if (pl2ee.get(ple).size() > 1) {
                 g = diagram.addGateway("fakeEndXOR", Gateway.GatewayType.DATABASED, ple);
                 fakeEnd = diagram.addEvent("fakeEnd", Event.EventType.END, Event.EventTrigger.NONE, Event.EventUse.THROW, ple, true, null);
                 fakeEndEvents.add(fakeEnd);
 
-                for( Event e : pl2ee.get(ple) ) {
+                for (Event e : pl2ee.get(ple)) {
                     diagram.addFlow(e, g, "fakeMergingFlow");
                     endEvents.add(e);
                     matrices.put(e, fakeEnd);
@@ -354,15 +353,14 @@ public class StructuringService {
         Gateway g;
         BPMNNode tgt;
 
-        for( Event e : diagram.getEvents() )
-            if( (a = e.getBoundingNode()) != null ) {
+        for (Event e : diagram.getEvents())
+            if ((a = e.getBoundingNode()) != null) {
                 System.out.println("DEBUG - found boundary event: detaching.");
-                if( e.getEventTrigger() == Event.EventTrigger.COMPENSATION ) {
-                    for( Association association : diagram.getAssociations() )
-                        if( association.getSource() == e )
-                            if( ((association.getTarget() instanceof Activity) && ((Activity) association.getTarget()).isBCompensation()) ||
-                                    ((association.getTarget() instanceof CallActivity) && ((CallActivity) association.getTarget()).isBCompensation()) )
-                            {
+                if (e.getEventTrigger() == Event.EventTrigger.COMPENSATION) {
+                    for (Association association : diagram.getAssociations())
+                        if (association.getSource() == e)
+                            if (((association.getTarget() instanceof Activity) && ((Activity) association.getTarget()).isBCompensation()) ||
+                                    ((association.getTarget() instanceof CallActivity) && ((CallActivity) association.getTarget()).isBCompensation())) {
                                 System.out.println("DEBUG - Detaching compensation event and activity: " + e.getId() + " > " + association.getTarget().getId());
                                 boundToFix.put(e, a);
                                 compensationActivities.put(e, association.getTarget());
@@ -395,7 +393,7 @@ public class StructuringService {
     }
 
     private void structureSubProcess(String processID, Collection<Flow> edges) {
-        if( edges.size() == 0 ) return;
+        if (edges.size() == 0) return;
 
         Collection<BPMNNode> nodes = new HashSet<>();
         Collection<Flow> flows = new HashSet<>();
@@ -405,7 +403,7 @@ public class StructuringService {
 
         boolean tryClassicBPStruct = false;
 
-        for( Flow flow : edges ) {
+        for (Flow flow : edges) {
 
             src = flow.getSource();
             tgt = flow.getTarget();
@@ -422,7 +420,7 @@ public class StructuringService {
             nodes.add(tgt);
             flows.add(flow);
 
-            if( (!tryClassicBPStruct) && (src instanceof Gateway) && (((Gateway) src).getGatewayType() == Gateway.GatewayType.PARALLEL) ) {
+            if ((!tryClassicBPStruct) && (src instanceof Gateway) && (((Gateway) src).getGatewayType() == Gateway.GatewayType.PARALLEL)) {
                 System.out.println("DEBUG - BPStruct enabled.");
                 tryClassicBPStruct = true;
             }
@@ -432,29 +430,19 @@ public class StructuringService {
         }
 
         try {
-            if( tryClassicBPStruct && !forceStructuring ) {
-                BPStructWrapper bpsw = new BPStructWrapper();
-//                structuredDiagram = bpsw.getStructured(flows);
-            }
-
-            if( structuredDiagram == null ) {
-                iBPStruct spi = new iBPStruct(  StructuringCore.Policy.valueOf(policy),
-                        maxDepth, maxSolutions, maxChildren, maxStates,
-                        maxMinutes, timeBounded, keepBisimulation, forceStructuring);
-                System.out.println("DEBUG - structuring process(" + processID + ") - " + nodes.size() + " : " + edges.size());
-                spi.setProcess(nodes, flows);
-                spi.structure();
-                structuredDiagram = spi.getDiagram();
-            } else {
-                diagramHandler.fixSoundness(structuredDiagram);
-            }
-        } catch(Exception e) {
-            System.out.println("ERROR - impossible structure the current subprocess, setting diagram NULL." );
+            iBPStruct spi = new iBPStruct(StructuringCore.Policy.valueOf(policy),
+                    maxDepth, maxSolutions, maxChildren, maxStates,
+                    maxMinutes, timeBounded, keepBisimulation, forceStructuring);
+            System.out.println("DEBUG - structuring process(" + processID + ") - " + nodes.size() + " : " + edges.size());
+            spi.setProcess(nodes, flows);
+            spi.structure();
+            structuredDiagram = spi.getDiagram();
+        } catch (Exception e) {
+            System.out.println("ERROR - impossible structure the current subprocess, setting diagram NULL.");
             e.printStackTrace();
-            structuredDiagram = null;
         }
 
-        if(removeClones) diagramHandler.removeDuplicates(structuredDiagram);
+        if (removeClones) diagramHandler.removeDuplicates(structuredDiagram);
         idToDiagram.put(processID, structuredDiagram);
         rebuildOrder.addLast(processID);
     }
@@ -478,23 +466,24 @@ public class StructuringService {
         boolean error = false;
 
         try {
-            if( originalNodes.get(processID) instanceof SubProcess ) parentProcess = (SubProcess) originalNodes.get(processID);
+            if (originalNodes.get(processID) instanceof SubProcess)
+                parentProcess = (SubProcess) originalNodes.get(processID);
             else parentProcess = null;
 
 
             /** populating the blackList with duplicated activities **/
-            for( BPMNNode n : nodes ) {
+            for (BPMNNode n : nodes) {
                 String id = n.getLabel();
-                if( n instanceof Gateway ) {
+                if (n instanceof Gateway) {
                     node = diagram.addGateway("", ((Gateway) n).getGatewayType(), parentProcess);
-                } else if( originalNodes.containsKey(id) ) {
-                    if( greyList.contains(id) ) {
+                } else if (originalNodes.containsKey(id)) {
+                    if (greyList.contains(id)) {
                         // this node has been duplicated by iBPStruct tool so we do the same
                         node = duplicateNode(originalNodes.get(id), parentProcess, true);
                         if (node == null)
                             throw new Exception("Error parsing tasks: " + n.getLabel() + " cannot be duplicated!");
                     } else {
-    					/* the first time we encounter a node we retrieve the original one and mark it in the greyList */
+                        /* the first time we encounter a node we retrieve the original one and mark it in the greyList */
                         node = originalNodes.get(id);
                         greyList.add(id);
                     }
@@ -506,7 +495,7 @@ public class StructuringService {
             }
 
             /** applying mapped flows **/
-            for( Flow f : flows ) {
+            for (Flow f : flows) {
 
                 src = f.getSource();
                 tgt = f.getTarget();
@@ -514,17 +503,17 @@ public class StructuringService {
                 srcID = src.getId().toString();
                 tgtID = tgt.getId().toString();
 
-                if( processedNodes.containsKey(srcID) ) src = processedNodes.get(srcID);
+                if (processedNodes.containsKey(srcID)) src = processedNodes.get(srcID);
                 else throw new Exception("ERROR - parsing flows source not found: " + srcID);
 
-                if( processedNodes.containsKey(tgtID) ) tgt = processedNodes.get(tgtID);
+                if (processedNodes.containsKey(tgtID)) tgt = processedNodes.get(tgtID);
                 else throw new Exception("ERROR - parsing flows target not found: " + tgtID);
 
                 diagram.addFlow(src, tgt, "");
 
                 //System.out.println("diagram- added flow: " + src.getId() +  " -> " + tgt.getId());
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Error rebuilding subProcess: " + processID + " - " + originalNodes.get(processID).getLabel());
             error = true;
         }
@@ -536,20 +525,20 @@ public class StructuringService {
         BPMNNode duplicate = null;
         String id = node.getId().toString();
 
-        if( blackMark ) {
-            if( !blackList.containsKey(id) ) blackList.put(id, new HashSet<BPMNNode>());
+        if (blackMark) {
+            if (!blackList.containsKey(id)) blackList.put(id, new HashSet<>());
         } else {
             //System.out.println("Duplicating (" + blackMark + "): " + node.getClass().getSimpleName() + " : " + node.getId() + " with Parent: " + (parentProcess == null ? "top-Level" : parentProcess.getId()));
-            if( !whiteList.containsKey(id) ) whiteList.put(id, new HashSet<BPMNNode>());
+            if (!whiteList.containsKey(id)) whiteList.put(id, new HashSet<>());
         }
 
-        if( node instanceof SubProcess ) {
+        if (node instanceof SubProcess) {
             //System.out.println("Duplicating subProcess: " + node.getId());
             BPMNNode src, tgt, osrc, otgt;
             boolean mark;
             HashMap<BPMNNode, BPMNNode> mapping = new HashMap<>();
 
-            duplicate = diagram.addSubProcess( node.getLabel(),
+            duplicate = diagram.addSubProcess(node.getLabel(),
                     ((SubProcess) node).isBLooped(),
                     ((SubProcess) node).isBAdhoc(),
                     ((SubProcess) node).isBCompensation(),
@@ -562,14 +551,14 @@ public class StructuringService {
             ((SubProcess) duplicate).setDecorator(((SubProcess) node).getDecorator());
 
             //System.out.println("("+ diagram.getFlows((SubProcess) node).size() +")STARTING>>> flows duplication for: " + duplicate.getId() + " : " + node.getId());
-            for( Flow flow : diagram.getFlows((SubProcess) node) ) {
+            for (Flow flow : diagram.getFlows((SubProcess) node)) {
                 src = osrc = flow.getSource();
                 tgt = otgt = flow.getTarget();
 
-                if( !mapping.containsKey(osrc) ) {
-					/* checking if these nodes have been duplicated or not */
+                if (!mapping.containsKey(osrc)) {
+                    /* checking if these nodes have been duplicated or not */
                     mark = false;
-                    if( matrices.containsKey(osrc) ) {
+                    if (matrices.containsKey(osrc)) {
                         src = matrices.get(osrc);
                         mark = blackList.containsKey(src.getId());
                     }
@@ -577,7 +566,7 @@ public class StructuringService {
                     mapping.put(osrc, src);
                 } else src = mapping.get(osrc);
 
-                if( !mapping.containsKey(otgt) ) {
+                if (!mapping.containsKey(otgt)) {
                     mark = false;
                     if (matrices.containsKey(otgt)) {
                         tgt = matrices.get(otgt);
@@ -587,12 +576,12 @@ public class StructuringService {
                     mapping.put(otgt, tgt);
                 } else tgt = mapping.get(otgt);
 
-                if( src == null || tgt == null ) return null;
+                if (src == null || tgt == null) return null;
                 diagram.addFlow(src, tgt, flow.getLabel());
                 //System.out.println("Added Flow: " + src.getId() + " > " + tgt.getId());
             }
-        } else if( node instanceof Activity ) {
-            duplicate = diagram.addActivity( node.getLabel(),
+        } else if (node instanceof Activity) {
+            duplicate = diagram.addActivity(node.getLabel(),
                     ((Activity) node).isBLooped(),
                     ((Activity) node).isBAdhoc(),
                     ((Activity) node).isBCompensation(),
@@ -603,8 +592,8 @@ public class StructuringService {
             duplicate.setParentSwimlane(node.getParentSwimlane());
             ((Activity) duplicate).setDecorator(((Activity) node).getDecorator());
 
-        } else if( node instanceof CallActivity ) {
-            duplicate = diagram.addCallActivity( node.getLabel(),
+        } else if (node instanceof CallActivity) {
+            duplicate = diagram.addCallActivity(node.getLabel(),
                     ((CallActivity) node).isBLooped(),
                     ((CallActivity) node).isBAdhoc(),
                     ((CallActivity) node).isBCompensation(),
@@ -615,8 +604,8 @@ public class StructuringService {
             duplicate.setParentSwimlane(node.getParentSwimlane());
             ((CallActivity) duplicate).setDecorator(((CallActivity) node).getDecorator());
 
-        } else if( node instanceof Event ) {
-            duplicate = diagram.addEvent( node.getLabel(),
+        } else if (node instanceof Event) {
+            duplicate = diagram.addEvent(node.getLabel(),
                     ((Event) node).getEventType(),
                     ((Event) node).getEventTrigger(),
                     ((Event) node).getEventUse(),
@@ -627,16 +616,16 @@ public class StructuringService {
             duplicate.setParentSwimlane(node.getParentSwimlane());
             ((Event) duplicate).setDecorator(((Event) node).getDecorator());
 
-            if( endEvents.contains(node) ) endEvents.add((Event) duplicate);
-            if( startEvents.contains(node) ) startEvents.add((Event) duplicate);
-            if( matrices.containsKey(node) ) matrices.put(duplicate, matrices.get(node));
+            if (endEvents.contains(node)) endEvents.add((Event) duplicate);
+            if (startEvents.contains(node)) startEvents.add((Event) duplicate);
+            if (matrices.containsKey(node)) matrices.put(duplicate, matrices.get(node));
 
-			/* this should happen only during a subProcess duplication, because BPstruct is supposed to do not duplicate end Events */
-            if( fakeEndEvents.contains(node) ) fakeEndEvents.add((Event) duplicate);
-            if( fakeStartEvents.contains(node) ) fakeStartEvents.add((Event) duplicate);
+            /* this should happen only during a subProcess duplication, because BPstruct is supposed to do not duplicate end Events */
+            if (fakeEndEvents.contains(node)) fakeEndEvents.add((Event) duplicate);
+            if (fakeStartEvents.contains(node)) fakeStartEvents.add((Event) duplicate);
 
-        } else if( node instanceof Gateway ) {
-            duplicate = diagram.addGateway( node.getLabel(),
+        } else if (node instanceof Gateway) {
+            duplicate = diagram.addGateway(node.getLabel(),
                     ((Gateway) node).getGatewayType(),
                     parentProcess);
 
@@ -645,8 +634,8 @@ public class StructuringService {
             ((Gateway) duplicate).setDecorator(((Gateway) node).getDecorator());
         }
 
-        if( duplicate != null ) {
-            if( blackMark ) blackList.get(id).add(duplicate);
+        if (duplicate != null) {
+            if (blackMark) blackList.get(id).add(duplicate);
             else whiteList.get(id).add(duplicate);
             matrices.put(duplicate, node);
         }
@@ -659,28 +648,28 @@ public class StructuringService {
         BPMNNode src, tgt;
         String srcID, tgtID;
 
-        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : unmappableEdges ) {
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : unmappableEdges) {
             src = e.getSource();
             tgt = e.getTarget();
 
             srcID = src.getId().toString();
             tgtID = tgt.getId().toString();
 
-            if( blackList.containsKey(srcID) || blackList.containsKey(tgtID) ||
-                    whiteList.containsKey(srcID) || whiteList.containsKey(tgtID) ) continue;
+            if (blackList.containsKey(srcID) || blackList.containsKey(tgtID) ||
+                    whiteList.containsKey(srcID) || whiteList.containsKey(tgtID)) continue;
 
-            if( unmappableNodes.contains(src) ) unmappableNodes.remove(src);
-            if( unmappableNodes.contains(tgt) ) unmappableNodes.remove(tgt);
+            if (unmappableNodes.contains(src)) unmappableNodes.remove(src);
+            if (unmappableNodes.contains(tgt)) unmappableNodes.remove(tgt);
 
-            if( e instanceof MessageFlow) diagram.addMessageFlow(src, tgt, (Swimlane) null, e.getLabel());
-            else if( e instanceof Flow ) diagram.addFlow(src, tgt, e.getLabel());
-            else if( e instanceof Association) diagram.addAssociation(src, tgt, ((Association) e).getDirection());
-            else if( e instanceof DataAssociation ) diagram.addDataAssociation(src, tgt, e.getLabel());
+            if (e instanceof MessageFlow) diagram.addMessageFlow(src, tgt, (Swimlane) null, e.getLabel());
+            else if (e instanceof Flow) diagram.addFlow(src, tgt, e.getLabel());
+            else if (e instanceof Association) diagram.addAssociation(src, tgt, ((Association) e).getDirection());
+            else if (e instanceof DataAssociation) diagram.addDataAssociation(src, tgt, e.getLabel());
 
             //System.out.println(e.getClass().getSimpleName() + " restored: " + src.getId() + " > " + tgt.getId());
         }
 
-        for( BPMNNode n : unmappableNodes ) {
+        for (BPMNNode n : unmappableNodes) {
             //System.out.println("Removing unmappable node: " + n.getClass().getSimpleName() + " : " + n.getId());
             removeNode(n);
         }
@@ -700,58 +689,58 @@ public class StructuringService {
 
         String aID, eID;
 
-		/* Restoring other boundary events */
-        for( Event e : boundToFix.keySet() ) {
+        /* Restoring other boundary events */
+        for (Event e : boundToFix.keySet()) {
             a = boundToFix.get(e);
 
             aID = a.getId().toString();
             eID = e.getId().toString();
 
-            if( compensationActivities.containsKey(e) ) {
-                if( blackList.containsKey(aID) )
-                    for( BPMNNode bn : blackList.get(aID) ) {
+            if (compensationActivities.containsKey(e)) {
+                if (blackList.containsKey(aID))
+                    for (BPMNNode bn : blackList.get(aID)) {
                         de = (Event) duplicateNode(e, bn.getParentSubProcess(), false);
                         ca = duplicateNode(compensationActivities.get(e), bn.getParentSubProcess(), false);
-                        de.setExceptionFor((Activity)bn);
+                        de.setExceptionFor((Activity) bn);
                         diagram.addAssociation(de, ca, BpmnAssociation.AssociationDirection.ONE);
                     }
 
-                if( whiteList.containsKey(aID) )
-                    for( BPMNNode wn : whiteList.get(aID) ) {
+                if (whiteList.containsKey(aID))
+                    for (BPMNNode wn : whiteList.get(aID)) {
                         de = (Event) duplicateNode(e, wn.getParentSubProcess(), false);
                         ca = duplicateNode(compensationActivities.get(e), wn.getParentSubProcess(), false);
-                        de.setExceptionFor((Activity)wn);
+                        de.setExceptionFor((Activity) wn);
                         diagram.addAssociation(de, ca, BpmnAssociation.AssociationDirection.ONE);
                     }
             } else {
-                if( blackList.containsKey(aID) || blackList.containsKey(eID) ) {
+                if (blackList.containsKey(aID) || blackList.containsKey(eID)) {
                     e.setExceptionFor(null);
-                    System.out.println("[" + blackList.containsKey(aID) + ":" + blackList.containsKey(eID)  + "] unfixable bound between: " + aID + " > " + eID);
-                } else if( !whiteList.containsKey(aID) && !whiteList.containsKey(eID) ) {
+                    System.out.println("[" + blackList.containsKey(aID) + ":" + blackList.containsKey(eID) + "] unfixable bound between: " + aID + " > " + eID);
+                } else if (!whiteList.containsKey(aID) && !whiteList.containsKey(eID)) {
                     tryToFixBound(e, a, false);
-                } else if( whiteList.containsKey(aID) && whiteList.containsKey(eID) ) {
+                } else if (whiteList.containsKey(aID) && whiteList.containsKey(eID)) {
                     tryToFixBound(e, a, false);
-                    for( BPMNNode en : whiteList.get(eID) )
-                        for( BPMNNode an : whiteList.get(aID) ) tryToFixBound((Event) en, (Activity) an, true);
+                    for (BPMNNode en : whiteList.get(eID))
+                        for (BPMNNode an : whiteList.get(aID)) tryToFixBound((Event) en, (Activity) an, true);
                 } else e.setExceptionFor(null);
             }
         }
 
-		/* Restoring multiple start Events */
-        for( Event fse : fakeStartEvents ) {
+        /* Restoring multiple start Events */
+        for (Event fse : fakeStartEvents) {
             //System.out.println("FakeStart : " + fse.getId());
             g = null;
             error = false;
             startFlow = null;
             fakeFlows = new HashSet<>();
 
-            for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : diagram.getFlows() ) //loop on flows to find the fakeGateway of this fakeStartEvent
-                if( (f.getSource() == fse) && (f.getTarget() instanceof Gateway) ) {
+            for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : diagram.getFlows()) //loop on flows to find the fakeGateway of this fakeStartEvent
+                if ((f.getSource() == fse) && (f.getTarget() instanceof Gateway)) {
                     startFlow = f;
                     g = (Gateway) f.getTarget();
-                    for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : diagram.getFlows() ) //loop on flows to find all the fakeStartFlows
-                        if( ff.getSource() == g ) {
-                            if( startEvents.contains(ff.getTarget()) ) fakeFlows.add(ff);
+                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : diagram.getFlows()) //loop on flows to find all the fakeStartFlows
+                        if (ff.getSource() == g) {
+                            if (startEvents.contains(ff.getTarget())) fakeFlows.add(ff);
                             else {
                                 error = true;
                                 //System.out.println("Fixing FSE: " + fse.getId());
@@ -760,34 +749,34 @@ public class StructuringService {
                             }
                         }
 
-                    if( error ) break;
+                    if (error) break;
                 }
 
-            if( g != null && !error ) {
+            if (g != null && !error) {
                 //System.out.println("Removing FSE: " + fse.getId());
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> fff : fakeFlows ) diagram.removeEdge(fff);
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> fff : fakeFlows) diagram.removeEdge(fff);
                 diagram.removeEdge(startFlow);
                 removeNode(g);
                 removableFakeStarts.add(fse);
             }
         }
-        for( Event rfs : removableFakeStarts ) removeNode(rfs);
+        for (Event rfs : removableFakeStarts) removeNode(rfs);
 
-		/* Restoring multiple end Events */
-        for( Event fee : fakeEndEvents ) {
+        /* Restoring multiple end Events */
+        for (Event fee : fakeEndEvents) {
             //System.out.println("FakeEnd : " + fee.getId());
             g = null;
             error = false;
             endFlow = null;
             fakeFlows = new HashSet<>();
 
-            for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : diagram.getFlows() ) //loop on flows to find the fakeGateway of this fakeEndEvent
-                if( (f.getTarget() == fee) && (f.getSource() instanceof Gateway) ) {
+            for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : diagram.getFlows()) //loop on flows to find the fakeGateway of this fakeEndEvent
+                if ((f.getTarget() == fee) && (f.getSource() instanceof Gateway)) {
                     endFlow = f;
                     g = (Gateway) f.getSource();
-                    for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : diagram.getFlows() ) //loop on flows to find all the fakeEndFlows
-                        if( ff.getTarget() == g ) {
-                            if( endEvents.contains(ff.getSource()) ) fakeFlows.add(ff);
+                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : diagram.getFlows()) //loop on flows to find all the fakeEndFlows
+                        if (ff.getTarget() == g) {
+                            if (endEvents.contains(ff.getSource())) fakeFlows.add(ff);
                             else {
                                 error = true;
                                 //System.out.println("Fixing FEE: " + fee.getId());
@@ -796,10 +785,10 @@ public class StructuringService {
                             }
                         }
 
-                    if( error ) break;
+                    if (error) break;
                 }
 
-            if( g != null && !error ) {
+            if (g != null && !error) {
                 //System.out.println("Removing FEE: " + fee.getId());
                 for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> fff : fakeFlows) diagram.removeEdge(fff);
                 diagram.removeEdge(endFlow);
@@ -807,65 +796,65 @@ public class StructuringService {
                 removableFakeEnds.add(fee);
             }
         }
-        for( Event rfe : removableFakeEnds ) removeNode(rfe);
+        for (Event rfe : removableFakeEnds) removeNode(rfe);
     }
 
     private void tryToFixBound(Event e, Activity a, boolean increment) {
 
-        if( !(e.getParentSubProcess() == a.getParentSubProcess()) ) return;
-        for( Flow f : diagram.getFlows() )
-            if( f.getTarget().equals(e) && (f.getSource() instanceof Gateway) ) {
+        if (!(e.getParentSubProcess() == a.getParentSubProcess())) return;
+        for (Flow f : diagram.getFlows())
+            if (f.getTarget().equals(e) && (f.getSource() instanceof Gateway)) {
                 diagram.removeEdge(f);
                 e.setExceptionFor(a);
-                if( increment ) a.incNumOfBoundaryEvents();
+                if (increment) a.incNumOfBoundaryEvents();
                 //System.out.println("Boundary event restored: " + a.getId() + " > " + e.getId());
                 return;
             }
     }
 
-    private void fixStartEvent( Event fakeStart ) {
+    private void fixStartEvent(Event fakeStart) {
         Event e;
         String eID;
 
-        for( BPMNNode n : matrices.keySet() )
-            if( matrices.get(n) == fakeStart ) {
+        for (BPMNNode n : matrices.keySet())
+            if (matrices.get(n) == fakeStart) {
                 e = (Event) n;
                 e.setEventType(Event.EventType.INTERMEDIATE);
                 eID = e.getId().toString();
 
-                if( blackList.containsKey(eID) )
-                    for( BPMNNode bde : blackList.get(eID) )
-                        if( bde instanceof Event ) ((Event)bde).setEventType(Event.EventType.INTERMEDIATE);
+                if (blackList.containsKey(eID))
+                    for (BPMNNode bde : blackList.get(eID))
+                        if (bde instanceof Event) ((Event) bde).setEventType(Event.EventType.INTERMEDIATE);
 
-                if( whiteList.containsKey(eID) )
-                    for( BPMNNode wde : whiteList.get(eID) )
-                        if( wde instanceof Event ) ((Event)wde).setEventType(Event.EventType.INTERMEDIATE);
+                if (whiteList.containsKey(eID))
+                    for (BPMNNode wde : whiteList.get(eID))
+                        if (wde instanceof Event) ((Event) wde).setEventType(Event.EventType.INTERMEDIATE);
             }
     }
 
-    private void fixEndEvent( Event fakeEnd ) {
+    private void fixEndEvent(Event fakeEnd) {
         Event e;
         String eID;
 
-        for( BPMNNode n : matrices.keySet() )
-            if( matrices.get(n) == fakeEnd ) {
+        for (BPMNNode n : matrices.keySet())
+            if (matrices.get(n) == fakeEnd) {
                 e = (Event) n;
                 e.setEventType(Event.EventType.INTERMEDIATE);
                 eID = e.getId().toString();
 
-                if( blackList.containsKey(eID) )
-                    for( BPMNNode bde : blackList.get(eID) )
-                        if( bde instanceof Event ) ((Event)bde).setEventType(Event.EventType.INTERMEDIATE);
+                if (blackList.containsKey(eID))
+                    for (BPMNNode bde : blackList.get(eID))
+                        if (bde instanceof Event) ((Event) bde).setEventType(Event.EventType.INTERMEDIATE);
 
-                if( whiteList.containsKey(eID) )
-                    for( BPMNNode wde : whiteList.get(eID) )
-                        if( wde instanceof Event ) ((Event)wde).setEventType(Event.EventType.INTERMEDIATE);
+                if (whiteList.containsKey(eID))
+                    for (BPMNNode wde : whiteList.get(eID))
+                        if (wde instanceof Event) ((Event) wde).setEventType(Event.EventType.INTERMEDIATE);
             }
     }
 
     private void removeNode(BPMNNode n) {
         diagram.removeNode(n);
-        if( n.getParentSubProcess() != null ) n.getParentSubProcess().getChildren().remove(n);
-        if( n.getParentSwimlane() != null ) n.getParentSwimlane().getChildren().remove(n);
+        if (n.getParentSubProcess() != null) n.getParentSubProcess().getChildren().remove(n);
+        if (n.getParentSwimlane() != null) n.getParentSwimlane().getChildren().remove(n);
     }
 }

@@ -3,8 +3,6 @@ package de.drscc.automaton;
 import java.util.Collections;
 import java.util.Stack;
 
-import de.drscc.automaton.Transition;
-
 public class TarjanSCC {
 
     private boolean[] marked;        // marked[v] = has v been visited?
@@ -17,15 +15,15 @@ public class TarjanSCC {
 
     /**
      * Computes the strong components of the digraph {@code G}.
+     *
      * @param G the digraph
      */
     public TarjanSCC(Automaton G) {
-        marked = new boolean[Collections.max(G.states().keySet())+1];
-        stack = new Stack<Integer>();
-        id = new int[Collections.max(G.states().keySet())+1]; 
-        low = new int[Collections.max(G.states().keySet())+1];
-        for (int v :  G.states().keySet()) 
-        {
+        marked = new boolean[Collections.max(G.states().keySet()) + 1];
+        stack = new Stack<>();
+        id = new int[Collections.max(G.states().keySet()) + 1];
+        low = new int[Collections.max(G.states().keySet()) + 1];
+        for (int v : G.states().keySet()) {
             if (!marked[v]) dfs(G, v);
         }
 
@@ -33,24 +31,21 @@ public class TarjanSCC {
         //assert check(G);
     }
 
-    private void dfs(Automaton G, int v) { 
+    private void dfs(Automaton G, int v) {
         marked[v] = true;
         low[v] = pre++;
         int min = low[v];
         stack.push(v);
-        for (Transition tr : G.states().get(v).outgoingTransitions()) 
-        {
-        	if (!marked[tr.target().id()]) dfs(G, tr.target().id());
+        for (Transition tr : G.states().get(v).outgoingTransitions()) {
+            if (!marked[tr.target().id()]) dfs(G, tr.target().id());
             if (low[tr.target().id()] < min) min = low[tr.target().id()];
         }
-        if (min < low[v]) 
-        {
+        if (min < low[v]) {
             low[v] = min;
             return;
         }
         int w;
-        do 
-        {
+        do {
             w = stack.pop();
             id[w] = count;
             low[w] = G.states().size();
@@ -61,6 +56,7 @@ public class TarjanSCC {
 
     /**
      * Returns the number of strong components.
+     *
      * @return the number of strong components
      */
     public int count() {
@@ -70,10 +66,11 @@ public class TarjanSCC {
 
     /**
      * Are vertices {@code v} and {@code w} in the same strong component?
-     * @param  v one vertex
-     * @param  w the other vertex
+     *
+     * @param v one vertex
+     * @param w the other vertex
      * @return {@code true} if vertices {@code v} and {@code w} are in the same
-     *         strong component, and {@code false} otherwise
+     * strong component, and {@code false} otherwise
      * @throws IllegalArgumentException unless {@code 0 <= v < V}
      * @throws IllegalArgumentException unless {@code 0 <= w < V}
      */
@@ -85,7 +82,8 @@ public class TarjanSCC {
 
     /**
      * Returns the component id of the strong component containing vertex {@code v}.
-     * @param  v the vertex
+     *
+     * @param v the vertex
      * @return the component id of the strong component containing vertex {@code v}
      * @throws IllegalArgumentException unless {@code 0 <= v < V}
      */
@@ -110,7 +108,7 @@ public class TarjanSCC {
     private void validateVertex(int v) {
         int V = marked.length;
         if (v < 0 || v >= V)
-            throw new IllegalArgumentException("vertex " + v + " is not between 0 and " + (V-1));
+            throw new IllegalArgumentException("vertex " + v + " is not between 0 and " + (V - 1));
     }
 
     /**

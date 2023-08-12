@@ -18,18 +18,13 @@ public class AutomatedProcessDiscoveryOptimizer {
     private static int MAXIT = 50;
     private static int NEIGHBOURHOOD = 5;
     private static int TIMEOUT = 300000;
-
-    public enum MetaOpt {RLS, ILS, TS, SA}
     private MinerProxy minerProxy;
     private int order;
     private MetaOpt metaheuristics;
     private MinerProxy.MinerTAG miner;
     private SimpleLog slog;
     private BPMNDiagram bpmn;
-
     private String modelName;
-
-    private Metaheuristics explorer;
 
     public AutomatedProcessDiscoveryOptimizer(int order, MetaOpt metaheuristics, MinerProxy.MinerTAG mtag) {
         this.order = order;
@@ -37,11 +32,22 @@ public class AutomatedProcessDiscoveryOptimizer {
         this.miner = mtag;
     }
 
+    public static void exportBPMN(BPMNDiagram diagram, String path) {
+        BpmnExportPlugin bpmnExportPlugin = new BpmnExportPlugin();
+        UIContext context = new UIContext();
+        UIPluginContext uiPluginContext = context.getMainPluginContext();
+        try {
+            bpmnExportPlugin.export(uiPluginContext, diagram, new File(path));
+        } catch (Exception e) {
+            System.out.println("ERROR - impossible to export the BPMN");
+        }
+    }
+
     public boolean init(String logPath) {
         XLog xlog;
-        modelName = logPath.substring(logPath.lastIndexOf("\\")+1);
+        modelName = logPath.substring(logPath.lastIndexOf("\\") + 1);
         modelName = modelName.substring(0, modelName.indexOf("."));
-        if(!modelName.contains("PRT")) modelName = "PUB" + modelName;
+        if (!modelName.contains("PRT")) modelName = "PUB" + modelName;
 
 //        System.out.println("MODEL NAME = " + modelName);
 
@@ -57,38 +63,5 @@ public class AutomatedProcessDiscoveryOptimizer {
         return true;
     }
 
-    public BPMNDiagram searchOptimalBPMN() {
-
-        switch(metaheuristics) {
-            case RLS:
-                explorer = new RepeatedLocalSearch(minerProxy);
-                bpmn = explorer.searchOptimalSolution(slog, order, MAXIT, NEIGHBOURHOOD, TIMEOUT, modelName);
-                break;
-            case ILS:
-                explorer = new IteratedLocalSearch(minerProxy);
-                bpmn = explorer.searchOptimalSolution(slog, order, MAXIT, NEIGHBOURHOOD, TIMEOUT, modelName);
-                break;
-            case TS:
-                explorer = new TabuSearch(minerProxy);
-                bpmn = explorer.searchOptimalSolution(slog, order, MAXIT, NEIGHBOURHOOD, TIMEOUT, modelName);
-                break;
-            case SA:
-                explorer = new SimulatedAnnealing(minerProxy);
-                bpmn = explorer.searchOptimalSolution(slog, order, MAXIT, NEIGHBOURHOOD, TIMEOUT, modelName);
-                break;
-        }
-
-//        exportBPMN(bpmn, ".\\os-bpmn_" + System.currentTimeMillis() + ".bpmn");
-        exportBPMN(bpmn, ".\\" + metaheuristics.toString() + "_" + modelName + ".bpmn");
-        return  bpmn;
-    }
-
-    public static void exportBPMN(BPMNDiagram diagram, String path) {
-        BpmnExportPlugin bpmnExportPlugin = new BpmnExportPlugin();
-        UIContext context = new UIContext();
-        UIPluginContext uiPluginContext = context.getMainPluginContext();
-        try {
-            bpmnExportPlugin.export(uiPluginContext, diagram, new File(path));
-        } catch (Exception e) { System.out.println("ERROR - impossible to export the BPMN"); }
-    }
+    public enum MetaOpt {RLS, ILS, TS, SA}
 }

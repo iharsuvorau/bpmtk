@@ -50,7 +50,7 @@ public class DiagramHandler {
     private Map<BPMNNode, HashSet<BPMNNode>> logicSuccessors;
     private Map<BPMNNode, HashSet<BPMNNode>> logicPredecessors;
 
-    public DiagramHandler(){
+    public DiagramHandler() {
         diagram = null;
         nodes = null;
         successors = null;
@@ -64,13 +64,13 @@ public class DiagramHandler {
         BPMNEdge<? extends BPMNNode, ? extends BPMNNode> out1, out2;
 
 
-        for(Gateway g : gates) {
-            if( g.getGatewayType() == Gateway.GatewayType.PARALLEL ) continue;
-            while( diagram.getOutEdges(g).size() > 2 ) {
+        for (Gateway g : gates) {
+            if (g.getGatewayType() == Gateway.GatewayType.PARALLEL) continue;
+            while (diagram.getOutEdges(g).size() > 2) {
                 out1 = null;
                 out2 = null;
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(g) ) {
-                    if(out1 == null) out1 = e;
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(g)) {
+                    if (out1 == null) out1 = e;
                     else {
                         out2 = e;
                         break;
@@ -95,12 +95,12 @@ public class DiagramHandler {
         BPMNEdge<? extends BPMNNode, ? extends BPMNNode> in1, in2;
 
 
-        for(Gateway g : gates) {
-            while( diagram.getInEdges(g).size() > 2 ) {
+        for (Gateway g : gates) {
+            while (diagram.getInEdges(g).size() > 2) {
                 in1 = null;
                 in2 = null;
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(g) ) {
-                    if(in1 == null) in1 = e;
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(g)) {
+                    if (in1 == null) in1 = e;
                     else {
                         in2 = e;
                         break;
@@ -124,13 +124,13 @@ public class DiagramHandler {
         in = null;
         out = null;
 
-        for( Activity a : diagram.getActivities() )
-            if( a.isBLooped() ) {
+        for (Activity a : diagram.getActivities())
+            if (a.isBLooped()) {
                 a.setBLooped(false);
                 entry = diagram.addGateway("", Gateway.GatewayType.DATABASED, a.getParentSubProcess());
                 exit = diagram.addGateway("", Gateway.GatewayType.DATABASED, a.getParentSubProcess());
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(a) ) in = e;
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(a) ) out = e;
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(a)) in = e;
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(a)) out = e;
                 diagram.addFlow(in.getSource(), entry, "");
                 diagram.addFlow(exit, out.getTarget(), "");
                 diagram.addFlow(exit, entry, "");
@@ -147,24 +147,24 @@ public class DiagramHandler {
         HashSet<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> removable;
         int jsCounter = 0;
 
-        for( Gateway join : new HashSet<Gateway>(diagram.getGateways()) )
-            if( (diagram.getInEdges(join).size() > 1) && (diagram.getOutEdges(join).size() > 1) ) {
+        for (Gateway join : new HashSet<>(diagram.getGateways()))
+            if ((diagram.getInEdges(join).size() > 1) && (diagram.getOutEdges(join).size() > 1)) {
                 jsCounter++;
 
 //                this is going to be the new split, and we will keep js as join only
 //                split = diagram.addGateway("", join.getGatewayType());
-                split = diagram.addGateway("js"+jsCounter, join.getGatewayType());
+                split = diagram.addGateway("js" + jsCounter, join.getGatewayType());
                 join.setGatewayType(Gateway.GatewayType.INCLUSIVE);
 
                 removable = new HashSet<>();
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(join) ) {
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(join)) {
                     diagram.addFlow(split, e.getTarget(), "");
                     removable.add(e);
                 }
 
                 diagram.addFlow(join, split, "");
-                
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : removable ) diagram.removeEdge(e);
+
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : removable) diagram.removeEdge(e);
             }
 
 //       System.out.println("DEBUG - join/split removed: " + jsCounter);
@@ -172,7 +172,7 @@ public class DiagramHandler {
 
     public void touch(BPMNDiagram diagram) {
         int l = 0;
-        for( Flow f : diagram.getFlows() ) f.setLabel(Integer.toString(l++));
+        for (Flow f : diagram.getFlows()) f.setLabel(Integer.toString(l++));
     }
 
     public void reduceUnsoundness(BPMNDiagram diagram) {
@@ -188,28 +188,29 @@ public class DiagramHandler {
             keepGoing = false;
             toRemove = new HashSet<>();
 
-            for(Gateway g : diagram.getGateways() )
-                if( g.getGatewayType() == Gateway.GatewayType.PARALLEL ) {
-                    if( diagram.getOutEdges(g).size() > 1 && diagram.getInEdges(g).size() == 1 ) {
-                        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : diagram.getOutEdges(g) ) {
+            for (Gateway g : diagram.getGateways())
+                if (g.getGatewayType() == Gateway.GatewayType.PARALLEL) {
+                    if (diagram.getOutEdges(g).size() > 1 && diagram.getInEdges(g).size() == 1) {
+                        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : diagram.getOutEdges(g)) {
                             tgt = f.getTarget();
-                            if( tgt instanceof Gateway && (((Gateway) tgt).getGatewayType() == Gateway.GatewayType.DATABASED) ) {
+                            if (tgt instanceof Gateway && (((Gateway) tgt).getGatewayType() == Gateway.GatewayType.DATABASED)) {
                                 keepGoing = true;
                                 oldXOR = (Gateway) tgt;
                                 outFlow = f;
-                                for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : diagram.getInEdges(g)) inFlow = ff;
+                                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : diagram.getInEdges(g))
+                                    inFlow = ff;
                                 break;
                             }
                         }
-                        if( keepGoing ) break;
+                        if (keepGoing) break;
                     }
                 }
 
-            if( keepGoing ) {
+            if (keepGoing) {
                 diagram.removeEdge(outFlow);
                 src = inFlow.getSource();
                 tgt = inFlow.getTarget();
-                if( src instanceof Gateway && ((Gateway) src).getGatewayType() == Gateway.GatewayType.DATABASED ) {
+                if (src instanceof Gateway && ((Gateway) src).getGatewayType() == Gateway.GatewayType.DATABASED) {
                     newXOR = (Gateway) src;
                 } else {
                     newXOR = diagram.addGateway("new-XOR", Gateway.GatewayType.DATABASED);
@@ -218,20 +219,20 @@ public class DiagramHandler {
                     diagram.removeEdge(inFlow);
                 }
 
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : diagram.getInEdges(oldXOR) ) {
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : diagram.getInEdges(oldXOR)) {
                     diagram.addFlow(f.getSource(), newXOR, "");
                     toRemove.add(f);
                 }
 
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : diagram.getOutEdges(oldXOR) ) {
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : diagram.getOutEdges(oldXOR)) {
                     diagram.addFlow(tgt, f.getTarget(), "");
                     toRemove.add(f);
                 }
 
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : toRemove ) diagram.removeEdge(f);
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : toRemove) diagram.removeEdge(f);
                 removeNode(diagram, oldXOR);
             }
-        }while( keepGoing );
+        } while (keepGoing);
     }
 
     public void removeEmptyParallelFlows(BPMNDiagram diagram) {
@@ -241,19 +242,19 @@ public class DiagramHandler {
         HashSet<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> toExtend;
         HashSet<Gateway> toCheck;
 
-        for( Gateway g : new HashSet<Gateway>(diagram.getGateways()) ) checkFakeGateway(diagram, g);
+        for (Gateway g : new HashSet<>(diagram.getGateways())) checkFakeGateway(diagram, g);
 
-        do{
+        do {
             toRemove = new HashSet<>();
             toCheck = new HashSet<>();
             keepGoing = false;
-            for( Flow f : diagram.getFlows() ) {
+            for (Flow f : diagram.getFlows()) {
                 src = f.getSource();
                 tgt = f.getTarget();
-                if( src instanceof Gateway &&
-                    tgt instanceof Gateway &&
+                if (src instanceof Gateway &&
+                        tgt instanceof Gateway &&
 //                    ((Gateway) src).getGatewayType() == ((Gateway) tgt).getGatewayType() &&
-                    ((Gateway) src).getGatewayType() == Gateway.GatewayType.PARALLEL &&
+                        ((Gateway) src).getGatewayType() == Gateway.GatewayType.PARALLEL &&
                         diagram.getInEdges(tgt).size() > 1) {
                     toRemove.add(f);
                     System.out.println("DEBUG - removing empty parallel flow.");
@@ -263,25 +264,27 @@ public class DiagramHandler {
                 }
             }
 
-            for( Flow f : toRemove ) {
+            for (Flow f : toRemove) {
                 src = f.getSource();
                 tgt = f.getTarget();
                 diagram.removeEdge(f);
 
-                if( diagram.getOutEdges(src).size() == 0 ) {
+                if (diagram.getOutEdges(src).size() == 0) {
                     toExtend = new HashSet<>();
-                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : diagram.getInEdges(src)) toExtend.add(ff);
+                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : diagram.getInEdges(src))
+                        toExtend.add(ff);
 
-                    for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : toExtend) {
+                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : toExtend) {
                         src = ff.getSource();
                         diagram.removeEdge(ff);
                         diagram.addFlow(src, tgt, "");
                     }
-                } else if( diagram.getInEdges(tgt).size() == 0 ) {
+                } else if (diagram.getInEdges(tgt).size() == 0) {
                     toExtend = new HashSet<>();
-                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : diagram.getOutEdges(tgt)) toExtend.add(ff);
+                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : diagram.getOutEdges(tgt))
+                        toExtend.add(ff);
 
-                    for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : toExtend) {
+                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : toExtend) {
                         tgt = ff.getTarget();
                         diagram.removeEdge(ff);
                         diagram.addFlow(src, tgt, "");
@@ -289,22 +292,22 @@ public class DiagramHandler {
                 }
             }
 
-            if( keepGoing ) for( Gateway g : toCheck ) checkFakeGateway(diagram, g);
-        } while( keepGoing );
+            if (keepGoing) for (Gateway g : toCheck) checkFakeGateway(diagram, g);
+        } while (keepGoing);
     }
 
     public void removeDuplicates(BPMNDiagram diagram) {
-        while( checkDuplicates(diagram) ) ;
+        while (checkDuplicates(diagram)) ;
     }
 
     public boolean checkDuplicates(BPMNDiagram diagram) {
-        if(diagram == null) return false;
+        if (diagram == null) return false;
         boolean changed = false;
 
         try {
             HashMap<String, BPMNNode> bpmnNodes = new HashMap<>();
-            HashMap<BPMNNode, Vertex> mapping = new HashMap<BPMNNode, Vertex>();
-            HashMap<String, Gateway> gates = new HashMap<String, Gateway>();
+            HashMap<BPMNNode, Vertex> mapping = new HashMap<>();
+            HashMap<String, Gateway> gates = new HashMap<>();
             HashMap<Gateway, Map<RPSTNode, HashSet<RPSTNode>>> checkMap = new HashMap<>();
             HashMap<Gateway, ArrayList<RPSTNode>> hierarchy = new HashMap<>();
             ArrayList<RPSTNode> rpstNodeHierarchy = new ArrayList<>();
@@ -345,7 +348,7 @@ public class DiagramHandler {
             RPSTNode root = rpst.getRoot();
             RPSTNode rootParent;
             RPSTNode key;
-            LinkedList<RPSTNode> toAnalize = new LinkedList<RPSTNode>();
+            LinkedList<RPSTNode> toAnalize = new LinkedList<>();
             toAnalize.addLast(root);
 
             while (toAnalize.size() != 0) {
@@ -353,24 +356,26 @@ public class DiagramHandler {
                 rootParent = rpst.getParent(root);
                 rpstNodeHierarchy.add(0, root);
 
-                if( root.getType() == TCType.T ) continue;
+                if (root.getType() == TCType.T) continue;
 
-                if( root.getType() == TCType.B ) {
+                if (root.getType() == TCType.B) {
                     parentExit = gates.get(root.getExit().getName());
-                    if( !checkMap.containsKey(parentExit) ) {
-                        checkMap.put(parentExit, new HashMap<RPSTNode, HashSet<RPSTNode>>());
-                        hierarchy.put(parentExit, new ArrayList<RPSTNode>());
+                    if (!checkMap.containsKey(parentExit)) {
+                        checkMap.put(parentExit, new HashMap<>());
+                        hierarchy.put(parentExit, new ArrayList<>());
                     }
-                    if( !checkMap.get(parentExit).containsKey(root) ) checkMap.get(parentExit).put(root, new HashSet<RPSTNode>());
+                    if (!checkMap.get(parentExit).containsKey(root))
+                        checkMap.get(parentExit).put(root, new HashSet<>());
                     key = root;
                     hierarchy.get(parentExit).add(0, key);
-                } else if( (root.getType() == TCType.P) && (rootParent != null) && (rootParent.getType() == TCType.B) ) {
+                } else if ((root.getType() == TCType.P) && (rootParent != null) && (rootParent.getType() == TCType.B)) {
                     parentExit = gates.get(root.getExit().getName());
-                    if( !checkMap.containsKey(parentExit) ) {
-                        checkMap.put(parentExit, new HashMap<RPSTNode, HashSet<RPSTNode>>());
-                        hierarchy.put(parentExit, new ArrayList<RPSTNode>());
+                    if (!checkMap.containsKey(parentExit)) {
+                        checkMap.put(parentExit, new HashMap<>());
+                        hierarchy.put(parentExit, new ArrayList<>());
                     }
-                    if( !checkMap.get(parentExit).containsKey(rootParent) ) checkMap.get(parentExit).put(rootParent, new HashSet<RPSTNode>());
+                    if (!checkMap.get(parentExit).containsKey(rootParent))
+                        checkMap.get(parentExit).put(rootParent, new HashSet<>());
                     key = rootParent;
                     hierarchy.get(parentExit).add(0, key);
                 } else {
@@ -386,9 +391,9 @@ public class DiagramHandler {
                             System.out.println("WARNING - rigid found.");
                             return false;
                         case T:
-                            if( gates.containsKey(exitID) && !gates.containsKey(entryID) ) {
+                            if (gates.containsKey(exitID) && !gates.containsKey(entryID)) {
                                 childExit = gates.get(exitID);
-                                if( childExit == parentExit ) {
+                                if (childExit == parentExit) {
                                     //System.out.println("DEBUG - adding trivial for gate: " + childExit.getLabel());
                                     checkMap.get(parentExit).get(key).add(n);
                                 }
@@ -400,7 +405,7 @@ public class DiagramHandler {
                             break;
                         case B:
                             childExit = gates.get(exitID);
-                            if( childExit == parentExit ) {
+                            if (childExit == parentExit) {
                                 //System.out.println("DEBUG - adding bond for gate: " + childExit.getLabel());
                                 checkMap.get(parentExit).get(key).add(n);
                             }
@@ -411,27 +416,28 @@ public class DiagramHandler {
                 }
             }
 
-            while( !rpstNodeHierarchy.isEmpty() )
+            while (!rpstNodeHierarchy.isEmpty())
                 generateRPSTNodeCode(rpst, rpstNodeHierarchy.remove(0), rpstNodeToID, bpmnNodes);
 
-            for( Gateway gate : checkMap.keySet() )
-            while( !hierarchy.get(gate).isEmpty() ) {
+            for (Gateway gate : checkMap.keySet())
+                while (!hierarchy.get(gate).isEmpty()) {
                     RPSTNode bondParent = hierarchy.get(gate).remove(0);
                     HashSet<RPSTNode> enteringRPSTNodes = checkMap.get(gate).get(bondParent);
                     Set<RPSTNode> bondToCompare = new HashSet<>();
                     Set<RPSTNode> trivialToCompare = new HashSet<>();
 
-                    for( RPSTNode node : enteringRPSTNodes ) {
-                        if( node.getType() == TCType.T ) trivialToCompare.add(node);
+                    for (RPSTNode node : enteringRPSTNodes) {
+                        if (node.getType() == TCType.T) trivialToCompare.add(node);
                         else bondToCompare.add(node);
                     }
 
-                    if( !trivialToCompare.isEmpty() ) changed = mergeTrivials(trivialToCompare, bpmnNodes, diagram, gate);
-                    if( changed ) return changed;
+                    if (!trivialToCompare.isEmpty())
+                        changed = mergeTrivials(trivialToCompare, bpmnNodes, diagram, gate);
+                    if (changed) return changed;
 
-                    if( !bondToCompare.isEmpty() ) changed = mergeBonds(bondToCompare, rpstNodeToID, bpmnNodes, diagram);
-                    if( changed ) return changed;
-            }
+                    if (!bondToCompare.isEmpty()) changed = mergeBonds(bondToCompare, rpstNodeToID, bpmnNodes, diagram);
+                    if (changed) return changed;
+                }
         } catch (Exception e) {
             e.printStackTrace(System.out);
             System.out.println("WARNING - impossible remove duplicates.");
@@ -446,14 +452,14 @@ public class DiagramHandler {
         BPMNNode entry = mapping.get(node.getEntry().getName());
         BPMNNode exit = mapping.get(node.getExit().getName());
 
-        switch( node.getType() ) {
+        switch (node.getType()) {
             case T:
                 //System.out.println("DEBUG - generating code for a Trivial.");
                 String entryCode, exitCode;
-                if(entry instanceof Gateway) entryCode = ((Gateway) entry).getGatewayType().toString();
+                if (entry instanceof Gateway) entryCode = ((Gateway) entry).getGatewayType().toString();
                 else entryCode = entry.getLabel();
 
-                if(exit instanceof Gateway) exitCode = ((Gateway) exit).getGatewayType().toString();
+                if (exit instanceof Gateway) exitCode = ((Gateway) exit).getGatewayType().toString();
                 else exitCode = exit.getLabel();
 
                 code += "T." + entryCode + "." + exitCode;
@@ -464,31 +470,31 @@ public class DiagramHandler {
                 String entryID = entry.getId().toString();
                 String exitID = exit.getId().toString();
                 do {
-                    for( RPSTNode next : new HashSet<RPSTNode>(rpst.getChildren(node)) )
-                        if( entryID.equalsIgnoreCase(next.getEntry().getName()) ) {
-                            if( rpstNodeToID.containsKey(next) ) childrenCodes.addLast(rpstNodeToID.get(next));
+                    for (RPSTNode next : new HashSet<RPSTNode>(rpst.getChildren(node)))
+                        if (entryID.equalsIgnoreCase(next.getEntry().getName())) {
+                            if (rpstNodeToID.containsKey(next)) childrenCodes.addLast(rpstNodeToID.get(next));
                             else System.out.println("ERROR - code not found. Wrong tree traversal.");
                             entryID = next.getExit().getName();
                             //System.out.println("DEBUG - updating entry.");
                             break;
                         }
                     //System.out.println("DEBUG - cycling.");
-                } while( !entryID.equalsIgnoreCase(exitID) );
+                } while (!entryID.equalsIgnoreCase(exitID));
 
                 code += "P.";
-                while( childrenCodes.size() != 1 ) code += childrenCodes.removeFirst() + ".";
+                while (childrenCodes.size() != 1) code += childrenCodes.removeFirst() + ".";
                 code += childrenCodes.removeFirst();
                 break;
 
             case B:
                 //System.out.println("DEBUG - generating code for a Bond.");
-                for( RPSTNode n : new HashSet<RPSTNode>(rpst.getChildren(node)) )
-                    if( rpstNodeToID.containsKey(n) ) childrenCodes.add(rpstNodeToID.get(n));
+                for (RPSTNode n : new HashSet<RPSTNode>(rpst.getChildren(node)))
+                    if (rpstNodeToID.containsKey(n)) childrenCodes.add(rpstNodeToID.get(n));
                     else System.out.println("ERROR - code not found. Wrong tree traversal.");
 
                 Collections.sort(childrenCodes);
                 code += "B.";
-                while( childrenCodes.size() != 1 ) code += childrenCodes.remove(0) + ".";
+                while (childrenCodes.size() != 1) code += childrenCodes.remove(0) + ".";
                 code += childrenCodes.remove(0);
                 break;
 
@@ -510,29 +516,30 @@ public class DiagramHandler {
 
         //System.out.println("DEBUG - trying to merge trivials: " + trivialToCompare.size());
 
-        for( RPSTNode n : trivialToCompare ) {
+        for (RPSTNode n : trivialToCompare) {
             bpmnNode = mapping.get(n.getEntry().getName());
-            if(bpmnNode instanceof Gateway) continue;
+            if (bpmnNode instanceof Gateway) continue;
             String label = bpmnNode.getLabel();
-            if( !duplicates.containsKey(label) ) {
-                duplicates.put(label, new HashSet<BPMNNode>());
+            if (!duplicates.containsKey(label)) {
+                duplicates.put(label, new HashSet<>());
                 toKeep.add(bpmnNode);
             } else duplicates.get(label).add(bpmnNode);
         }
 
-        for( BPMNNode survivor : toKeep ) {
+        for (BPMNNode survivor : toKeep) {
             String label = survivor.getLabel();
-            if( !duplicates.get(label).isEmpty() ) {
+            if (!duplicates.get(label).isEmpty()) {
                 Gateway gate = diagram.addGateway("", exit.getGatewayType(), survivor.getParentSubProcess());
-                for( BPMNNode n : duplicates.get(label) ) {
-                    for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(n) ) diagram.removeEdge(e);
-                    for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(n) ) {
+                for (BPMNNode n : duplicates.get(label)) {
+                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(n))
+                        diagram.removeEdge(e);
+                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(n)) {
                         diagram.addFlow(e.getSource(), gate, "");
                         diagram.removeEdge(e);
                     }
                     removeNode(diagram, n);
                 }
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(survivor) ) {
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(survivor)) {
                     diagram.addFlow(e.getSource(), gate, "");
                     diagram.removeEdge(e);
                 }
@@ -554,19 +561,19 @@ public class DiagramHandler {
 
 //        System.out.println("DEBUG - trying to merge bonds: " + bondsToCompare.size());
 
-        for( RPSTNode bond : bondsToCompare ) {
+        for (RPSTNode bond : bondsToCompare) {
             String code = rpstNodeToID.get(bond);
-            if( !duplicates.containsKey(code) ) {
-                duplicates.put(code, new HashSet<RPSTNode>());
+            if (!duplicates.containsKey(code)) {
+                duplicates.put(code, new HashSet<>());
                 toKeep.add(bond);
             } else duplicates.get(code).add(bond);
         }
 
-        for( RPSTNode bond : toKeep ) {
+        for (RPSTNode bond : toKeep) {
             String code = rpstNodeToID.get(bond);
             BPMNNode entry = mapping.get(bond.getEntry().getName());
-            if( !duplicates.get(code).isEmpty() ) {
-                for( RPSTNode duplicateBond : duplicates.get(code) ) removeBond(duplicateBond, mapping, diagram, entry);
+            if (!duplicates.get(code).isEmpty()) {
+                for (RPSTNode duplicateBond : duplicates.get(code)) removeBond(duplicateBond, mapping, diagram, entry);
                 changed = true;
                 System.out.println("SIMPLIFY - removed BONDS: " + duplicates.get(code).size());
             }
@@ -587,17 +594,17 @@ public class DiagramHandler {
         entry = mapping.get(bond.getEntry().getName());
         exit = mapping.get(bond.getExit().getName());
 
-        if(entry == null) {
+        if (entry == null) {
             System.out.println("ERROR - impossible remove bond: gateway not found in mapping.");
             return;
         }
 
-        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(entry) ) {
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(entry)) {
             diagram.addFlow(e.getSource(), newEntry, "");
             diagram.removeEdge(e);
         }
 
-        for(IDirectedEdge e : edges) {
+        for (IDirectedEdge e : edges) {
             src = e.getSource();
             tgt = e.getTarget();
 
@@ -615,24 +622,28 @@ public class DiagramHandler {
             }
 
             nodes.add(bpmnSRC);
-            for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ee : diagram.getOutEdges(bpmnSRC)) diagram.removeEdge(ee);
-            for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ee : diagram.getInEdges(bpmnSRC)) diagram.removeEdge(ee);
+            for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ee : diagram.getOutEdges(bpmnSRC))
+                diagram.removeEdge(ee);
+            for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ee : diagram.getInEdges(bpmnSRC))
+                diagram.removeEdge(ee);
 
             if (bpmnTGT != exit) {
                 nodes.add(bpmnTGT);
-                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ee : diagram.getOutEdges(bpmnTGT)) diagram.removeEdge(ee);
-                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ee : diagram.getInEdges(bpmnTGT)) diagram.removeEdge(ee);
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ee : diagram.getOutEdges(bpmnTGT))
+                    diagram.removeEdge(ee);
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ee : diagram.getInEdges(bpmnTGT))
+                    diagram.removeEdge(ee);
             }
         }
-        for(BPMNNode n : nodes) removeNode(diagram, n);
+        for (BPMNNode n : nodes) removeNode(diagram, n);
     }
 
     public void fixSoundness(BPMNDiagram diagram) {
-        if(diagram == null) return;
+        if (diagram == null) return;
 
         try {
-            HashMap<BPMNNode, Vertex> mapping = new HashMap<BPMNNode, Vertex>();
-            HashMap<String, Gateway> gates = new HashMap<String, Gateway>();
+            HashMap<BPMNNode, Vertex> mapping = new HashMap<>();
+            HashMap<String, Gateway> gates = new HashMap<>();
 
             IDirectedGraph<DirectedEdge, Vertex> graph = new DirectedGraph();
             Vertex src;
@@ -662,7 +673,7 @@ public class DiagramHandler {
             RPST rpst = new RPST(graph);
 
             RPSTNode root = rpst.getRoot();
-            LinkedList<RPSTNode> toAnalize = new LinkedList<RPSTNode>();
+            LinkedList<RPSTNode> toAnalize = new LinkedList<>();
             toAnalize.add(root);
 
             while (toAnalize.size() != 0) {
@@ -681,7 +692,7 @@ public class DiagramHandler {
                         case B:
                             Gateway entry = gates.get(n.getEntry().getName());
                             Gateway exit = gates.get(n.getExit().getName());
-                            if(!(exit.getGatewayType() == Gateway.GatewayType.PARALLEL))
+                            if (!(exit.getGatewayType() == Gateway.GatewayType.PARALLEL))
                                 exit.setGatewayType(entry.getGatewayType());
                             toAnalize.add(n);
                             break;
@@ -697,11 +708,11 @@ public class DiagramHandler {
     }
 
     public void matchORs(BPMNDiagram diagram) {
-        if(diagram == null) return;
+        if (diagram == null) return;
 
         try {
-            HashMap<BPMNNode, Vertex> mapping = new HashMap<BPMNNode, Vertex>();
-            HashMap<String, Gateway> gates = new HashMap<String, Gateway>();
+            HashMap<BPMNNode, Vertex> mapping = new HashMap<>();
+            HashMap<String, Gateway> gates = new HashMap<>();
 
             IDirectedGraph<DirectedEdge, Vertex> graph = new DirectedGraph();
             Vertex src;
@@ -731,7 +742,7 @@ public class DiagramHandler {
             RPST rpst = new RPST(graph);
 
             RPSTNode root = rpst.getRoot();
-            LinkedList<RPSTNode> toAnalize = new LinkedList<RPSTNode>();
+            LinkedList<RPSTNode> toAnalize = new LinkedList<>();
             toAnalize.add(root);
 
             while (toAnalize.size() != 0) {
@@ -750,7 +761,8 @@ public class DiagramHandler {
                         case B:
                             Gateway entry = gates.get(n.getEntry().getName());
                             Gateway exit = gates.get(n.getExit().getName());
-                            if(entry.getGatewayType() == Gateway.GatewayType.INCLUSIVE) exit.setGatewayType(entry.getGatewayType());
+                            if (entry.getGatewayType() == Gateway.GatewayType.INCLUSIVE)
+                                exit.setGatewayType(entry.getGatewayType());
                             toAnalize.add(n);
                             break;
                         default:
@@ -770,30 +782,30 @@ public class DiagramHandler {
         HashSet<Flow> outFlows;
 
         for (BPMNNode n : diagram.getNodes()) {
-            if( n instanceof Activity || n instanceof CallActivity) {
+            if (n instanceof Activity || n instanceof CallActivity) {
                 inFlows = new HashSet<>();
                 outFlows = new HashSet<>();
 
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(n) )
-                    if(e instanceof Flow) inFlows.add((Flow)e);
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(n))
+                    if (e instanceof Flow) inFlows.add((Flow) e);
 
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(n) )
-                    if(e instanceof Flow) outFlows.add((Flow)e);
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(n))
+                    if (e instanceof Flow) outFlows.add((Flow) e);
 
-                if( inFlows.size() > 1 ) {
+                if (inFlows.size() > 1) {
                     g = diagram.addGateway("exGate", Gateway.GatewayType.DATABASED, n.getParentSubProcess());
                     g.setParentSwimlane(n.getParentSwimlane());
-                    for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : inFlows ) {
+                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : inFlows) {
                         diagram.addFlow(e.getSource(), g, "");
                         diagram.removeEdge(e);
                     }
                     diagram.addFlow(g, n, "");
                 }
 
-                if( outFlows.size() > 1 ) {
+                if (outFlows.size() > 1) {
                     g = diagram.addGateway("exGate", Gateway.GatewayType.PARALLEL, n.getParentSubProcess());
                     g.setParentSwimlane(n.getParentSwimlane());
-                    for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : outFlows ) {
+                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : outFlows) {
                         diagram.addFlow(g, e.getTarget(), "");
                         diagram.removeEdge(e);
                     }
@@ -808,17 +820,17 @@ public class DiagramHandler {
         BPMNNode tgt = null;
         HashSet<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> removable;
 
-        for( Gateway g : new HashSet<>(diagram.getGateways()) ) {
+        for (Gateway g : new HashSet<>(diagram.getGateways())) {
             removable = new HashSet<>();
 
             removable.addAll(diagram.getInEdges(g));
-            if( removable.size() != 1 ) continue;
+            if (removable.size() != 1) continue;
 
             removable.addAll(diagram.getOutEdges(g));
-            if( removable.size() != 2 ) continue;
+            if (removable.size() != 2) continue;
 
-            for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : removable) {
-                if(e.getTarget() == g)  src = e.getSource();
+            for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : removable) {
+                if (e.getTarget() == g) src = e.getSource();
                 else tgt = e.getTarget();
                 diagram.removeEdge(e);
             }
@@ -832,8 +844,8 @@ public class DiagramHandler {
         BPMNEdge<? extends BPMNNode, ? extends BPMNNode> in = null;
         BPMNEdge<? extends BPMNNode, ? extends BPMNNode> out = null;
 
-        if( diagram.getInEdges(g).size() == 0 && diagram.getOutEdges(g).size() == 0 ) removeNode(diagram, g);
-        else if( diagram.getInEdges(g).size() == 1 && diagram.getOutEdges(g).size() == 1 ) {
+        if (diagram.getInEdges(g).size() == 0 && diagram.getOutEdges(g).size() == 0) removeNode(diagram, g);
+        else if (diagram.getInEdges(g).size() == 1 && diagram.getOutEdges(g).size() == 1) {
             in = new ArrayList<>(diagram.getInEdges(g)).get(0);
             out = new ArrayList<>(diagram.getOutEdges(g)).get(0);
 
@@ -849,21 +861,21 @@ public class DiagramHandler {
         HashSet<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> towAway = new HashSet<>();
         HashMap<BPMNNode, HashSet<BPMNNode>> flows = new HashMap<>();
 
-        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : diagram.getEdges() ) {
-            if( !flows.containsKey(f.getSource()) ) {
-                flows.put(f.getSource(), new HashSet<BPMNNode>());
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> f : diagram.getEdges()) {
+            if (!flows.containsKey(f.getSource())) {
+                flows.put(f.getSource(), new HashSet<>());
                 flows.get(f.getSource()).add(f.getTarget());
             } else {
-                if( flows.get(f.getSource()).contains(f.getTarget()) ) towAway.add(f);
+                if (flows.get(f.getSource()).contains(f.getTarget())) towAway.add(f);
                 else flows.get(f.getSource()).add(f.getTarget());
             }
         }
 
-        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : towAway ) {
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : towAway) {
             //System.out.println("DEBUG - doubleFlow removed: " + ff.getSource().getId() + " > " + ff.getTarget().getId());
             diagram.removeEdge(ff);
-            if( ff.getSource() instanceof Gateway )	checkFakeGateway(diagram, (Gateway) ff.getSource());
-            if( ff.getTarget() instanceof Gateway )	checkFakeGateway(diagram, (Gateway) ff.getTarget());
+            if (ff.getSource() instanceof Gateway) checkFakeGateway(diagram, (Gateway) ff.getSource());
+            if (ff.getTarget() instanceof Gateway) checkFakeGateway(diagram, (Gateway) ff.getTarget());
         }
     }
 
@@ -876,30 +888,30 @@ public class DiagramHandler {
 
         do {
             eater = gates.pollFirst();
-            while( !eaten.contains(eater) ) {
+            while (!eaten.contains(eater)) {
                 meal = null;
                 unhealthy = true;
 
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(eater) )
-                    if( (e.getTarget() instanceof Gateway) && ((meal = (Gateway) e.getTarget()).getGatewayType() == eater.getGatewayType()) ) {
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(eater))
+                    if ((e.getTarget() instanceof Gateway) && ((meal = (Gateway) e.getTarget()).getGatewayType() == eater.getGatewayType())) {
                         unhealthy = false;
-                        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ee : diagram.getInEdges(meal) )
-                            if( ee.getSource() != eater ) {
+                        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ee : diagram.getInEdges(meal))
+                            if (ee.getSource() != eater) {
                                 unhealthy = true;
                                 break;
                             }
 
-                        if( unhealthy ) continue;
+                        if (unhealthy) continue;
                         break;
                     }
 
-                if( unhealthy ) break;
+                if (unhealthy) break;
                 else {
                     eatSplit(diagram, meal, eater);
                     eaten.add(meal);
                 }
             }
-        } while( eater != null );
+        } while (eater != null);
 //        System.out.println("DEBUG - collapsed gateways [split]: " + eaten.size());
     }
 
@@ -912,60 +924,60 @@ public class DiagramHandler {
 
         do {
             eater = gates.pollFirst();
-            while( !eaten.contains(eater) ) {
+            while (!eaten.contains(eater)) {
                 meal = null;
                 unhealthy = true;
 
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(eater) )
-                    if( (e.getSource() instanceof Gateway) && ((meal = (Gateway) e.getSource()).getGatewayType() == eater.getGatewayType()) ) {
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(eater))
+                    if ((e.getSource() instanceof Gateway) && ((meal = (Gateway) e.getSource()).getGatewayType() == eater.getGatewayType())) {
                         unhealthy = false;
-                        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ee : diagram.getOutEdges(meal) )
-                            if( ee.getTarget() != eater ) {
+                        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ee : diagram.getOutEdges(meal))
+                            if (ee.getTarget() != eater) {
                                 unhealthy = true;
                                 break;
                             }
 
-                        if( unhealthy ) continue;
+                        if (unhealthy) continue;
                         break;
                     }
 
-                if( unhealthy ) break;
+                if (unhealthy) break;
                 else {
                     eatJoin(diagram, meal, eater);
                     eaten.add(meal);
                 }
             }
-        } while( eater != null );
+        } while (eater != null);
 //        System.out.println("DEBUG - collapsed gateways [join]: " + eaten.size());
     }
 
     private void eatSplit(BPMNDiagram diagram, Gateway meal, Gateway eater) {
         Set<BPMNEdge> mealRemains = new HashSet<>();
 
-        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(meal) ) mealRemains.add(e);
-        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(meal) ) {
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(meal)) mealRemains.add(e);
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(meal)) {
             mealRemains.add(e);
             diagram.addFlow(eater, e.getTarget(), "");
         }
 
-        for(BPMNEdge e : mealRemains) diagram.removeEdge(e);
+        for (BPMNEdge e : mealRemains) diagram.removeEdge(e);
         removeNode(diagram, meal);
     }
 
     private void eatJoin(BPMNDiagram diagram, Gateway meal, Gateway eater) {
         Set<BPMNEdge> mealRemains = new HashSet<>();
 
-        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(meal) ) mealRemains.add(e);
-        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(meal) ) {
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(meal)) mealRemains.add(e);
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(meal)) {
             mealRemains.add(e);
             diagram.addFlow(e.getSource(), eater, "");
         }
 
-        for(BPMNEdge e : mealRemains) diagram.removeEdge(e);
+        for (BPMNEdge e : mealRemains) diagram.removeEdge(e);
         removeNode(diagram, meal);
     }
 
-    public BPMNDiagram copyDiagram (BPMNDiagram diagram) {
+    public BPMNDiagram copyDiagram(BPMNDiagram diagram) {
         BPMNDiagram duplicateDiagram = new BPMNDiagramImpl(diagram.getLabel());
         HashMap<BPMNNode, BPMNNode> originalToCopy = new HashMap<>();
         BPMNNode src, tgt;
@@ -975,21 +987,21 @@ public class DiagramHandler {
         Activity exceptionFor;
         BPMNNode newExceptionFor;
 
-        for( BPMNNode n : diagram.getNodes() ) {
+        for (BPMNNode n : diagram.getNodes()) {
             copy = copyNode(duplicateDiagram, n, n.getLabel());
-            if( copy != null ) originalToCopy.put(n, copy);
+            if (copy != null) originalToCopy.put(n, copy);
             else System.out.println("ERROR - diagram duplication failed [1].");
         }
 
-        for( Flow f : diagram.getFlows() ) {
+        for (Flow f : diagram.getFlows()) {
             src = originalToCopy.get(f.getSource());
             tgt = originalToCopy.get(f.getTarget());
 
-            if( src != null && tgt != null ) duplicateDiagram.addFlow(src, tgt, "");
+            if (src != null && tgt != null) duplicateDiagram.addFlow(src, tgt, "");
             else System.out.println("ERROR - diagram duplication failed [2].");
         }
 
-        for( BPMNNode n : originalToCopy.keySet() ) {
+        for (BPMNNode n : originalToCopy.keySet()) {
             parentSubprocess = (SubProcess) originalToCopy.get(n.getParentSubProcess());
             parentSwimlane = (Swimlane) originalToCopy.get(n.getParentSwimlane());
 
@@ -997,11 +1009,11 @@ public class DiagramHandler {
             copy.setParentSubprocess(parentSubprocess);
             copy.setParentSwimlane(parentSwimlane);
 
-            if( (n instanceof Event) && (copy instanceof Event) ) {
-                exceptionFor = ((Event)n).getBoundingNode();
-                if( exceptionFor != null ) {
+            if ((n instanceof Event) && (copy instanceof Event)) {
+                exceptionFor = ((Event) n).getBoundingNode();
+                if (exceptionFor != null) {
                     newExceptionFor = originalToCopy.get(exceptionFor);
-                    if( newExceptionFor instanceof Activity ) ((Event) copy).setExceptionFor((Activity) newExceptionFor);
+                    if (newExceptionFor instanceof Activity) ((Event) copy).setExceptionFor((Activity) newExceptionFor);
                 }
             }
         }
@@ -1013,8 +1025,8 @@ public class DiagramHandler {
     public BPMNNode copyNode(BPMNDiagram diagram, BPMNNode node, String label) {
         BPMNNode duplicate = null;
 
-        if( node instanceof SubProcess) {
-            duplicate = diagram.addSubProcess( label,
+        if (node instanceof SubProcess) {
+            duplicate = diagram.addSubProcess(label,
                     ((Activity) node).isBLooped(),
                     ((Activity) node).isBAdhoc(),
                     ((Activity) node).isBCompensation(),
@@ -1022,8 +1034,8 @@ public class DiagramHandler {
                     ((Activity) node).isBCollapsed(),
                     (SubProcess) null);
 
-        } else if( node instanceof Activity) {
-            duplicate = diagram.addActivity( label,
+        } else if (node instanceof Activity) {
+            duplicate = diagram.addActivity(label,
                     ((Activity) node).isBLooped(),
                     ((Activity) node).isBAdhoc(),
                     ((Activity) node).isBCompensation(),
@@ -1031,8 +1043,8 @@ public class DiagramHandler {
                     ((Activity) node).isBCollapsed(),
                     (SubProcess) null);
 
-        } else if( node instanceof CallActivity) {
-            duplicate = diagram.addCallActivity( label,
+        } else if (node instanceof CallActivity) {
+            duplicate = diagram.addCallActivity(label,
                     ((CallActivity) node).isBLooped(),
                     ((CallActivity) node).isBAdhoc(),
                     ((CallActivity) node).isBCompensation(),
@@ -1040,8 +1052,8 @@ public class DiagramHandler {
                     ((CallActivity) node).isBCollapsed(),
                     (SubProcess) null);
 
-        } else if( node instanceof Event) {
-            duplicate = diagram.addEvent( label,
+        } else if (node instanceof Event) {
+            duplicate = diagram.addEvent(label,
                     ((Event) node).getEventType(),
                     ((Event) node).getEventTrigger(),
                     ((Event) node).getEventUse(),
@@ -1049,8 +1061,8 @@ public class DiagramHandler {
                     true,
                     null);
 
-        } else if( node instanceof Gateway) {
-            duplicate = diagram.addGateway( label,
+        } else if (node instanceof Gateway) {
+            duplicate = diagram.addGateway(label,
                     ((Gateway) node).getGatewayType(),
                     (SubProcess) null);
 
@@ -1065,8 +1077,8 @@ public class DiagramHandler {
 
     private void removeNode(BPMNDiagram diagram, BPMNNode n) {
         diagram.removeNode(n);
-        if( n.getParentSubProcess() != null ) n.getParentSubProcess().getChildren().remove(n);
-        if( n.getParentSwimlane() != null ) n.getParentSwimlane().getChildren().remove(n);
+        if (n.getParentSubProcess() != null) n.getParentSubProcess().getChildren().remove(n);
+        if (n.getParentSwimlane() != null) n.getParentSwimlane().getChildren().remove(n);
     }
 
     public void setDiagram(BPMNDiagram diagram) {
@@ -1076,13 +1088,13 @@ public class DiagramHandler {
         successors = new HashMap<>();
         BPMNNode src, tgt;
 
-        for( BPMNNode node : diagram.getNodes() ) {
-            successors.put(node, new HashSet<BPMNNode>());
-            predecessors.put(node, new HashSet<BPMNNode>());
+        for (BPMNNode node : diagram.getNodes()) {
+            successors.put(node, new HashSet<>());
+            predecessors.put(node, new HashSet<>());
             nodes.put(node.getLabel(), node);
         }
 
-        for( Flow f : diagram.getFlows()) {
+        for (Flow f : diagram.getFlows()) {
             src = f.getSource();
             tgt = f.getTarget();
 
@@ -1091,11 +1103,21 @@ public class DiagramHandler {
         }
     }
 
-    public Set<BPMNNode> getPredecessors(BPMNNode node) { return new HashSet<>(predecessors.get(node)); }
-    public Set<BPMNNode> getSuccessors(BPMNNode node) { return new HashSet<>(successors.get(node)); }
+    public Set<BPMNNode> getPredecessors(BPMNNode node) {
+        return new HashSet<>(predecessors.get(node));
+    }
 
-    public BPMNNode getSuccessor(Activity a) { return (new ArrayList<BPMNNode>(successors.get(a))).get(0); }
-    public BPMNNode getPredecessor(Activity a) { return (new ArrayList<BPMNNode>(predecessors.get(a))).get(0); }
+    public Set<BPMNNode> getSuccessors(BPMNNode node) {
+        return new HashSet<>(successors.get(node));
+    }
+
+    public BPMNNode getSuccessor(Activity a) {
+        return (new ArrayList<>(successors.get(a))).get(0);
+    }
+
+    public BPMNNode getPredecessor(Activity a) {
+        return (new ArrayList<>(predecessors.get(a))).get(0);
+    }
 
 
     public boolean checkAndRemoveSkippingActivity(Activity a) {
@@ -1103,14 +1125,14 @@ public class DiagramHandler {
         BPMNNode prev = getPredecessor(a);
         BPMNNode succ = getSuccessor(a);
 
-        if( (prev instanceof Gateway) && (succ instanceof Gateway) && (successors.get(prev).size() == 2) ) {
-            for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(prev) )
-                if( e.getTarget().equals(succ) ) {
+        if ((prev instanceof Gateway) && (succ instanceof Gateway) && (successors.get(prev).size() == 2)) {
+            for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(prev))
+                if (e.getTarget().equals(succ)) {
                     toRemove = e;
                     break;
                 }
 
-            if( toRemove != null ) {
+            if (toRemove != null) {
                 diagram.removeEdge(toRemove);
                 System.out.println("DEBUG - removed skypping activity: " + a.getLabel());
                 return true;
@@ -1123,27 +1145,27 @@ public class DiagramHandler {
     public void removeEdge(BPMNNode src, BPMNNode tgt) {
         BPMNEdge<? extends BPMNNode, ? extends BPMNNode> toRemove = null;
 
-        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(src) )
-            if( e.getTarget().equals(tgt) ) {
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(src))
+            if (e.getTarget().equals(tgt)) {
                 toRemove = e;
                 break;
             }
 
-        if( toRemove != null ) diagram.removeEdge(toRemove);
+        if (toRemove != null) diagram.removeEdge(toRemove);
     }
 
     public void setSkipping(Activity a) {
         System.out.println("DEBUG - adding skipping activity: " + a.getLabel());
         BPMNNode prev = getPredecessor(a);
         BPMNNode succ = getSuccessor(a);
-        Gateway  gEntry = diagram.addGateway("", Gateway.GatewayType.DATABASED);
-        Gateway  gExit = diagram.addGateway("", Gateway.GatewayType.DATABASED);
+        Gateway gEntry = diagram.addGateway("", Gateway.GatewayType.DATABASED);
+        Gateway gExit = diagram.addGateway("", Gateway.GatewayType.DATABASED);
         Set<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> toRemove = new HashSet();
 
-        for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(a)) toRemove.add(e);
-        for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(a)) toRemove.add(e);
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(a)) toRemove.add(e);
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(a)) toRemove.add(e);
 
-        for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : toRemove) diagram.removeEdge(e);
+        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : toRemove) diagram.removeEdge(e);
 
         diagram.addFlow(gEntry, a, "");
         diagram.addFlow(a, gExit, "");

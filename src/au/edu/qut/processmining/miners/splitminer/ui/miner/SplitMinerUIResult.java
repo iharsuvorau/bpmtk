@@ -7,11 +7,9 @@ import au.edu.qut.processmining.miners.splitminer.ui.dfgp.DFGPUIResult;
  */
 public class SplitMinerUIResult extends DFGPUIResult {
 
-    public enum StructuringTime {NONE, POST, PRE}
     public static final StructuringTime STRUCT_POLICY = StructuringTime.NONE;
     private boolean replaceIORs;
     private boolean removeLoopActivities;
-
     private StructuringTime structuringTime;
 
     public SplitMinerUIResult() {
@@ -20,13 +18,6 @@ public class SplitMinerUIResult extends DFGPUIResult {
         removeLoopActivities = false;
     }
 
-    public StructuringTime getStructuringTime() { return structuringTime; }
-    public void setStructuringTime(StructuringTime structuringTime) { this.structuringTime = structuringTime; }
-
-    public boolean isReplaceIORs() { return replaceIORs; }
-    public void setReplaceIORs(boolean replaceIORs) { this.replaceIORs = replaceIORs; }
-
-    public boolean isRemoveLoopActivities() { return removeLoopActivities; }
-    public void setRemoveLoopActivities(boolean removeLoopActivities) { this.removeLoopActivities = removeLoopActivities; }
+    public enum StructuringTime {NONE, POST, PRE}
 
 }

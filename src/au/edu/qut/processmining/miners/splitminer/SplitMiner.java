@@ -350,10 +350,10 @@ public class SplitMiner {
 
         try {
             HashMap<String, BPMNNode> nodes = new HashMap<>();
-            HashMap<BPMNNode, Vertex> vertexes = new HashMap<BPMNNode, Vertex>();
+            HashMap<BPMNNode, Vertex> vertexes = new HashMap<>();
 
-            HashMap<String, Gateway.GatewayType> gates = new HashMap<String, Gateway.GatewayType>();
-            ArrayList<RPSTNode> rpstBottomUpHierarchy = new ArrayList<RPSTNode>();
+            HashMap<String, Gateway.GatewayType> gates = new HashMap<>();
+            ArrayList<RPSTNode> rpstBottomUpHierarchy = new ArrayList<>();
             HashSet<RPSTNode> loops = new HashSet<>();
             HashSet<RPSTNode> rigids = new HashSet<>();
 
@@ -398,7 +398,7 @@ public class SplitMiner {
 //            then, we explore the RPST top-down, but just to save its bottom-up structure
 //            in particular, we will focus on rigids and bonds
             RPSTNode root = rpst.getRoot();
-            LinkedList<RPSTNode> toAnalize = new LinkedList<RPSTNode>();
+            LinkedList<RPSTNode> toAnalize = new LinkedList<>();
             toAnalize.addLast(root);
             while (toAnalize.size() != 0) {
                 root = toAnalize.removeFirst();

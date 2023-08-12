@@ -1,13 +1,13 @@
 package de.drscc.automaton;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
 import org.eclipse.collections.impl.map.mutable.primitive.IntIntHashMap;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.eclipse.collections.impl.set.mutable.primitive.IntHashSet;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /*
  * Copyright © 2009-2017 The Apromore Initiative.
@@ -35,141 +35,126 @@ import org.eclipse.collections.impl.set.mutable.primitive.IntHashSet;
  */
 
 public class State {
-	public static int UNIQUE_ID = 0;
-	private int id = UNIQUE_ID++;
-	private String label;
-	private Set<Transition> outgoingTransitions;
-	private Set<Transition> incomingTransitions;
-	private boolean isSource;
-	private boolean isFinal;
-	private int component = -1;
-	public boolean isLoopState = false;
-	private IntHashSet loops;
-	@SuppressWarnings("unused")
-	private boolean explore = true;
-	private boolean hasLoopFuture = false;
-	private UnifiedSet<IntIntHashMap> futureLoops;
-	private Set<IntIntHashMap> loopLabels;
-	private Set<IntIntHashMap> possibleFutures;
-	private Map<IntIntHashMap, Map<IntArrayList, IntArrayList>> potentialPathsAndTraceLabels;
-	//private	Map<IntArrayList, IntArrayList> traceLabels;
-	
-	public State(int id, boolean isSource, boolean isFinal)
-	{
+    public static int UNIQUE_ID = 0;
+    public boolean isLoopState = false;
+    private int id = UNIQUE_ID++;
+    private String label;
+    private Set<Transition> outgoingTransitions;
+    private Set<Transition> incomingTransitions;
+    private boolean isSource;
+    private boolean isFinal;
+    private int component = -1;
+    private IntHashSet loops;
+    @SuppressWarnings("unused")
+    private boolean explore = true;
+    private boolean hasLoopFuture = false;
+    private UnifiedSet<IntIntHashMap> futureLoops;
+    private Set<IntIntHashMap> loopLabels;
+    private Set<IntIntHashMap> possibleFutures;
+    private Map<IntIntHashMap, Map<IntArrayList, IntArrayList>> potentialPathsAndTraceLabels;
+    //private	Map<IntArrayList, IntArrayList> traceLabels;
+
+    public State(int id, boolean isSource, boolean isFinal) {
 //		if (!(id>=0)) {return;}
-		this.id = id;
-		this.label = "" + id;
-		this.isSource = isSource;
-		this.isFinal = isFinal;
-		
-	}
-	
-	public State(String label, boolean isSource, boolean isFinal)
-	{
-		this.label = label;
-		if(this.label.contains("<html>") && this.label.contains("</html>"))
-			this.label = this.label.substring(6, this.label.length()-7);
-		this.isSource = isSource;
-		this.isFinal = isFinal;
-		
-	}
-	
-	public int id()
-	{
-		return this.id;
-	}
-	
-	public String label()
-	{
-		return this.label;
-	}
-	
-	public Set<Transition> outgoingTransitions()
-	{
-		if (this.outgoingTransitions == null){this.outgoingTransitions = new UnifiedSet<Transition>();}
-		return this.outgoingTransitions;
-	}
-	
-	public Set<Transition> incomingTransitions()
-	{
-		if (this.incomingTransitions == null){this.incomingTransitions = new UnifiedSet<Transition>();}
-		return this.incomingTransitions;
-	}
-	
-	public boolean isSource()
-	{
-		return this.isSource;
-	}
-	
-	public boolean isFinal()
-	{
-		return this.isFinal;
-	}
-	
-	public Set<IntIntHashMap> possibleFutures()
-	{
-		if(this.possibleFutures == null)
-			this.possibleFutures = new UnifiedSet<IntIntHashMap>();
-		return this.possibleFutures;
-	}
-	
-	public Map<IntIntHashMap, Map<IntArrayList, IntArrayList>> potentialPathsAndTraceLabels()
-	{
-		if(!this.isFinal())
-			return null;
-		if(this.potentialPathsAndTraceLabels == null)
-			this.potentialPathsAndTraceLabels = new HashMap<IntIntHashMap, Map<IntArrayList, IntArrayList>>();
-		return this.potentialPathsAndTraceLabels;
-	}
-	
-	public void setComponent(int component)
-	{
-		this.component = component;
-	}
-	
-	public int component()
-	{
-		return this.component;
-	}
-	
-	public boolean explore()
-	{
-		for(Transition tr : this.outgoingTransitions())
-		{
-			if(tr.explore) return false;
-		}
-		return true;
-	}
-	
-	public Set<IntIntHashMap> loopLabels()
-	{
-		if(this.loopLabels==null)
-			this.loopLabels = new UnifiedSet<IntIntHashMap>();
-		return this.loopLabels;
-	}
-	
-	public IntHashSet loops()
-	{
-		if(this.loops==null)
-				this.loops = new IntHashSet();
-		return this.loops;
-	}
-	
-	public UnifiedSet<IntIntHashMap> futureLoops()
-	{
-		if(this.futureLoops==null)
-		{
-			this.futureLoops = new UnifiedSet<IntIntHashMap>();
-			this.hasLoopFuture=true;
-		}
-		return this.futureLoops;
-	}
-	
-	public boolean hasLoopFuture()
-	{
-		return this.hasLoopFuture;
-	}
-	
+        this.id = id;
+        this.label = "" + id;
+        this.isSource = isSource;
+        this.isFinal = isFinal;
+
+    }
+
+    public State(String label, boolean isSource, boolean isFinal) {
+        this.label = label;
+        if (this.label.contains("<html>") && this.label.contains("</html>"))
+            this.label = this.label.substring(6, this.label.length() - 7);
+        this.isSource = isSource;
+        this.isFinal = isFinal;
+
+    }
+
+    public int id() {
+        return this.id;
+    }
+
+    public String label() {
+        return this.label;
+    }
+
+    public Set<Transition> outgoingTransitions() {
+        if (this.outgoingTransitions == null) {
+            this.outgoingTransitions = new UnifiedSet<>();
+        }
+        return this.outgoingTransitions;
+    }
+
+    public Set<Transition> incomingTransitions() {
+        if (this.incomingTransitions == null) {
+            this.incomingTransitions = new UnifiedSet<>();
+        }
+        return this.incomingTransitions;
+    }
+
+    public boolean isSource() {
+        return this.isSource;
+    }
+
+    public boolean isFinal() {
+        return this.isFinal;
+    }
+
+    public Set<IntIntHashMap> possibleFutures() {
+        if (this.possibleFutures == null)
+            this.possibleFutures = new UnifiedSet<>();
+        return this.possibleFutures;
+    }
+
+    public Map<IntIntHashMap, Map<IntArrayList, IntArrayList>> potentialPathsAndTraceLabels() {
+        if (!this.isFinal())
+            return null;
+        if (this.potentialPathsAndTraceLabels == null)
+            this.potentialPathsAndTraceLabels = new HashMap<>();
+        return this.potentialPathsAndTraceLabels;
+    }
+
+    public void setComponent(int component) {
+        this.component = component;
+    }
+
+    public int component() {
+        return this.component;
+    }
+
+    public boolean explore() {
+        for (Transition tr : this.outgoingTransitions()) {
+            if (tr.explore) return false;
+        }
+        return true;
+    }
+
+    public Set<IntIntHashMap> loopLabels() {
+        if (this.loopLabels == null)
+            this.loopLabels = new UnifiedSet<>();
+        return this.loopLabels;
+    }
+
+    public IntHashSet loops() {
+        if (this.loops == null)
+            this.loops = new IntHashSet();
+        return this.loops;
+    }
+
+    public UnifiedSet<IntIntHashMap> futureLoops() {
+        if (this.futureLoops == null) {
+            this.futureLoops = new UnifiedSet<>();
+            this.hasLoopFuture = true;
+        }
+        return this.futureLoops;
+    }
+
+    public boolean hasLoopFuture() {
+        return this.hasLoopFuture;
+    }
+
 //	public Map<IntArrayList, IntArrayList> traceLabels()
 //	{
 //		if(!this.isFinal())	return null;
@@ -177,8 +162,8 @@ public class State {
 //			this.traceLabels = new HashMap<IntArrayList, IntArrayList>();
 //		return this.traceLabels;
 //	}
-	
-	@Override
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -203,6 +188,6 @@ public class State {
 //        		.append(this.isSource())
 //        		.append(this.isFinal())
 //        		.toHashCode();
-    	return this.id();
+        return this.id();
     }
 }
