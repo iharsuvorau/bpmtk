@@ -23,7 +23,6 @@ public class ServiceProvider {
     public static void main(String[] args) {
         ServiceProvider testProvider = new ServiceProvider();
 
-
         try {
             System.out.println("TESTCODE - " + args[0]);
             TEST_CODE code = TEST_CODE.valueOf(args[0]);
@@ -40,7 +39,6 @@ public class ServiceProvider {
             e.printStackTrace();
         }
     }
-
 
     public void SplitMinerService(String[] args) {
         try {
@@ -74,7 +72,6 @@ public class ServiceProvider {
             e.printStackTrace();
         }
     }
-
 
     public enum TEST_CODE {SMD}
 

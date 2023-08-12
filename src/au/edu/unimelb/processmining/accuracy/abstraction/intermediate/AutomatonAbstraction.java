@@ -1,8 +1,6 @@
 package au.edu.unimelb.processmining.accuracy.abstraction.intermediate;
 
 import au.edu.qut.processmining.log.SimpleLog;
-import au.edu.unimelb.processmining.accuracy.abstraction.markovian.MarkovLabel;
-import au.edu.unimelb.processmining.accuracy.abstraction.set.SetLabel;
 import de.drscc.automaton.Automaton;
 import de.drscc.automaton.Transition;
 import org.processmining.models.graphbased.directed.transitionsystem.State;
@@ -31,10 +29,10 @@ public class AutomatonAbstraction {
         edges = new HashSet<>();
         nodes = new HashMap<>();
         outgoings = new HashMap<>();
-    //        incomings = new HashMap<>();
-    //        abstraction = new HashMap<>();
+        //        incomings = new HashMap<>();
+        //        abstraction = new HashMap<>();
 
-    //        System.out.println("DEBUG - input: " + automaton.states().size() + ":" + automaton.transitions().size());
+        //        System.out.println("DEBUG - input: " + automaton.states().size() + ":" + automaton.transitions().size());
 
         matchIDs(automaton.eventLabels(), log.getReverseMap());
         populate(automaton, log.getEvents());
@@ -61,13 +59,13 @@ public class AutomatonAbstraction {
         mapping = new HashMap<>();
         sources = new HashSet<>();
         targets = new HashSet<>();
-        for(org.processmining.models.graphbased.directed.transitionsystem.Transition t : transitionSystem.getEdges()) {
+        for (org.processmining.models.graphbased.directed.transitionsystem.Transition t : transitionSystem.getEdges()) {
             src = t.getSource();
             tgt = t.getTarget();
 
-            if(!mapping.containsKey(src)) {
+            if (!mapping.containsKey(src)) {
                 asrc = new AANode(id);
-                nodes.put(id,asrc);
+                nodes.put(id, asrc);
                 mapping.put(src, asrc);
                 outgoings.put(id, new HashSet<>());
                 sources.add(id);
@@ -77,9 +75,9 @@ public class AutomatonAbstraction {
                 sources.add(asrc.getID());
             }
 
-            if(!mapping.containsKey(tgt)) {
+            if (!mapping.containsKey(tgt)) {
                 atgt = new AANode(id);
-                nodes.put(id,atgt);
+                nodes.put(id, atgt);
                 mapping.put(tgt, atgt);
                 outgoings.put(id, new HashSet<>());
                 targets.add(atgt.getID());
@@ -89,7 +87,7 @@ public class AutomatonAbstraction {
                 targets.add(atgt.getID());
             }
 
-            if( t.getLabel().equalsIgnoreCase("tau")) label = TAU;
+            if (t.getLabel().equalsIgnoreCase("tau")) label = TAU;
             else label = log.getReverseMap().get(t.getLabel().replace("-complete", ""));
 
             edge = new AAEdge(id, asrc, atgt, label, t.getLabel());
@@ -100,8 +98,8 @@ public class AutomatonAbstraction {
         }
 
         sources.removeAll(targets);
-        if( sources.size() == 1 ) {
-            for(int i : sources ) {
+        if (sources.size() == 1) {
+            for (int i : sources) {
                 source = nodes.get(i);
 //                System.out.println("DEBUG - source is: " + i);
             }
@@ -111,8 +109,8 @@ public class AutomatonAbstraction {
             nodes.put(id, source);
             outgoings.put(id, new HashSet<>());
             id++;
-            for(int i : sources) {
-                edge = new AAEdge(id,source, nodes.get(i), TAU);
+            for (int i : sources) {
+                edge = new AAEdge(id, source, nodes.get(i), TAU);
                 edges.add(edge);
                 outgoings.get(source.getID()).add(edge);
                 id++;
@@ -122,7 +120,7 @@ public class AutomatonAbstraction {
 //        this.print();
     }
 
-//    we need to match the ids of the automaton to those of the log, on a task-labels basis
+    //    we need to match the ids of the automaton to those of the log, on a task-labels basis
     private void matchIDs(Map<Integer, String> automatonEIDs, Map<String, Integer> logEIDs) {
         idsMapping = new HashMap<>();
 
@@ -131,39 +129,39 @@ public class AutomatonAbstraction {
         String label;
         int i;
 
-        for( int aid : automatonEIDs.keySet() ) {
-            if( automatonEIDs.get(aid).contains("tau") || automatonEIDs.get(aid).matches("t\\d+")) idsMapping.put(aid, TAU);
+        for (int aid : automatonEIDs.keySet()) {
+            if (automatonEIDs.get(aid).contains("tau") || automatonEIDs.get(aid).matches("t\\d+"))
+                idsMapping.put(aid, TAU);
             else {
                 label = automatonEIDs.get(aid);
                 i = label.indexOf("+");
-                if( i != -1 ) label = label.substring(0, i);
-                if( (lid = logEIDs.get(label)) == null ) {
+                if (i != -1) label = label.substring(0, i);
+                if ((lid = logEIDs.get(label)) == null) {
 //                    System.out.println("ERROR - foreigner activity: " + label);
                     idsMapping.put(aid, wid--);
-                }
-                else idsMapping.put(aid, lid);
+                } else idsMapping.put(aid, lid);
             }
         }
 
-        if(wid < -2) System.out.println("ERROR - foreigner activities found!");
+        if (wid < -2) System.out.println("ERROR - foreigner activities found!");
     }
 
-    private void populate(Automaton automaton,  Map<Integer, String> eNames) {
+    private void populate(Automaton automaton, Map<Integer, String> eNames) {
         int id;
         AANode src, tgt;
         AAEdge edge;
         int eid;
 
-        for( Transition t : automaton.transitions().values() ) {
+        for (Transition t : automaton.transitions().values()) {
             id = t.target().id();
-            if( (tgt = nodes.get(id)) == null ) {
+            if ((tgt = nodes.get(id)) == null) {
                 tgt = new AANode(id);
                 nodes.put(id, tgt);
                 outgoings.put(id, new HashSet<>());
             }
 
             id = t.source().id();
-            if( (src = nodes.get(id)) == null ) {
+            if ((src = nodes.get(id)) == null) {
                 src = new AANode(id);
                 nodes.put(id, src);
                 outgoings.put(id, new HashSet<>());
@@ -178,18 +176,30 @@ public class AutomatonAbstraction {
 
 
         source = nodes.get(automaton.sourceID());
-        if(Collections.min(nodes.keySet()) != 0) System.out.println("INFO - conversion exit code: " + Collections.min(nodes.keySet()));
+        if (Collections.min(nodes.keySet()) != 0)
+            System.out.println("INFO - conversion exit code: " + Collections.min(nodes.keySet()));
 //        this.print();
     }
 
-    public AANode getSource() { return source; }
-    public Set<AANode> getNodes() { return new HashSet<>(nodes.values()); }
-    public Set<AAEdge> getEdges() { return edges; }
-    public Map<Integer, Set<AAEdge>> getOutgoings() { return outgoings; }
+    public AANode getSource() {
+        return source;
+    }
+
+    public Set<AANode> getNodes() {
+        return new HashSet<>(nodes.values());
+    }
+
+    public Set<AAEdge> getEdges() {
+        return edges;
+    }
+
+    public Map<Integer, Set<AAEdge>> getOutgoings() {
+        return outgoings;
+    }
 
     public void print() {
         System.out.println("INFO - A-automaton (n,e): " + nodes.size() + "," + edges.size());
-        for(AAEdge e : edges) System.out.println("INFO - " + e.print());
+        for (AAEdge e : edges) System.out.println("INFO - " + e.print());
     }
 
 }
