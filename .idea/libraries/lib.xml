@@ -41,6 +41,7 @@
       <root url="jar://$PROJECT_DIR$/lib/Widgets.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/slickerbox-1.0rc1.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/tablelayout.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/picocli-4.7.4.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$PROJECT_DIR$/lib/jgraph.jar!/doc/api" />

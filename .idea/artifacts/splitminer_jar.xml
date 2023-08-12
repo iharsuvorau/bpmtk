@@ -43,6 +43,7 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/Widgets.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/slickerbox-1.0rc1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/tablelayout.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/picocli-4.7.4.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
