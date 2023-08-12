@@ -23,17 +23,13 @@ package au.edu.qut.processmining.miners.splitminer;
 import au.edu.qut.bpmn.helper.DiagramHandler;
 import au.edu.qut.bpmn.helper.GatewayMap;
 import au.edu.qut.bpmn.structuring.StructuringService;
-import au.edu.qut.processmining.log.ComplexLog;
 import au.edu.qut.processmining.log.LogParser;
 import au.edu.qut.processmining.log.SimpleLog;
-import au.edu.qut.processmining.miners.splitminer.dfgp.DFGEdge;
-import au.edu.qut.processmining.miners.splitminer.dfgp.DFGNode;
 import au.edu.qut.processmining.miners.splitminer.dfgp.DirectlyFollowGraphPlus;
 import au.edu.qut.processmining.miners.splitminer.oracle.Oracle;
 import au.edu.qut.processmining.miners.splitminer.oracle.OracleItem;
 import au.edu.qut.processmining.miners.splitminer.ui.dfgp.DFGPUIResult;
 import au.edu.qut.processmining.miners.splitminer.ui.miner.SplitMinerUIResult;
-
 import au.edu.unimelb.processmining.optimization.SimpleDirectlyFollowGraph;
 import de.hpi.bpt.graph.DirectedEdge;
 import de.hpi.bpt.graph.DirectedGraph;
@@ -42,13 +38,8 @@ import de.hpi.bpt.graph.algo.rpst.RPST;
 import de.hpi.bpt.graph.algo.rpst.RPSTNode;
 import de.hpi.bpt.graph.algo.tctree.TCType;
 import de.hpi.bpt.hypergraph.abs.Vertex;
-
-import de.hpi.bpt.process.petri.util.BisimilarityChecker;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.model.XLog;
-
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
 import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
@@ -88,34 +79,32 @@ public class SplitMiner {
         this.structuringTime = SplitMinerUIResult.StructuringTime.NONE;
     }
 
-    public DirectlyFollowGraphPlus getDFGP() { return dfgp; }
-
-    public BPMNDiagram getBPMNDiagram() { return bpmnDiagram; }
+    public BPMNDiagram getBPMNDiagram() {
+        return bpmnDiagram;
+    }
 
     public BPMNDiagram mineBPMNModel(XLog log, XEventClassifier xEventClassifier, double percentileFrequencyThreshold, double parallelismsThreshold,
                                      DFGPUIResult.FilterType filterType, boolean parallelismsFirst,
-                                     boolean replaceIORs, boolean removeLoopActivities, SplitMinerUIResult.StructuringTime structuringTime)
-    {
+                                     boolean replaceIORs, boolean removeLoopActivities, SplitMinerUIResult.StructuringTime structuringTime) {
         this.replaceIORs = replaceIORs;
         this.removeLoopActivities = removeLoopActivities;
         this.structuringTime = structuringTime;
 
         this.log = (new LogParser()).getSimpleLog(log, xEventClassifier, 1.00);
-//        this.log = LogParser.getComplexLog(log, xEventClassifier);
 
         generateDFGP(percentileFrequencyThreshold, parallelismsThreshold, filterType, parallelismsFirst);
         try {
             transformDFGPintoBPMN();
             if (structuringTime == SplitMinerUIResult.StructuringTime.POST) structure();
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("ERROR - something went wrong translating DFG to BPMN, trying a second time");
             e.printStackTrace();
-            try{
+            try {
                 dfgp = new DirectlyFollowGraphPlus(this.log, percentileFrequencyThreshold, parallelismsThreshold, filterType, parallelismsFirst);
                 dfgp.buildSafeDFGP();
                 transformDFGPintoBPMN();
                 if (structuringTime == SplitMinerUIResult.StructuringTime.POST) structure();
-            } catch ( Exception ee ) {
+            } catch (Exception ee) {
                 System.out.println("ERROR - nothing to do, returning the bare DFGP");
                 return dfgp.convertIntoBPMNDiagramWithOriginalLabels();
             }
@@ -126,28 +115,26 @@ public class SplitMiner {
 
     public BPMNDiagram mineBPMNModel(SimpleLog log, XEventClassifier xEventClassifier, double percentileFrequencyThreshold, double parallelismsThreshold,
                                      DFGPUIResult.FilterType filterType, boolean parallelismsFirst,
-                                     boolean replaceIORs, boolean removeLoopActivities, SplitMinerUIResult.StructuringTime structuringTime)
-    {
+                                     boolean replaceIORs, boolean removeLoopActivities, SplitMinerUIResult.StructuringTime structuringTime) {
         this.replaceIORs = replaceIORs;
         this.removeLoopActivities = removeLoopActivities;
         this.structuringTime = structuringTime;
 
-//        this.log = (new LogParser()).getSimpleLog(log, xEventClassifier, 1.00);
         this.log = log;
 
         generateDFGP(percentileFrequencyThreshold, parallelismsThreshold, filterType, parallelismsFirst);
         try {
             transformDFGPintoBPMN();
             if (structuringTime == SplitMinerUIResult.StructuringTime.POST) structure();
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("ERROR - something went wrong translating DFG to BPMN, trying a second time");
             e.printStackTrace();
-            try{
+            try {
                 dfgp = new DirectlyFollowGraphPlus(log, percentileFrequencyThreshold, parallelismsThreshold, filterType, parallelismsFirst);
                 dfgp.buildSafeDFGP();
                 transformDFGPintoBPMN();
                 if (structuringTime == SplitMinerUIResult.StructuringTime.POST) structure();
-            } catch ( Exception ee ) {
+            } catch (Exception ee) {
                 System.out.println("ERROR - nothing to do, returning the bare DFGP");
                 return dfgp.convertIntoBPMNDiagramWithOriginalLabels();
             }
@@ -168,7 +155,7 @@ public class SplitMiner {
         try {
             transformDFGPintoBPMN();
             if (structuringTime == SplitMinerUIResult.StructuringTime.POST) structure();
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("ERROR - something went wrong translating DFG to BPMN");
             e.printStackTrace();
             return dfgp.convertIntoBPMNDiagramWithOriginalLabels();
@@ -189,8 +176,6 @@ public class SplitMiner {
         BPMNNode entry = null;
         BPMNNode exit = null;
 
-//        System.out.println("SplitMiner - generating bpmn diagram");
-
         gateCounter = Integer.MIN_VALUE;
 
 //        we retrieve the starting BPMN diagram from the DFGP,
@@ -200,11 +185,11 @@ public class SplitMiner {
 
 //        there are only two events in the initial BPMN diagram,
 //        one is the START and by exclusion the second is the END
-        for( Event e : bpmnDiagram.getEvents() )
-            if( e.getEventType() == Event.EventType.START ) entry = e;
+        for (Event e : bpmnDiagram.getEvents())
+            if (e.getEventType() == Event.EventType.START) entry = e;
             else exit = e;
 
-        if( entry == null || exit == null ) {
+        if (entry == null || exit == null) {
 //            this should never happen
             System.out.println("ERROR - entry(" + entry + ") OR exit(" + exit + ") not found in the DFGP-diagram");
             return;
@@ -225,7 +210,7 @@ public class SplitMiner {
 //        System.out.println("SplitMiner - generating SESE joins ...");
         bondsEntries = new HashSet<>();
         rigidsEntries = new HashSet<>();
-        while( generateSESEjoins() );
+        while (generateSESEjoins()) ;
 
 //        this second method adds the remaining joins, which were no entry neither exits of any RPST node
 //        System.out.println("SplitMiner - generating inner joins ...");
@@ -241,12 +226,7 @@ public class SplitMiner {
 
         updateLabels(this.log.getEvents());
 
-//            helper.collapseSplitGateways(bpmnDiagram);
-//            helper.collapseJoinGateways(bpmnDiagram);
-
-        if(removeLoopActivities) helper.removeLoopActivityMarkers(bpmnDiagram);
-
-//        System.out.println("SplitMiner - bpmn diagram generated successfully");
+        if (removeLoopActivities) helper.removeLoopActivityMarkers(bpmnDiagram);
     }
 
     private void generateSplits(BPMNNode entry, BPMNNode exit) {
@@ -268,34 +248,34 @@ public class SplitMiner {
 //        and we generate the corresponding hierarchy of gateways
 
         toVisit.add(0, entry);
-        while( toVisit.size() != 0 ) {
+        while (toVisit.size() != 0) {
             entry = toVisit.remove(0);
             visited.add(entry);
 //            System.out.println("DEBUG - visiting: " + entry.getLabel());
 
-            if( entry == exit ) continue;
+            if (entry == exit) continue;
 
-            if( bpmnDiagram.getOutEdges(entry).size() > 1 ) {
+            if (bpmnDiagram.getOutEdges(entry).size() > 1) {
 //                entry is a node with multiple outgoing edges
 
                 successors = new HashSet<>();
                 removableEdges = new HashSet<>();
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> oe : bpmnDiagram.getOutEdges(entry) ) {
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> oe : bpmnDiagram.getOutEdges(entry)) {
                     tgt = oe.getTarget();
 //                    we remove all the outgoing edges, because we will restore them with the split gateways
                     removableEdges.add(oe);
                     successors.add(Integer.valueOf(tgt.getLabel()));
                     mapping.put(Integer.valueOf(tgt.getLabel()), tgt);
-                    if( !toVisit.contains(tgt) && !visited.contains(tgt) ) toVisit.add(tgt);
+                    if (!toVisit.contains(tgt) && !visited.contains(tgt)) toVisit.add(tgt);
                 }
 
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : removableEdges ) bpmnDiagram.removeEdge(e);
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : removableEdges) bpmnDiagram.removeEdge(e);
 
 //                to decide the hierarchy of the gateways we use an Oracle item
 //                an Oracle item is a string of the type past|future
 //                more info about this object in its own class
                 oracleItems = new HashSet<>();
-                for( int a : successors ) {
+                for (int a : successors) {
 //                    we generate one Oracle item for each successor of the entry
 //                    the successor will be the past
                     oracleItem = new OracleItem();
@@ -305,8 +285,8 @@ public class SplitMiner {
 //                    if a successor is not concurrent, it means it will we exclusive or directly follow
 //                    if exclusive we do not have to care about it
 //                    if directly follow, it will be processed later
-                    for( int b : successors )
-                        if( (a !=  b) && (dfgp.areConcurrent(a, b)) ) oracleItem.fillFuture(b);
+                    for (int b : successors)
+                        if ((a != b) && (dfgp.areConcurrent(a, b))) oracleItem.fillFuture(b);
 
                     oracleItem.engrave();
                     oracleItems.add(oracleItem);
@@ -321,7 +301,7 @@ public class SplitMiner {
             } else {
 //                we save the only successor of the src
                 tgt = ((new ArrayList<>(bpmnDiagram.getOutEdges(entry))).get(0)).getTarget();
-                if( !toVisit.contains(tgt) && !visited.contains(tgt) ) toVisit.add(tgt);
+                if (!toVisit.contains(tgt) && !visited.contains(tgt)) toVisit.add(tgt);
             }
         }
     }
@@ -336,7 +316,7 @@ public class SplitMiner {
 
 //        System.out.println("DEBUG - generating split from Oracle ~ [xor|and]: " + nextOracleItem + " ~ [" + nextOracleItem.getXorBrothers().size() + "|" + nextOracleItem.getAndBrothers().size() + "]");
 
-        if( candidateJoins.containsKey(nextOracleItem.toString()) ) {
+        if (candidateJoins.containsKey(nextOracleItem.toString())) {
 //            these are joins, they are created considering the fact they share the same future (finalOracleItem)
             candidateJoin = candidateJoins.get(nextOracleItem.toString());
 //            System.out.println("DEBUG - found " + candidateJoin.getGatewayType() + " join for the Oracle item: " + nextOracleItem.toString());
@@ -344,309 +324,26 @@ public class SplitMiner {
             return;
         }
 
-        if( type == null ) {
+        if (type == null) {
 //            if the type was null, it means we reached a simple activity, so we can link the entry with the activity
             nodeCode = nextOracleItem.getNodeCode();
-            if( nodeCode != null ) {
+            if (nodeCode != null) {
                 node = mapping.get(nodeCode);
                 bpmnDiagram.addFlow(entry, node, "");
-            } else System.out.println("ERROR - found an oracle item without brother and more than one element in its past");
+            } else
+                System.out.println("ERROR - found an oracle item without brother and more than one element in its past");
             return;
         }
 
         gate = bpmnDiagram.addGateway(Integer.toString(gateCounter++), type);
         bpmnDiagram.addFlow(entry, gate, "");
-        for( OracleItem next : nextOracleItem.getXorBrothers() ) generateSplitsHierarchy(gate, next, mapping);
-        for( OracleItem next : nextOracleItem.getAndBrothers() ) generateSplitsHierarchy(gate, next, mapping);
+        for (OracleItem next : nextOracleItem.getXorBrothers()) generateSplitsHierarchy(gate, next, mapping);
+        for (OracleItem next : nextOracleItem.getAndBrothers()) generateSplitsHierarchy(gate, next, mapping);
 
         candidateJoins.put(nextOracleItem.toString(), gate);
     }
 
-/*
-    private void generateBitmatrixSplits() {
-//      METHOD-DEPENDENT DATA STRUCTURES
 
-//        for each split task, we have a matrix of bits, each column being a combination of successors tasks that are executed
-        HashMap<Integer, Matrix> splitMaps = new HashMap<>();
-//        for each split task, we have an array storing the successors ids
-//        we query the array to know the index of the successor to update accordingly the row of a matrix
-        HashMap<Integer, ArrayList<Integer>> successors = new HashMap<>();
-
-//        these two structures keep track of the mapping between integer successors codes and the BPMN nodes
-//        as well as the incoming edge of each successor, this is fundamental to edit the BPMN diagram later
-        HashMap<Integer, BPMNNode> successorsToNodes = new HashMap<>();
-        HashMap<Integer, BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> successorsToEdges = new HashMap<>();
-
-//      TRACE-DEPENDENT DATA STRUCTURES
-
-//        while parsing each trace, we have to keep track of all the split tasks that we encountered
-//        then for each of them, if we see one of their successors, we update their bit set
-        HashMap<Integer, BitSet> splitTasksInTrace = new HashMap<>();
-//        for each encountered split task, we remember how far in time we encountered it
-//        we can set a max distance after which we do not update anymore the bitarray for that split task
-        HashMap<Integer, Integer> distances = new HashMap<>();
-
-
-        StringTokenizer trace;
-        int traceFrequency;
-        int event;
-        int MAXD = 4;
-        int skipcounter =0;
-        int i;
-
-        Map<String, Integer> traces = log.getTraces();
-
-        int size;
-        int TID; // this is the split task ID
-        int SID; // tmp successors ID
-        ArrayList<Integer> tmpSuccessors;
-        for(BPMNNode n : bpmnDiagram.getNodes())
-            if((size = bpmnDiagram.getOutEdges(n).size()) > 1) {
-                TID = Integer.valueOf(n.getLabel());
-                splitMaps.put(TID, new Matrix(size));
-
-                tmpSuccessors = new ArrayList<>(size);
-                for(BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : bpmnDiagram.getOutEdges(n)) {
-                    SID = Integer.valueOf(e.getTarget().getLabel());
-                    tmpSuccessors.add(SID);
-                    splitMaps.get(TID).addSuccessor(SID);
-                    successorsToNodes.put(SID, e.getTarget());
-                    successorsToEdges.put(SID, e);
-                }
-                successors.put(TID, tmpSuccessors);
-            }
-
-
-        for( String t : traces.keySet() ) {
-            trace = new StringTokenizer(t, "::");
-            traceFrequency = traces.get(t);
-            splitTasksInTrace.clear();
-
-//            consuming the start event that is always 0
-//            we assume that the start event is not a successor of any split or a split itself
-            trace.nextToken();
-            while( trace.hasMoreTokens() ) {
-                event = Integer.valueOf(trace.nextToken());
-                if (splitMaps.containsKey(event)) {
-                    distances.put(event, 0); // not sure we need this, for the moment we keep it
-                    if (!splitTasksInTrace.containsKey(event)) splitTasksInTrace.put(event, new BitSet());
-                }
-
-                for( int sti : splitTasksInTrace.keySet() ) {
-//                    we now scan all the split tasks that we encountered so far
-//                    however, split task executed too long ago or same of the current event are not taken into account
-//                    distances.put(sti, distances.get(sti)+1);
-                    if( distances.get(sti) > MAXD ||  event == sti ) {
-                        skipcounter++;
-                        continue;
-                    }
-//                    if the current event is a successor for one or more of them (in which case the event is also a join)
-//                    we update the observation bitset of the split task for this trace
-                    if( (i = successors.get(sti).indexOf(event)) != -1 ) splitTasksInTrace.get(sti).set(i);
-                }
-            }
-
-//            once the whole trace has been parsed, we add the bitset of each split task to its matrix of bitsets
-            for( int sti : splitTasksInTrace.keySet() ) splitMaps.get(sti).addBitset(splitTasksInTrace.get(sti), traceFrequency);
-        }
-
-        for( int sti : splitMaps.keySet() )
-            generateSplitsHierarchyFromObservationMatrix(sti, splitMaps.get(sti), successorsToNodes, successorsToEdges);
-
-        System.out.println("DEBUG - skipcounter = " + skipcounter);
-    }
-
-    private void generateSplitsHierarchyFromObservationMatrix(int split, Matrix matrix, HashMap<Integer, BPMNNode> successorsToNodes, HashMap<Integer, BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> successorsToEdges) {
-        boolean print = true;
-
-        System.out.println("DEBUG - Matrix of Split Task: " + log.getEvents().get(split) + " (" + split + ")");
-//        matrix.print();
-//        matrix.prune(0.30);
-
-        HashMap<Integer, BitSet> transposedMatrix = new HashMap<>();
-        int ROWS = matrix.rows();
-
-//      first we transpose the matrix
-        for(int i = 0; i< matrix.totalSuccessors(); i++)
-            transposedMatrix.put(matrix.successors[i], new BitSet(ROWS));
-
-        int r = 0; // row = bitset
-        for(BitSet bs : matrix.matrix.keySet()) {
-            int sl = 0; // location of the successor in the current biset
-            for( ; sl<matrix.totalSuccessors(); sl++)
-                transposedMatrix.get(matrix.successors[sl]).set(r, bs.get(sl));
-            r++;
-        }
-//      transposition is over
-
-        if(print) {
-            System.out.println("DEBUG - transposed matrix");
-            for (int s : transposedMatrix.keySet()) {
-                System.out.print("S: " + s + " :");
-                for (int si = 0; si < ROWS; si++) {
-                    if (transposedMatrix.get(s).get(si)) System.out.print("1");
-                    else System.out.print("0");
-                }
-                System.out.println();
-            }
-        }
-
-//        we compare the successors observations in the same trace
-        Set<Pair<Integer,Integer>> ANDs = new HashSet<>();
-        Set<Pair<Integer,Integer>> SANDs = new HashSet<>();
-        Set<Pair<Integer,Integer>> XORs = new HashSet<>();
-        Set<Pair<Integer,Integer>> ORs = new HashSet<>();
-        Set<Integer> skips = new HashSet<>();
-        BitSet bs0, bs1, bs2;
-        Set<Integer> removableSuccessors = new HashSet<>();
-        Set<Integer> analysed = new HashSet<>();
-        Gate type;
-        do {
-            System.out.println("DEBUG - new round of discovery");
-            for (int s1 : transposedMatrix.keySet()) {
-                bs1 = transposedMatrix.get(s1);
-                analysed.add(s1);
-                for (int s2 : transposedMatrix.keySet()) {
-                    if( analysed.contains(s2) ) continue;
-                    bs2 = transposedMatrix.get(s2);
-                    type = determineGateway(s1, s2, bs1, bs2, ROWS, skips);
-                    switch (type) {
-                        case SAND:
-                            SANDs.add(new ImmutablePair<>(s1,s2));
-                            break;
-                        case AND:
-                            ANDs.add(new ImmutablePair<>(s1,s2));
-                            break;
-                        case XOR:
-                            XORs.add(new ImmutablePair<>(s1,s2));
-                            break;
-                        case OR:
-                            ORs.add(new ImmutablePair<>(s1,s2));
-                            break;
-                    }
-                }
-            }
-
-//            first we check if we found ANDs
-            for(Pair<Integer,Integer> p : ANDs) {
-                if(removableSuccessors.contains(p.getLeft()) || removableSuccessors.contains(p.getRight())) continue;
-//                when we find an AND we can remove one of the two without any issues
-                bs1 = transposedMatrix.get(p.getLeft());
-                removableSuccessors.add(p.getLeft());
-                removableSuccessors.add(p.getRight());
-                bs0 = new BitSet();
-                for(int i = 0; i<ROWS; i++) bs0.set(i, bs1.get(i));
-                transposedMatrix.put(p.getLeft()*100, bs0);
-                System.out.println("DEBUG - AND("+ p.getLeft() + "," + p.getRight() + ")");
-            }
-
-            if(ANDs.isEmpty()) {
-//            then we check for XORs
-                for (Pair<Integer, Integer> p : XORs) {
-                    if(removableSuccessors.contains(p.getLeft()) || removableSuccessors.contains(p.getRight())) continue;
-                    System.out.println("DEBUG - XOR("+ p.getLeft() + "," + p.getRight() + ")");
-//                when we find an XOR....
-                    bs1 = transposedMatrix.get(p.getLeft());
-                    bs2 = transposedMatrix.get(p.getRight());
-                    removableSuccessors.add(p.getLeft());
-                    removableSuccessors.add(p.getRight());
-                    bs0 = new BitSet();
-                    for(int i = 0; i<ROWS; i++) bs0.set(i, bs1.get(i) || bs2.get(i));
-                    transposedMatrix.put(p.getLeft()*100, bs0);
-                }
-
-                if (XORs.isEmpty()) {
-//            then we consider ORs
-                    for (Pair<Integer, Integer> p : ORs) {
-                        if(removableSuccessors.contains(p.getLeft()) || removableSuccessors.contains(p.getRight())) continue;
-                        System.out.println("DEBUG - OR("+ p.getLeft() + "," + p.getRight() + ")");
-//                when we find an OR...
-                        bs1 = transposedMatrix.get(p.getLeft());
-                        bs2 = transposedMatrix.get(p.getRight());
-                        removableSuccessors.add(p.getLeft());
-                        removableSuccessors.add(p.getRight());
-                        bs0 = new BitSet();
-                        for(int i = 0; i<ROWS; i++) bs0.set(i, bs1.get(i) || bs2.get(i));
-                        transposedMatrix.put(p.getLeft()*100, bs0);
-                    }
-
-                    if(ORs.isEmpty()) {
-//                        finally we consider ANDs with skips
-                        for (Pair<Integer, Integer> p : SANDs) {
-                            if(removableSuccessors.contains(p.getLeft()) || removableSuccessors.contains(p.getRight())) continue;
-                            bs1 = transposedMatrix.get(p.getLeft());
-                            bs2 = transposedMatrix.get(p.getRight());
-                            removableSuccessors.add(p.getLeft());
-                            removableSuccessors.add(p.getRight());
-                            bs0 = new BitSet();
-
-                            if( skips.contains(p.getLeft()) ) {
-                                System.out.println("DEBUG - AND(SKIP(" + p.getLeft() + ")," + p.getRight() + ")");
-                                for (int i = 0; i < ROWS; i++) bs0.set(i, bs2.get(i));
-                            } else {
-                                System.out.println("DEBUG - AND("+ p.getLeft() + ",SKIP(" + p.getRight() + "))");
-                                for(int i = 0; i<ROWS; i++) bs0.set(i, bs1.get(i));
-                            }
-                            transposedMatrix.put(p.getLeft()*100, bs0);
-                        }
-                    }
-                }
-            }
-
-            for( int rs : removableSuccessors ) transposedMatrix.remove(rs);
-            removableSuccessors.clear();
-            analysed.clear();
-            ANDs.clear();
-            ORs.clear();
-            XORs.clear();
-            SANDs.clear();
-        } while (transposedMatrix.size() > 1);
-
-    }
-
-    private Gate determineGateway(int s1, int s2, BitSet bs1, BitSet bs2, int size, Set<Integer> skips) {
-        Gate type = Gate.OR;
-        boolean safe = true;
-        int mismatch = 0;
-        int match = 0;
-
-        Set<Pair<Boolean, Boolean>> observations = new HashSet<>();
-        for(int i = 0; i<size; i++)
-            observations.add(new ImmutablePair<>(bs1.get(i),bs2.get(i)));
-
-        if( observations.remove(new ImmutablePair<>(false, false)) ) size--;
-        if(observations.size() >= 3) return Gate.OR;
-
-//        if all the observations match, we have an AND
-        for(Pair<Boolean, Boolean> p : observations)
-            if(p.getLeft() == p.getRight()) match++;
-            else mismatch++;
-
-        if(match == size) return Gate.AND;
-        if(safe && (s1 < 0) || (s2 < 0) ) return Gate.XOR; // this is to play safe with successor-joins
-
-//        otherwise we could have a XOR or OR
-        Pair<Boolean, Boolean> skipL = new ImmutablePair<>(false, true);
-        Pair<Boolean, Boolean> skipR = new ImmutablePair<>(true, false);
-        Pair<Boolean, Boolean> skipNone = new ImmutablePair<>(true, true);
-//        Pair<Boolean, Boolean> skipBoth = new ImmutablePair<>(false, false);
-
-        if(observations.contains(skipL) && observations.contains(skipNone)) {
-            skips.add(s1);
-            return Gate.SAND;
-        }
-
-        if(observations.contains(skipR) && observations.contains(skipNone)) {
-            skips.add(s2);
-            return Gate.SAND;
-        }
-
-        if(observations.contains(skipL) && observations.contains(skipR)) return Gate.XOR;
-        else return Gate.OR;
-
-
-    }
-*/
     private boolean generateSESEjoins() {
         int counter = 0;
         HashSet<String> changed = new HashSet<>();
@@ -674,19 +371,19 @@ public class SplitMiner {
 //            we build the graph from the BPMN Diagram, the graph is necessary to generate the RPST
 //            we build the graph from the BPMN Diagram, the graph is necessary to generate the RPST
 
-            for( Flow f : bpmnDiagram.getFlows((Swimlane) null) ) {
+            for (Flow f : bpmnDiagram.getFlows((Swimlane) null)) {
                 bpmnSRC = f.getSource();
                 bpmnTGT = f.getTarget();
-                if( !vertexes.containsKey(bpmnSRC) ) {
+                if (!vertexes.containsKey(bpmnSRC)) {
                     src = new Vertex(bpmnSRC.getLabel());  //this may not be anymore a unique number, but still a unique label
-                    if( bpmnSRC instanceof Gateway ) gates.put(bpmnSRC.getLabel(), ((Gateway) bpmnSRC).getGatewayType());
+                    if (bpmnSRC instanceof Gateway) gates.put(bpmnSRC.getLabel(), ((Gateway) bpmnSRC).getGatewayType());
                     vertexes.put(bpmnSRC, src);
                     nodes.put(bpmnSRC.getLabel(), bpmnSRC);
                 } else src = vertexes.get(bpmnSRC);
 
-                if( !vertexes.containsKey(bpmnTGT) ) {
+                if (!vertexes.containsKey(bpmnTGT)) {
                     tgt = new Vertex(bpmnTGT.getLabel());  //this may not be anymore a unique number, but still a unique label
-                    if( bpmnTGT instanceof Gateway ) gates.put(bpmnTGT.getLabel(), ((Gateway) bpmnTGT).getGatewayType());
+                    if (bpmnTGT instanceof Gateway) gates.put(bpmnTGT.getLabel(), ((Gateway) bpmnTGT).getGatewayType());
                     vertexes.put(bpmnTGT, tgt);
                     nodes.put(bpmnTGT.getLabel(), bpmnTGT);
                 } else tgt = vertexes.get(bpmnTGT);
@@ -703,11 +400,11 @@ public class SplitMiner {
             RPSTNode root = rpst.getRoot();
             LinkedList<RPSTNode> toAnalize = new LinkedList<RPSTNode>();
             toAnalize.addLast(root);
-            while( toAnalize.size() != 0 ) {
+            while (toAnalize.size() != 0) {
                 root = toAnalize.removeFirst();
 
-                for( RPSTNode n : new HashSet<RPSTNode>(rpst.getChildren(root)) ) {
-                    switch( n.getType() ) {
+                for (RPSTNode n : new HashSet<RPSTNode>(rpst.getChildren(root))) {
+                    switch (n.getType()) {
                         case T:
                             break;
                         case P:
@@ -717,19 +414,19 @@ public class SplitMiner {
                             rigids.add(n);
                         case B:
                             exit = n.getExit().getName();
-                            if( !gates.containsKey(exit) ) {
+                            if (!gates.containsKey(exit)) {
 //                                System.out.println("DEBUG - found a bond exit (" + exit + ") that is not a gateway");
                                 rpstBottomUpHierarchy.add(0, n);
                             } else {
                                 entry = n.getEntry().getName();
-                                if( !gates.containsKey(entry) ) {
+                                if (!gates.containsKey(entry)) {
 //                                    this is the case when an RPSTNode is a LOOP
 //                                    System.out.println("DEBUG - found a bond entry (" + entry + ") that is not a gateway");
                                     rpstBottomUpHierarchy.add(0, n);
                                     loops.add(n);
                                 } else {
-                                    if( n.getType() == TCType.R ) rigidsEntries.add((Gateway)nodes.get(entry));
-                                    else bondsEntries.add((Gateway)nodes.get(entry));
+                                    if (n.getType() == TCType.R) rigidsEntries.add((Gateway) nodes.get(entry));
+                                    else bondsEntries.add((Gateway) nodes.get(entry));
                                 }
                             }
                             toAnalize.addLast(n);
@@ -747,7 +444,7 @@ public class SplitMiner {
             boolean isRigid;
             Gateway.GatewayType gType;
 
-            while( !rpstBottomUpHierarchy.isEmpty() ) {
+            while (!rpstBottomUpHierarchy.isEmpty()) {
                 rpstNode = rpstBottomUpHierarchy.remove(0);
                 entry = rpstNode.getEntry().getName();
                 exit = rpstNode.getExit().getName();
@@ -769,7 +466,7 @@ public class SplitMiner {
 //                if we already turned this activity into a gateway, we cannot edit it anymore
 //                we will go through it again (if needed) in the next call of this method
 //                this explain the outer while loop, and the boolean value returned by this method
-                if( changed.contains(gatify) ) continue;
+                if (changed.contains(gatify)) continue;
                 changed.add(gatify);
 
                 removableEdges = new HashMap<>();
@@ -779,27 +476,27 @@ public class SplitMiner {
 //                we save all the incoming edges to the activity to be turned into gateway,
 //                because they must be removed and substituted by edges to a split gateway
 //                whether they are inside the RPST node graph
-                for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ie : bpmnDiagram.getInEdges(bpmnTGT) )
+                for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ie : bpmnDiagram.getInEdges(bpmnTGT))
                     removableEdges.put(ie.getSource().getLabel(), ie);
 
                 IDirectedGraph<DirectedEdge, Vertex> rpstNodeGraph = rpstNode.getFragment();
-                for( Vertex v : rpstNodeGraph.getVertices() )
-                    if( v.getName().equals(gatify) ) {
+                for (Vertex v : rpstNodeGraph.getVertices())
+                    if (v.getName().equals(gatify)) {
 //                        at this point we have everything we need to update the BPMN diagram and place the join
                         gate = bpmnDiagram.addGateway(Integer.toString(gateCounter++), gType);
                         counter++;
                         bpmnDiagram.addFlow(gate, bpmnTGT, "");
 
-                        for( de.hpi.bpt.graph.abs.AbstractDirectedEdge e : rpstNodeGraph.getEdgesWithTarget(v) ) {
+                        for (de.hpi.bpt.graph.abs.AbstractDirectedEdge e : rpstNodeGraph.getEdgesWithTarget(v)) {
                             srcVertex = e.getSource().getName();
                             toRemove.add(srcVertex);
                             bpmnSRC = nodes.get(srcVertex);
                             bpmnDiagram.addFlow(bpmnSRC, gate, "");
                         }
 
-                        for( String label : removableEdges.keySet() ) {
-                            if( toRemove.contains(label) ) bpmnDiagram.removeEdge(removableEdges.get(label));
-                            else if(isLoop) {
+                        for (String label : removableEdges.keySet()) {
+                            if (toRemove.contains(label)) bpmnDiagram.removeEdge(removableEdges.get(label));
+                            else if (isLoop) {
 //                                loops require this special treatment
 //                                we must remove ALL the incoming edges
 //                                also those which are outside the RPST node graph,
@@ -813,7 +510,7 @@ public class SplitMiner {
                         }
                     }
             }
-        } catch( Error e ) {
+        } catch (Error e) {
             e.printStackTrace(System.out);
             System.out.println("ERROR - impossible to generate split gateways");
             return false;
@@ -831,13 +528,13 @@ public class SplitMiner {
 
 //        all the activities found with multiple incoming edges are turned into inclusive joins
 //        these activities are inside RIGID fragments of the BPMN model
-        for( BPMNNode n : nodes ) {
+        for (BPMNNode n : nodes) {
             removableEdges = new HashSet<>(bpmnDiagram.getInEdges(n));
-            if( (removableEdges.size() <= 1) || (n instanceof Gateway) ) continue;
+            if ((removableEdges.size() <= 1) || (n instanceof Gateway)) continue;
             gate = bpmnDiagram.addGateway(Integer.toString(gateCounter++), Gateway.GatewayType.INCLUSIVE);
             counter++;
             bpmnDiagram.addFlow(gate, n, "");
-            for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : removableEdges ) {
+            for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : removableEdges) {
                 bpmnDiagram.removeEdge(e);
                 bpmnDiagram.addFlow(e.getSource(), gate, "");
             }
@@ -849,7 +546,7 @@ public class SplitMiner {
         bondsEntries.removeAll(rigidsEntries);
         GatewayMap gatemap = new GatewayMap(bondsEntries, replaceIORs);
 //        System.out.println("DEBUG - doing the magic ...");
-        if( gatemap.generateMap(bpmnDiagram) ) {
+        if (gatemap.generateMap(bpmnDiagram)) {
             gatemap.detectAndReplaceIORs();
             gatemap.checkANDLoops(true);
         } else System.out.println("ERROR - something went wrong initializing the gateway map");
@@ -859,27 +556,28 @@ public class SplitMiner {
         int tgt1, tgt2;
         boolean ORs = false;
         int columns;
-        if(!replaceIORs) {
+        if (!replaceIORs) {
             potentialORs = dfgp.getPotentialORs();
             columns = (int) Math.sqrt(potentialORs.length);
-            for( Gateway g : bpmnDiagram.getGateways() ) {
-                if( g.getGatewayType() == Gateway.GatewayType.PARALLEL && bpmnDiagram.getOutEdges(g).size() > 1 ) {
+            for (Gateway g : bpmnDiagram.getGateways()) {
+                if (g.getGatewayType() == Gateway.GatewayType.PARALLEL && bpmnDiagram.getOutEdges(g).size() > 1) {
                     counter = 0;
-                    for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> oe1 : bpmnDiagram.getOutEdges(g) )
-                        for( BPMNEdge<? extends BPMNNode, ? extends BPMNNode> oe2 : bpmnDiagram.getOutEdges(g) )
-                            if( (oe1.getTarget() == oe2.getTarget()) || (oe1.getTarget() instanceof Gateway) || (oe2.getTarget() instanceof Gateway) ) continue;
+                    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> oe1 : bpmnDiagram.getOutEdges(g))
+                        for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> oe2 : bpmnDiagram.getOutEdges(g))
+                            if ((oe1.getTarget() == oe2.getTarget()) || (oe1.getTarget() instanceof Gateway) || (oe2.getTarget() instanceof Gateway))
+                                continue;
                             else {
                                 tgt1 = Integer.valueOf(oe1.getTarget().getLabel());
                                 tgt2 = Integer.valueOf(oe2.getTarget().getLabel());
-                                if( potentialORs[(tgt1*columns) + tgt2] > 0 ) counter++;
+                                if (potentialORs[(tgt1 * columns) + tgt2] > 0) counter++;
                             }
-                    if( counter > bpmnDiagram.getOutEdges(g).size() ) {
+                    if (counter > bpmnDiagram.getOutEdges(g).size()) {
                         ORs = true;
                         g.setGatewayType(Gateway.GatewayType.INCLUSIVE);
                     }
                 }
             }
-            if(ORs) helper.matchORs(bpmnDiagram);
+            if (ORs) helper.matchORs(bpmnDiagram);
         }
     }
 
@@ -899,19 +597,19 @@ public class SplitMiner {
         BPMNNode copy;
         String label;
 
-        for( BPMNNode n : bpmnDiagram.getNodes() ) {
-            if( n instanceof Activity ) label = events.get(Integer.valueOf(n.getLabel()));
+        for (BPMNNode n : bpmnDiagram.getNodes()) {
+            if (n instanceof Activity) label = events.get(Integer.valueOf(n.getLabel()));
             else label = "";
             copy = helper.copyNode(duplicateDiagram, n, label);
-            if( copy != null ) originalToCopy.put(n, copy);
+            if (copy != null) originalToCopy.put(n, copy);
             else System.out.println("ERROR - diagram labels updating failed [1].");
         }
 
-        for( Flow f : bpmnDiagram.getFlows() ) {
+        for (Flow f : bpmnDiagram.getFlows()) {
             src = originalToCopy.get(f.getSource());
             tgt = originalToCopy.get(f.getTarget());
 
-            if( src != null && tgt != null ) duplicateDiagram.addFlow(src, tgt, "");
+            if (src != null && tgt != null) duplicateDiagram.addFlow(src, tgt, "");
             else System.out.println("ERROR - diagram labels updating failed [2].");
         }
         bpmnDiagram = duplicateDiagram;
