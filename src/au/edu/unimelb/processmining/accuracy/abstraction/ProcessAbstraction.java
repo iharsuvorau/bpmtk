@@ -3,8 +3,6 @@ package au.edu.unimelb.processmining.accuracy.abstraction;
 import au.edu.unimelb.processmining.accuracy.abstraction.intermediate.AAEdge;
 import au.edu.unimelb.processmining.accuracy.abstraction.intermediate.AANode;
 import au.edu.unimelb.processmining.accuracy.abstraction.intermediate.AutomatonAbstraction;
-import au.edu.unimelb.processmining.accuracy.abstraction.markovian.MarkovAbstraction;
-import au.edu.unimelb.processmining.accuracy.abstraction.markovian.MarkovLabel;
 import au.edu.unimelb.processmining.accuracy.abstraction.set.SetAbstraction;
 import au.edu.unimelb.processmining.accuracy.abstraction.set.SetLabel;
 import au.edu.unimelb.processmining.accuracy.abstraction.subtrace.Subtrace;
@@ -20,9 +18,9 @@ import static au.edu.unimelb.processmining.accuracy.abstraction.subtrace.Subtrac
  */
 public class ProcessAbstraction {
 
-    private static int MAXL = 1000000;
-    private static int MAXE = 2000000;
-    private AutomatonAbstraction automatonAbstraction;
+    private static final int MAXL = 1000000;
+    private static final int MAXE = 2000000;
+    private final AutomatonAbstraction automatonAbstraction;
 
     public ProcessAbstraction(AutomatonAbstraction automatonAbstraction) {
         this.automatonAbstraction = automatonAbstraction;
@@ -60,7 +58,7 @@ public class ProcessAbstraction {
                     abstraction.addSubtrace(tmpSubtrace);
                 } else {
                     for (AAEdge e : automatonAbstraction.getOutgoings().get(source.getID())) {
-                        if (e.getEID() != automatonAbstraction.TAU) {
+                        if (e.getEID() != AutomatonAbstraction.TAU) {
                             tmpSubtrace = new Subtrace(subtrace, e.getEID());
                         } else tmpSubtrace = new Subtrace(subtrace);
 
@@ -68,7 +66,6 @@ public class ProcessAbstraction {
                         abstraction.addSubtrace(tmpSubtrace);
                         if (!e.getTGT().addSubtraceIA(tmpSubtrace)) continue;
                         i++;
-//                    if(i%(MAXL/10)==0) System.out.println(" " + i/(MAXL/10) + "% ...");
                         toVisit.add(e.getTGT());
                     }
                 }
@@ -77,36 +74,6 @@ public class ProcessAbstraction {
 
         if ((double) i / (double) MAXL > 1)
             System.out.println("WARNING - done at " + (double) i / (double) MAXL);
-
-//        abstraction.powerup();
-        return abstraction;
-    }
-
-    public MarkovAbstraction markovian(int order) {
-        MarkovAbstraction abstraction = new MarkovAbstraction();
-        AANode src;
-        String tl;
-        char d = ':';
-
-        generateMarkovianLabels(order);
-
-        System.out.print("DEBUG - converting automaton to markov abstraction...");
-
-        for (AAEdge e : automatonAbstraction.getEdges()) {
-            src = e.getSRC();
-            if (e.getEID() == AutomatonAbstraction.TAU) continue;
-            for (String sl : src.getLabels()) {
-                tl = sl.substring(2) + e.getEID() + d;
-                while (tl.charAt(0) != d) tl = tl.substring(1);
-                abstraction.addNode(sl);
-                abstraction.addNode(tl);
-                abstraction.addEdge(sl, tl);
-            }
-            if (abstraction.getEdges().size() > MAXE) break;
-        }
-
-        if ((double) abstraction.getEdges().size() / (double) MAXE > 1)
-            System.out.println("WARNING - done at " + (double) abstraction.getEdges().size() / (double) MAXE);
 
         return abstraction;
     }
@@ -129,48 +96,6 @@ public class ProcessAbstraction {
             }
 
         return abstraction;
-    }
-
-
-//    METHODS for Markovian Abstraction
-
-    private void generateMarkovianLabels(int order) {
-        AANode source = automatonAbstraction.getSource();
-        ArrayList<AANode> toVisit = new ArrayList<>();
-        Map<AANode, Set<String>> explored = new HashMap<>();
-        Set<String> tmpExplored;
-        String tmpLabel = (new MarkovLabel(order)).print();
-        char d = ':';
-        int i = 0;
-
-        System.out.print("DEBUG - generating labels...");
-        toVisit.add(source);
-        source.addLabel(tmpLabel);
-        while (!toVisit.isEmpty() && i < MAXL) {
-            source = toVisit.remove(0);
-            if (!explored.containsKey(source)) explored.put(source, new HashSet<>());
-            tmpExplored = explored.get(source);
-            for (String label : new HashSet<>(source.getLabels())) {
-//                System.out.println("debug - label " + source.getID() + " - " + label);
-                if (tmpExplored.contains(label)) continue;
-                else tmpExplored.add(label);
-
-                for (AAEdge e : automatonAbstraction.getOutgoings().get(source.getID())) {
-                    if (e.getEID() != automatonAbstraction.TAU) {
-                        tmpLabel = label.substring(2) + e.getEID() + d;
-                        while (tmpLabel.charAt(0) != d) tmpLabel = tmpLabel.substring(1);
-                    } else tmpLabel = new String(label);
-
-//                    System.out.println("debug - tmplabel " + tmpLabel);
-                    if (!e.getTGT().addLabel(tmpLabel)) continue;
-                    i++;
-//                    if(i%(MAXL/10)==0) System.out.println(" " + i/(MAXL/10) + "% ...");
-                    toVisit.add(e.getTGT());
-                }
-            }
-        }
-
-        if ((double) i / (double) MAXL > 1) System.out.println("WARNING - done at " + (double) i / (double) MAXL);
     }
 
 
