@@ -4,6 +4,12 @@ Forked from https://github.com/nemo-91/bpmtk.
 
 Trimmed down version of the toolset that contains only Split Miner for discovering BPMN models from event logs.
 
+## Build
+
+```bash
+gradle shadowJar
+```
+
 ## Usage
 
 ```
@@ -25,5 +31,5 @@ SplitMiner BPMN model discovery
 Run the following command to discover a BPMN model from an event log:
 
 ```bash
- java -jar out/artifacts/splitminer_jar/splitminer.jar -e 0.5 -p 0.5 -f -i event_log.xes -o model
+java -jar app/build/libs/splitminer-all.jar -e 0.5 -p 0.5 -f -i BPIC15_1.xes -o model
 ```
