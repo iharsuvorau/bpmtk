@@ -1,7 +1,7 @@
 package au.edu.unimelb.processmining.optimization;
 
-import au.edu.qut.processmining.log.LogParser;
-import au.edu.qut.processmining.log.SimpleLog;
+import au.edu.unimelb.processmining.log.LogParser;
+import au.edu.unimelb.processmining.log.SimpleLog;
 import com.raffaeleconforti.log.util.LogImporter;
 import java.io.File;
 import org.deckfour.xes.classification.XEventNameClassifier;

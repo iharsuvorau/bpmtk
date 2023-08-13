@@ -1,5 +1,9 @@
 package org.processmining.fodina;
 
+import au.edu.unimelb.bpmn.helper.DiagramHandler;
+import au.edu.unimelb.processmining.log.SimpleLog;
+import au.edu.unimelb.processmining.optimization.SimpleDirectlyFollowGraph;
+import com.raffaeleconforti.conversion.petrinet.PetriNetToBPMNConverter;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -8,11 +12,6 @@ import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import au.edu.qut.bpmn.helper.DiagramHandler;
-import au.edu.qut.processmining.log.SimpleLog;
-import au.edu.unimelb.processmining.optimization.SimpleDirectlyFollowGraph;
-import com.raffaeleconforti.conversion.petrinet.PetriNetToBPMNConverter;
 import org.deckfour.xes.model.XLog;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
@@ -22,7 +21,6 @@ import org.processmining.models.graphbased.directed.bpmn.elements.Event;
 import org.processmining.models.graphbased.directed.bpmn.elements.Flow;
 import org.processmining.models.graphbased.directed.bpmn.elements.SubProcess;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
-import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.bpmnminer.converter.CausalNetToPetrinet;
 import org.processmining.plugins.bpmnminer.dependencygraph.DependencyNet;

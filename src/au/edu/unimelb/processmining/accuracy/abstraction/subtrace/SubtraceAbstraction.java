@@ -1,19 +1,9 @@
 package au.edu.unimelb.processmining.accuracy.abstraction.subtrace;
 
-import au.edu.qut.processmining.log.SimpleLog;
 import au.edu.unimelb.processmining.accuracy.abstraction.Abstraction;
-import au.edu.unimelb.processmining.accuracy.abstraction.ProcessAbstraction;
 import au.edu.unimelb.processmining.accuracy.abstraction.distances.ConfusionMatrix;
 import au.edu.unimelb.processmining.accuracy.abstraction.distances.GraphEditDistance;
-import au.edu.unimelb.processmining.accuracy.abstraction.intermediate.AutomatonAbstraction;
-import com.raffaeleconforti.conversion.bpmn.BPMNToPetriNetConverter;
-import com.raffaeleconforti.conversion.petrinet.PetriNetToBPMNConverter;
-import de.drscc.automaton.Automaton;
-import de.drscc.importer.ImportProcessModel;
 import java.util.*;
-import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
-import org.processmining.models.graphbased.directed.petrinet.Petrinet;
-import org.processmining.models.semantics.petrinet.Marking;
 
 public class SubtraceAbstraction extends Abstraction {
 
@@ -30,27 +20,6 @@ public class SubtraceAbstraction extends Abstraction {
         matrix = null;
         globalGramsCount = 0.0;
         random = new Random(1);
-    }
-
-    public static SubtraceAbstraction abstractProcessBehaviour(BPMNDiagram diagram, int order, SimpleLog slog) {
-        ImportProcessModel importer = new ImportProcessModel();
-
-        Object[] objects = BPMNToPetriNetConverter.convert(diagram);
-        if (objects[1] == null) objects[1] = PetriNetToBPMNConverter.guessInitialMarking((Petrinet) objects[0]);
-
-//        if(objects[1] == null) objects[1] = MarkingDiscoverer.constructInitialMarking(context, (Petrinet) objects[0]);
-//        else MarkingDiscoverer.createInitialMarkingConnection(context, (Petrinet) objects[0], (Marking) objects[1]);
-
-        try {
-            Automaton automaton = importer.createFSMfromPetrinet((Petrinet) objects[0], (Marking) objects[1], null, null);
-            AutomatonAbstraction automatonAbstraction = new AutomatonAbstraction(automaton, slog);
-
-            return (new ProcessAbstraction(automatonAbstraction)).subtrace(order);
-        } catch (Exception e) {
-//            e.printStackTrace();
-//            System.out.println("ERROR - impossible to parse the process object.");
-            return null;
-        }
     }
 
     public void addSubtrace(Subtrace subtrace) {

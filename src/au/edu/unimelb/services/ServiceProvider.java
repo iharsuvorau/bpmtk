@@ -1,8 +1,8 @@
 package au.edu.unimelb.services;
 
-import au.edu.qut.processmining.miners.splitminer.SplitMiner;
-import au.edu.qut.processmining.miners.splitminer.ui.dfgp.DFGPUIResult;
-import au.edu.qut.processmining.miners.splitminer.ui.miner.SplitMinerUIResult;
+import au.edu.unimelb.processmining.splitminer.SplitMiner;
+import au.edu.unimelb.processmining.splitminer.ui.dfgp.DFGPUIResult;
+import au.edu.unimelb.processmining.splitminer.ui.miner.SplitMinerUIResult;
 import com.raffaeleconforti.log.util.LogImporter;
 import java.io.File;
 import java.util.concurrent.Callable;

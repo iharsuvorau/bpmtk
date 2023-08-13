@@ -1,9 +1,9 @@
 package au.edu.unimelb.processmining.optimization;
 
-import au.edu.qut.processmining.log.SimpleLog;
-import au.edu.qut.processmining.miners.splitminer.SplitMiner;
-import au.edu.qut.processmining.miners.splitminer.dfgp.DirectlyFollowGraphPlus;
-import au.edu.qut.processmining.miners.splitminer.ui.dfgp.DFGPUIResult;
+import au.edu.unimelb.processmining.log.SimpleLog;
+import au.edu.unimelb.processmining.splitminer.SplitMiner;
+import au.edu.unimelb.processmining.splitminer.dfgp.DirectlyFollowGraphPlus;
+import au.edu.unimelb.processmining.splitminer.ui.dfgp.DFGPUIResult;
 import java.util.ArrayList;
 import java.util.Random;
 import org.processmining.fodina.Fodina;

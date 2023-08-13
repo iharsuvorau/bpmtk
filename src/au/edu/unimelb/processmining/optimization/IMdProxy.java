@@ -1,7 +1,7 @@
 package au.edu.unimelb.processmining.optimization;
 
-import au.edu.qut.bpmn.helper.DiagramHandler;
-import au.edu.qut.bpmn.helper.Petrinet2BPMNConverter;
+import au.edu.unimelb.bpmn.helper.DiagramHandler;
+import au.edu.unimelb.bpmn.helper.Petrinet2BPMNConverter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

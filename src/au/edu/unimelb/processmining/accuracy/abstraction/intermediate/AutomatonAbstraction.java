@@ -1,8 +1,8 @@
 package au.edu.unimelb.processmining.accuracy.abstraction.intermediate;
 
-import au.edu.qut.processmining.log.SimpleLog;
-import de.drscc.automaton.Automaton;
-import de.drscc.automaton.Transition;
+import au.edu.unimelb.automaton.Automaton;
+import au.edu.unimelb.automaton.Transition;
+import au.edu.unimelb.processmining.log.SimpleLog;
 import java.util.*;
 
 /**

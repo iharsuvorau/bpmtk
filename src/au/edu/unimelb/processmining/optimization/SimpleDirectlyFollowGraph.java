@@ -1,9 +1,9 @@
 package au.edu.unimelb.processmining.optimization;
 
-import au.edu.qut.processmining.log.LogParser;
-import au.edu.qut.processmining.log.SimpleLog;
-import au.edu.qut.processmining.miners.splitminer.dfgp.DFGEdge;
-import au.edu.qut.processmining.miners.splitminer.dfgp.DirectlyFollowGraphPlus;
+import au.edu.unimelb.processmining.log.LogParser;
+import au.edu.unimelb.processmining.log.SimpleLog;
+import au.edu.unimelb.processmining.splitminer.dfgp.DFGEdge;
+import au.edu.unimelb.processmining.splitminer.dfgp.DirectlyFollowGraphPlus;
 import java.util.*;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagramImpl;
