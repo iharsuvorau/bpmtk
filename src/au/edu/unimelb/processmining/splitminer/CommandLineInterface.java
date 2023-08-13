@@ -1,6 +1,5 @@
-package au.edu.unimelb.services;
+package au.edu.unimelb.processmining.splitminer;
 
-import au.edu.unimelb.processmining.splitminer.SplitMiner;
 import au.edu.unimelb.processmining.splitminer.ui.dfgp.DFGPUIResult;
 import au.edu.unimelb.processmining.splitminer.ui.miner.SplitMinerUIResult;
 import com.raffaeleconforti.log.util.LogImporter;
@@ -21,7 +20,7 @@ import picocli.CommandLine.Option;
     name = "discover",
     mixinStandardHelpOptions = true,
     description = "SplitMiner BPMN model discovery")
-public class ServiceProvider implements Callable<Integer> {
+public class CommandLineInterface implements Callable<Integer> {
   @Option(names = {"-e", "--eta"})
   private double eta;
 
@@ -48,7 +47,7 @@ public class ServiceProvider implements Callable<Integer> {
   private String outputPath;
 
   public static void main(String[] args) {
-    int exitCode = new CommandLine(new ServiceProvider()).execute(args);
+    int exitCode = new CommandLine(new CommandLineInterface()).execute(args);
     System.exit(exitCode);
   }
 
