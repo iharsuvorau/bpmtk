@@ -31,5 +31,5 @@ SplitMiner BPMN model discovery
 Run the following command to discover a BPMN model from an event log:
 
 ```bash
-java -jar app/build/libs/splitminer-all.jar -e 0.5 -p 0.5 -f -i BPIC15_1.xes -o model
+java -jar app/build/libs/splitminer-1.1-all.jar -e 0.5 -p 0.5 -f -i BPIC15_1.xes -o model
 ```
