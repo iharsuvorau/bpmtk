@@ -2,7 +2,7 @@
   <artifact type="jar" name="splitminer:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/splitminer_jar</output-path>
     <root id="archive" name="splitminer.jar">
-      <element id="module-output" name="bpmtk" />
+      <element id="module-output" name="splitminer" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/ProM-Models-6.7.20.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/Log.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/PNetReplayer.jar" path-in-jar="/" />
