@@ -169,9 +169,6 @@ public class StructuringService {
 
     idToDiagram = new HashMap<>();
 
-    Set<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> edgeToRemove = new HashSet<>();
-    Set<BPMNNode> nodeToRemove = new HashSet<>();
-
     /**** STEP0: back up of all not mappable edges and nodes on the .json file ****/
     unmappableEdges.addAll(diagram.getAssociations());
     unmappableEdges.addAll(diagram.getDataAssociations());
@@ -205,11 +202,11 @@ public class StructuringService {
     parseSubProcesses(null);
 
     /**** STEP3: remove all the edges and not mappable nodes from the diagram ****/
-    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getEdges())
-      edgeToRemove.add(e);
+    Set<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> edgeToRemove =
+        new HashSet<>(diagram.getEdges());
     for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : edgeToRemove) diagram.removeEdge(e);
 
-    for (Gateway g : diagram.getGateways()) nodeToRemove.add(g);
+    Set<BPMNNode> nodeToRemove = new HashSet<>(diagram.getGateways());
     for (BPMNNode g : nodeToRemove) removeNode(g);
 
     /**** STEP4: reconnect all the elements inside the diagram exploiting .json files and support maps ****/

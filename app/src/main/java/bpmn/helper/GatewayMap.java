@@ -217,8 +217,6 @@ public class GatewayMap {
   }
 
   private boolean init(BPMNDiagram diagram) {
-    HashSet<BPMNNode> starts = new HashSet<>();
-    HashSet<BPMNNode> ends = new HashSet<>();
 
     BPMNNode src;
     BPMNNode tgt;
@@ -232,8 +230,8 @@ public class GatewayMap {
     for (Gateway g : diagram.getGateways()) this.addGateway(g);
 
     //        then, we look for the start and the end event of the BPMN diagram
-    starts.addAll(diagram.getNodes());
-    ends.addAll(diagram.getNodes());
+    HashSet<BPMNNode> starts = new HashSet<>(diagram.getNodes());
+    HashSet<BPMNNode> ends = new HashSet<>(diagram.getNodes());
 
     //        data structures: children and parents are filled
     //        they will be used lately to generate the map
@@ -1126,11 +1124,10 @@ public class GatewayMap {
   //    supporting private classes
 
   private void debug(String s) {
-    if (false) System.out.println(s);
-    else System.out.println(s);
+    System.out.println(s);
   }
 
-  private class GatewayMapFlow implements Comparable {
+  private static class GatewayMapFlow implements Comparable {
     int id;
     Gateway src; // src = the entry gateway of this Flow
     Gateway tgt; // tgt = the exit gateway of this Flow
@@ -1195,7 +1192,7 @@ public class GatewayMap {
     }
   }
 
-  private class SingleTokenGen {
+  private static class SingleTokenGen {
     Set<Gateway> xors;
     Gateway escapingGate;
     GatewayMapFlow escapingFlow;
@@ -1212,7 +1209,7 @@ public class GatewayMap {
     }
   }
 
-  private class MultipleTokenGen {
+  private static class MultipleTokenGen {
     Set<Gateway> xors;
     Set<GatewayMapFlow> injections;
     Gateway loopInjection;
@@ -1224,7 +1221,7 @@ public class GatewayMap {
     }
   }
 
-  private class IORsHierarchy {
+  private static class IORsHierarchy {
     HashMap<Integer, ArrayList<Gateway>> hierarchy;
     int size;
 

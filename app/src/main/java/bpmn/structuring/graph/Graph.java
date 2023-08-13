@@ -183,7 +183,7 @@ public class Graph {
     unvisited.remove(entry);
     visiting.add(entry);
 
-    if (entry == exit) forwardEdge = true;
+    if (Objects.equals(entry, exit)) forwardEdge = true;
 
     for (int pid : outgoing.get(entry)) {
       next = allPaths.get(pid).getExit();
@@ -775,12 +775,12 @@ public class Graph {
 
     // System.out.println("DEBUG - updating path: " + pid);
 
-    if (newEntry != oldEntry) {
+    if (!Objects.equals(newEntry, oldEntry)) {
       outgoing.get(oldEntry).remove((Integer) pid);
       outgoing.get(newEntry).add(pid);
     }
 
-    if (newExit != oldExit) {
+    if (!Objects.equals(newExit, oldExit)) {
       incoming.get(oldExit).remove((Integer) pid);
       incoming.get(newExit).add(pid);
     }

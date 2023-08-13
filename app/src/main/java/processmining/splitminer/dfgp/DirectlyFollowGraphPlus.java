@@ -330,7 +330,7 @@ public class DirectlyFollowGraphPlus {
 
     buildDirectlyFollowsGraph(); // first method to execute
     bestEdgesOnMaxCapacitiesForConnectedness(); // this ensure a strongly connected graph (density
-                                                // may be impaired)
+    // may be impaired)
     detectLoops(); // depends on buildDirectlyFollowsGraph()
     detectParallelismsOnDFG(); // depends on detectLoops()
 
@@ -1079,10 +1079,9 @@ public class DirectlyFollowGraphPlus {
   }
 
   private void computeFilterThreshold() {
-    ArrayList<DFGEdge> frequencyOrderedEdges = new ArrayList<>();
     int i;
 
-    frequencyOrderedEdges.addAll(bestEdges);
+    ArrayList<DFGEdge> frequencyOrderedEdges = new ArrayList<>(bestEdges);
     //        if( percentileOnBest )
     //        else frequencyOrderedEdges.addAll(edges);
 
@@ -1109,7 +1108,6 @@ public class DirectlyFollowGraphPlus {
     DFGEdge bp, bs;
 
     LinkedList<Integer> toVisit = new LinkedList<>();
-    Set<Integer> unvisited = new HashSet<>();
 
     HashMap<Integer, DFGEdge> bestPredecessorFromSource = new HashMap<>();
     HashMap<Integer, DFGEdge> bestSuccessorToSink = new HashMap<>();
@@ -1127,7 +1125,7 @@ public class DirectlyFollowGraphPlus {
 
     //      forward exploration
     toVisit.add(startcode);
-    unvisited.addAll(nodes.keySet());
+    Set<Integer> unvisited = new HashSet<>(nodes.keySet());
     unvisited.remove(startcode);
 
     while (!toVisit.isEmpty()) {
@@ -1135,7 +1133,7 @@ public class DirectlyFollowGraphPlus {
       cap = maxCapacitiesFromSource.get(src);
       for (DFGEdge oe : outgoings.get(src)) {
         tgt = oe.getTargetCode();
-        maxCap = (cap > oe.getFrequency() ? oe.getFrequency() : cap);
+        maxCap = (Math.min(cap, oe.getFrequency()));
         tiebreak =
             (maxCap == maxCapacitiesFromSource.get(tgt))
                 && bestPredecessorFromSource.get(tgt).isLoop()
@@ -1163,7 +1161,7 @@ public class DirectlyFollowGraphPlus {
       cap = maxCapacitiesToSink.get(tgt);
       for (DFGEdge ie : incomings.get(tgt)) {
         src = ie.getSourceCode();
-        maxCap = (cap > ie.getFrequency() ? ie.getFrequency() : cap);
+        maxCap = (Math.min(cap, ie.getFrequency()));
         tiebreak =
             (maxCap == maxCapacitiesToSink.get(src))
                 && bestSuccessorToSink.get(src).isLoop()
@@ -1186,22 +1184,16 @@ public class DirectlyFollowGraphPlus {
       bestEdges.add(bestSuccessorToSink.get(n));
     }
     bestEdges.remove(null);
-
-    //        for( int n : nodes.keySet() ) {
-    //            System.out.println("DEBUG - " + n + " : [" + maxCapacitiesFromSource.get(n) + "]["
-    // + maxCapacitiesToSink.get(n) + "]");
-    //        }
   }
 
   private void exploreAndRemove() {
     int src, tgt;
 
     LinkedList<Integer> toVisit = new LinkedList<>();
-    Set<Integer> unvisited = new HashSet<>();
 
     //      forward exploration
     toVisit.add(startcode);
-    unvisited.addAll(nodes.keySet());
+    Set<Integer> unvisited = new HashSet<>(nodes.keySet());
     unvisited.remove(startcode);
 
     while (!toVisit.isEmpty()) {
@@ -1257,8 +1249,8 @@ public class DirectlyFollowGraphPlus {
   private void removeNode(int code) {
     HashSet<DFGEdge> removable = new HashSet<>();
     nodes.remove(code);
-    for (DFGEdge e : incomings.get(code)) removable.add(e);
-    for (DFGEdge e : outgoings.get(code)) removable.add(e);
+    removable.addAll(incomings.get(code));
+    removable.addAll(outgoings.get(code));
     for (DFGEdge e : removable) removeEdge(e, false);
   }
 
@@ -1303,12 +1295,12 @@ public class DirectlyFollowGraphPlus {
       System.out.println("INFO - (dfgp) subtrace : " + t);
       trace = new StringTokenizer(t, ":");
 
-      prevEvent = Integer.valueOf(trace.nextToken());
+      prevEvent = Integer.parseInt(trace.nextToken());
       prevNode = nodes.get(prevEvent);
 
       while (trace.hasMoreTokens()) {
 
-        event = Integer.valueOf(trace.nextToken());
+        event = Integer.parseInt(trace.nextToken());
         node = nodes.get(event);
 
         if (!dfgp.containsKey(prevEvent) || !dfgp.get(prevEvent).containsKey(event)) {
@@ -1332,10 +1324,10 @@ public class DirectlyFollowGraphPlus {
 
     for (String t : subtraces) {
       trace = new StringTokenizer(t, ":");
-      prevEvent = Integer.valueOf(trace.nextToken());
+      prevEvent = Integer.parseInt(trace.nextToken());
 
       while (trace.hasMoreTokens()) {
-        event = Integer.valueOf(trace.nextToken());
+        event = Integer.parseInt(trace.nextToken());
         if (dfgp.containsKey(prevEvent) && dfgp.get(prevEvent).containsKey(event)) {
           if (this.removeEdge(dfgp.get(prevEvent).get(event), false)) reduction++;
         }
@@ -1395,7 +1387,6 @@ public class DirectlyFollowGraphPlus {
     DFGEdge bp, bs;
 
     LinkedList<Integer> toVisit = new LinkedList<>();
-    Set<Integer> unvisited = new HashSet<>();
 
     HashMap<Integer, DFGEdge> bestPredecessorFromSource = new HashMap<>();
     HashMap<Integer, DFGEdge> bestSuccessorToSink = new HashMap<>();
@@ -1413,7 +1404,7 @@ public class DirectlyFollowGraphPlus {
 
     //      forward exploration
     toVisit.add(startcode);
-    unvisited.addAll(nodes.keySet());
+    Set<Integer> unvisited = new HashSet<>(nodes.keySet());
     unvisited.remove(startcode);
 
     while (!toVisit.isEmpty()) {
@@ -1421,12 +1412,12 @@ public class DirectlyFollowGraphPlus {
       cap = maxCapacitiesFromSource.get(src);
       for (DFGEdge oe : outgoings.get(src)) {
         tgt = oe.getTargetCode();
-        maxCap = (cap > oe.getFrequency() ? oe.getFrequency() : cap);
+        maxCap = (Math.min(cap, oe.getFrequency()));
         if ((maxCap
             > maxCapacitiesFromSource.get(
                 tgt))) { // || ((maxCap == maxCapacitiesFromSource.get(tgt)) &&
-                         // (bestPredecessorFromSource.get(tgt).getFrequency() < oe.getFrequency()))
-                         // ) {
+          // (bestPredecessorFromSource.get(tgt).getFrequency() < oe.getFrequency()))
+          // ) {
           maxCapacitiesFromSource.put(tgt, maxCap);
           bestPredecessorFromSource.put(tgt, oe);
           if (!toVisit.contains(tgt)) unvisited.add(tgt);
@@ -1449,11 +1440,10 @@ public class DirectlyFollowGraphPlus {
       cap = maxCapacitiesToSink.get(tgt);
       for (DFGEdge ie : incomings.get(tgt)) {
         src = ie.getSourceCode();
-        maxCap = (cap > ie.getFrequency() ? ie.getFrequency() : cap);
+        maxCap = (Math.min(cap, ie.getFrequency()));
         if ((maxCap
-            > maxCapacitiesToSink.get(
-                src))) { // || ((maxCap == maxCapacitiesToSink.get(src)) &&
-                         // (bestSuccessorToSink.get(src).getFrequency() < ie.getFrequency())) ) {
+            > maxCapacitiesToSink.get(src))) { // || ((maxCap == maxCapacitiesToSink.get(src)) &&
+          // (bestSuccessorToSink.get(src).getFrequency() < ie.getFrequency())) ) {
           maxCapacitiesToSink.put(src, maxCap);
           bestSuccessorToSink.put(src, ie);
           if (!toVisit.contains(src)) unvisited.add(src);
@@ -1471,11 +1461,6 @@ public class DirectlyFollowGraphPlus {
       untouchableEdges.add(bestSuccessorToSink.get(n));
     }
     untouchableEdges.remove(null);
-
-    //        for( int n : nodes.keySet() ) {
-    //            System.out.println("DEBUG - " + n + " : [" + maxCapacitiesFromSource.get(n) + "]["
-    // + maxCapacitiesToSink.get(n) + "]");
-    //        }
   }
 
   //    EXPERIMENTAL
@@ -1484,11 +1469,10 @@ public class DirectlyFollowGraphPlus {
     int src, tgt;
 
     LinkedList<Integer> toVisit = new LinkedList<>();
-    Set<Integer> unvisited = new HashSet<>();
 
     //      forward exploration
     toVisit.add(startcode);
-    unvisited.addAll(nodes.keySet());
+    Set<Integer> unvisited = new HashSet<>(nodes.keySet());
     unvisited.remove(startcode);
 
     while (!toVisit.isEmpty()) {

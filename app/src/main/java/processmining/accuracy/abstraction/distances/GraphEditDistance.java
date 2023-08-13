@@ -229,8 +229,8 @@ public class GraphEditDistance {
       for (int j = 0; j < s2; j++) {
         src2 = edges2.get(j).getSRC();
         tgt2 = edges2.get(j).getTGT();
-        ds = Levenshtein.stringDistance(src1, src2) / Math.max(ls1, src2.length());
-        dt = Levenshtein.stringDistance(tgt1, tgt2) / Math.max(lt1, tgt2.length());
+        ds = (double) Levenshtein.stringDistance(src1, src2) / Math.max(ls1, src2.length());
+        dt = (double) Levenshtein.stringDistance(tgt1, tgt2) / Math.max(lt1, tgt2.length());
         d = (dt + ds) / 2.0;
         if (!matrix.containsKey(d)) matrix.put(d, new ArrayList<>());
         matrix.get(d).add(new Pair(i, j));
@@ -264,7 +264,7 @@ public class GraphEditDistance {
     return distance;
   }
 
-  private class Pair {
+  private static class Pair {
     int r, c;
 
     Pair(int r, int c) {

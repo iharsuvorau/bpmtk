@@ -337,7 +337,10 @@ public class Automaton {
 
         boolean compExplore = true;
         for (Transition out : compOutArcs.get(trSource.component())) {
-          if (out.explore) compExplore = false;
+          if (out.explore) {
+            compExplore = false;
+            break;
+          }
         }
         if (compExplore) if (visited.add(trSource.component())) toBeVisited.add(trSource.id());
       }
@@ -402,7 +405,10 @@ public class Automaton {
           if (state.hasLoopFuture()) trSource.futureLoops().addAll(state.futureLoops());
           boolean compExplore = true;
           for (Transition out : compOutArcs.get(trSource.component())) {
-            if (out.explore) compExplore = false;
+            if (out.explore) {
+              compExplore = false;
+              break;
+            }
           }
           if (compExplore) if (visited.add(trSource.component())) toBeVisited.add(trSource.id());
         }

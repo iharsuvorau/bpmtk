@@ -224,9 +224,8 @@ public class StructuringState implements Comparable<StructuringState> {
   public boolean equals(Object o) {
     if (!(o instanceof StructuringState)) return false;
     else
-      return ((cost == ((StructuringState) o).cost)
-          && (jsWarning == jsWarning)
-          && ((solved == ((StructuringState) o).solved) || (dead == ((StructuringState) o).dead)));
+      return cost == ((StructuringState) o).cost
+          && (solved == ((StructuringState) o).solved || dead == ((StructuringState) o).dead);
   }
 
   @Override

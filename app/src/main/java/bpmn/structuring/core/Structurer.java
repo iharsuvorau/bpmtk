@@ -282,7 +282,7 @@ public class Structurer {
     }
   }
 
-  private class SmartQueue {
+  private static class SmartQueue {
     private final int maxStates;
     HashMap<Integer, PriorityQueue<StructuringState>> states;
     private int size;

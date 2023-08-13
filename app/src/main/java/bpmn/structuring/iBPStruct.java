@@ -108,8 +108,6 @@ public class iBPStruct {
   }
 
   public boolean setProcess(Collection<BPMNNode> nodes, Collection<Flow> flows) {
-    HashSet<String> starts = new HashSet<>();
-    HashSet<String> ends = new HashSet<>();
     String nodeID;
     String srcID;
     String tgtID;
@@ -128,8 +126,8 @@ public class iBPStruct {
       if (n instanceof Gateway) gateways.put(nodeID, ((Gateway) n).getGatewayType());
     }
 
-    starts.addAll(this.nodes.keySet());
-    ends.addAll(this.nodes.keySet());
+    HashSet<String> starts = new HashSet<>(this.nodes.keySet());
+    HashSet<String> ends = new HashSet<>(this.nodes.keySet());
 
     for (Flow f : flows) {
 

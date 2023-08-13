@@ -268,20 +268,16 @@ public class DiagramHandler {
         tgt = f.getTarget();
         diagram.removeEdge(f);
 
-        if (diagram.getOutEdges(src).size() == 0) {
-          toExtend = new HashSet<>();
-          for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : diagram.getInEdges(src))
-            toExtend.add(ff);
+        if (diagram.getOutEdges(src).isEmpty()) {
+          toExtend = new HashSet<>(diagram.getInEdges(src));
 
           for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : toExtend) {
             src = ff.getSource();
             diagram.removeEdge(ff);
             diagram.addFlow(src, tgt, "");
           }
-        } else if (diagram.getInEdges(tgt).size() == 0) {
-          toExtend = new HashSet<>();
-          for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : diagram.getOutEdges(tgt))
-            toExtend.add(ff);
+        } else if (diagram.getInEdges(tgt).isEmpty()) {
+          toExtend = new HashSet<>(diagram.getOutEdges(tgt));
 
           for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> ff : toExtend) {
             tgt = ff.getTarget();
@@ -435,18 +431,18 @@ public class DiagramHandler {
 
           if (!trivialToCompare.isEmpty())
             changed = mergeTrivials(trivialToCompare, bpmnNodes, diagram, gate);
-          if (changed) return changed;
+          if (changed) return true;
 
           if (!bondToCompare.isEmpty())
             changed = mergeBonds(bondToCompare, rpstNodeToID, bpmnNodes, diagram);
-          if (changed) return changed;
+          if (changed) return true;
         }
     } catch (Exception e) {
       e.printStackTrace(System.out);
       System.out.println("WARNING - impossible remove duplicates.");
     }
 
-    return changed;
+    return false;
   }
 
   private void generateRPSTNodeCode(
@@ -454,7 +450,7 @@ public class DiagramHandler {
       RPSTNode node,
       HashMap<RPSTNode, String> rpstNodeToID,
       Map<String, BPMNNode> mapping) {
-    String code = "";
+    StringBuilder code = new StringBuilder();
     LinkedList<String> childrenCodes = new LinkedList<>();
     BPMNNode entry = mapping.get(node.getEntry().getName());
     BPMNNode exit = mapping.get(node.getExit().getName());
@@ -469,7 +465,7 @@ public class DiagramHandler {
         if (exit instanceof Gateway) exitCode = ((Gateway) exit).getGatewayType().toString();
         else exitCode = exit.getLabel();
 
-        code += "T." + entryCode + "." + exitCode;
+        code.append("T.").append(entryCode).append(".").append(exitCode);
         break;
 
       case P:
@@ -488,9 +484,9 @@ public class DiagramHandler {
           // System.out.println("DEBUG - cycling.");
         } while (!entryID.equalsIgnoreCase(exitID));
 
-        code += "P.";
-        while (childrenCodes.size() != 1) code += childrenCodes.removeFirst() + ".";
-        code += childrenCodes.removeFirst();
+        code.append("P.");
+        while (childrenCodes.size() != 1) code.append(childrenCodes.removeFirst()).append(".");
+        code.append(childrenCodes.removeFirst());
         break;
 
       case B:
@@ -500,19 +496,19 @@ public class DiagramHandler {
           else System.out.println("ERROR - code not found. Wrong tree traversal.");
 
         Collections.sort(childrenCodes);
-        code += "B.";
-        while (childrenCodes.size() != 1) code += childrenCodes.remove(0) + ".";
-        code += childrenCodes.remove(0);
+        code.append("B.");
+        while (childrenCodes.size() != 1) code.append(childrenCodes.remove(0)).append(".");
+        code.append(childrenCodes.remove(0));
         break;
 
       case R:
         System.out.println("WARNING - impossible is happening.");
-        code += "rigid";
+        code.append("rigid");
         break;
     }
 
     // System.out.println("DEBUG - CODE: " + code);
-    rpstNodeToID.put(node, code);
+    rpstNodeToID.put(node, code.toString());
   }
 
   private boolean mergeTrivials(
@@ -838,9 +834,8 @@ public class DiagramHandler {
     HashSet<BPMNEdge<? extends BPMNNode, ? extends BPMNNode>> removable;
 
     for (Gateway g : new HashSet<>(diagram.getGateways())) {
-      removable = new HashSet<>();
 
-      removable.addAll(diagram.getInEdges(g));
+      removable = new HashSet<>(diagram.getInEdges(g));
       if (removable.size() != 1) continue;
 
       removable.addAll(diagram.getOutEdges(g));
@@ -975,8 +970,7 @@ public class DiagramHandler {
   private void eatSplit(BPMNDiagram diagram, Gateway meal, Gateway eater) {
     Set<BPMNEdge> mealRemains = new HashSet<>();
 
-    for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getInEdges(meal))
-      mealRemains.add(e);
+    mealRemains.addAll(diagram.getInEdges(meal));
     for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : diagram.getOutEdges(meal)) {
       mealRemains.add(e);
       diagram.addFlow(eater, e.getTarget(), "");

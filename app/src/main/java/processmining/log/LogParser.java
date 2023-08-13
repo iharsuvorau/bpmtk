@@ -544,7 +544,7 @@ public class LogParser {
     return sLog;
   }
 
-  private class TracesComparator implements Comparator<String> {
+  private static class TracesComparator implements Comparator<String> {
     Map<String, Integer> base;
 
     public TracesComparator(Map<String, Integer> base) {
