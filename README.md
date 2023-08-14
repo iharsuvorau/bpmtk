@@ -13,7 +13,7 @@ gradle shadowJar
 ## Usage
 
 ```
-Usage: discover [-fhlrV] [-e=<eta>] -i=<logPath> -o=<outputPath> [-p=<epsilon>]
+Usage: discover [-fhlrV] [-e=<eta>] -i=<logPath> [-o=<outputPath>] [-p=<epsilon>]
 SplitMiner BPMN model discovery
   -e, --eta=<eta>
   -f, --parallelismFirst
@@ -31,5 +31,5 @@ SplitMiner BPMN model discovery
 Run the following command to discover a BPMN model from an event log:
 
 ```bash
-java -jar app/build/libs/splitminer-1.1-all.jar -e 0.5 -p 0.5 -f -i BPIC15_1.xes -o model
+java -jar splitminer-1.3-all.jar -i event_log.xes
 ```

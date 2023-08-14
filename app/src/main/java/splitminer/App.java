@@ -22,10 +22,14 @@ import processmining.splitminer.ui.miner.SplitMinerUIResult;
     mixinStandardHelpOptions = true,
     description = "SplitMiner BPMN model discovery")
 public class App implements Callable<Integer> {
-  @Option(names = {"-e", "--eta"})
+  @Option(
+      names = {"-e", "--eta"},
+      defaultValue = "0.5")
   private double eta;
 
-  @Option(names = {"-p", "--epsilon"})
+  @Option(
+      names = {"-p", "--epsilon"},
+      defaultValue = "0.5")
   private double epsilon;
 
   @Option(names = {"-f", "--parallelismFirst"})
@@ -44,7 +48,7 @@ public class App implements Callable<Integer> {
 
   @Option(
       names = {"-o", "--outputPath"},
-      required = true)
+      defaultValue = "output")
   private String outputPath;
 
   public static void main(String[] args) {

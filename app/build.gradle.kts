@@ -12,7 +12,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-version = "1.2"
+version = "1.3"
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -33,9 +33,9 @@ dependencies {
     implementation("com.google.guava:guava:31.1-jre")
 
     implementation(
-            fileTree("../lib") {
-                include("*.jar")
-            }
+        fileTree("../lib") {
+            include("*.jar")
+        }
     )
 }
 
