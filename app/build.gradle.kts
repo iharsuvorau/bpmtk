@@ -12,7 +12,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-version = "1.4"
+version = "1.5"
 
 repositories {
     // Use Maven Central for resolving dependencies.

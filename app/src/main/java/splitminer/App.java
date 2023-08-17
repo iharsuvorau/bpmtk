@@ -13,7 +13,11 @@ import org.processmining.plugins.bpmn.plugins.BpmnExportPlugin;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import processmining.log.ComplexLog;
+import processmining.log.LogParser;
+import processmining.log.SimpleLog;
 import processmining.splitminer.SplitMiner;
+import processmining.splitminer.dfgp.DirectlyFollowGraphPlus;
 import processmining.splitminer.ui.dfgp.DFGPUIResult;
 import processmining.splitminer.ui.miner.SplitMinerUIResult;
 
@@ -51,6 +55,15 @@ public class App implements Callable<Integer> {
       defaultValue = "output")
   private String outputPath;
 
+  @Option(
+      description =
+          "Run SplitMiner2 which (a) uses both start and end timestamps of each activity, "
+              + "in order to identify concurrency more accurately; (b) discovers BPMN process models with inclusive "
+              + "decision gateways. Only epsilon option is used.",
+      names = {"-v2", "--splitminer2"},
+      defaultValue = "false")
+  private boolean v2;
+
   public static void main(String[] args) {
     int exitCode = new CommandLine(new App()).execute(args);
     System.exit(exitCode);
@@ -58,6 +71,16 @@ public class App implements Callable<Integer> {
 
   @Override
   public Integer call() throws Exception {
+    if (v2) {
+      runSplitMiner2();
+      return 0;
+    }
+
+    runSplitMiner1();
+    return 0;
+  }
+
+  public void runSplitMiner1() throws Exception {
     SplitMiner yam = new SplitMiner();
     XLog log = LogImporter.importFromFile(new XFactoryNaiveImpl(), logPath);
     long etime = System.currentTimeMillis();
@@ -79,7 +102,48 @@ public class App implements Callable<Integer> {
     BpmnExportPlugin bpmnExportPlugin = new BpmnExportPlugin();
     UIContext context = new UIContext();
     UIPluginContext uiPluginContext = context.getMainPluginContext();
-    bpmnExportPlugin.export(uiPluginContext, output, new File(outputPath + ".bpmn"));
-    return 0;
+    bpmnExportPlugin.export(uiPluginContext, output, new File(outputPath));
+  }
+
+  public void runSplitMiner2() {
+    boolean outputDFG = false;
+    boolean filter = false;
+    BPMNDiagram diagram;
+    SplitMiner sm;
+
+    double eta = 1.0;
+    boolean parallelismFirst = true;
+    boolean replaceIORs = false;
+    boolean removeLoopActivities = false;
+
+    try {
+      SimpleLog cLog =
+          LogParser.getComplexLog(
+              LogImporter.importFromFile(new XFactoryNaiveImpl(), logPath),
+              new XEventNameClassifier());
+      DirectlyFollowGraphPlus dfgp =
+          new DirectlyFollowGraphPlus(
+              cLog, eta, epsilon, DFGPUIResult.FilterType.FWG, parallelismFirst);
+
+      if (outputDFG && (cLog instanceof ComplexLog)) {
+        dfgp.buildDFGfromComplexLog();
+        dfgp.detectLoops();
+        dfgp.detectParallelismsFromComplexLog();
+        if (filter) dfgp.filterWithGuarantees();
+        diagram = dfgp.convertIntoBPMNDiagramWithOriginalLabels();
+      } else {
+        dfgp.buildDFGP();
+        sm = new SplitMiner(replaceIORs, removeLoopActivities);
+        diagram = sm.discoverFromDFGP(dfgp);
+      }
+
+      BpmnExportPlugin bpmnExportPlugin = new BpmnExportPlugin();
+      UIContext context = new UIContext();
+      UIPluginContext uiPluginContext = context.getMainPluginContext();
+      bpmnExportPlugin.export(uiPluginContext, diagram, new File(outputPath));
+    } catch (Throwable e) {
+      System.out.println("ERROR: - something went wrong");
+      e.printStackTrace();
+    }
   }
 }
