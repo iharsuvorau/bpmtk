@@ -6,8 +6,6 @@ import java.util.concurrent.Callable;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.deckfour.xes.factory.XFactoryNaiveImpl;
 import org.deckfour.xes.model.XLog;
-import org.processmining.contexts.uitopia.UIContext;
-import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.plugins.bpmn.plugins.BpmnExportPlugin;
 import picocli.CommandLine;
@@ -100,9 +98,7 @@ public class App implements Callable<Integer> {
     System.out.println("eTIME - " + (double) etime / 1000.0 + "s");
 
     BpmnExportPlugin bpmnExportPlugin = new BpmnExportPlugin();
-    UIContext context = new UIContext();
-    UIPluginContext uiPluginContext = context.getMainPluginContext();
-    bpmnExportPlugin.export(uiPluginContext, output, new File(outputPath));
+    bpmnExportPlugin.export(null, output, new File(outputPath));
   }
 
   public void runSplitMiner2() {
@@ -138,9 +134,7 @@ public class App implements Callable<Integer> {
       }
 
       BpmnExportPlugin bpmnExportPlugin = new BpmnExportPlugin();
-      UIContext context = new UIContext();
-      UIPluginContext uiPluginContext = context.getMainPluginContext();
-      bpmnExportPlugin.export(uiPluginContext, diagram, new File(outputPath));
+      bpmnExportPlugin.export(null, diagram, new File(outputPath));
     } catch (Throwable e) {
       System.out.println("ERROR: - something went wrong");
       e.printStackTrace();
