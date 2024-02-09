@@ -12,7 +12,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-version = "1.6"
+version = "1.7"
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -24,14 +24,10 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit Jupiter for testing.
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
-
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-    // This dependency is used by the application.
     implementation("com.google.guava:guava:31.1-jre")
-
+    implementation("org.camunda.bpm:camunda-engine:7.19.0")
     implementation(
         fileTree("../lib") {
             include("*.jar")
