@@ -1,7 +1,10 @@
 package layout;
 
 
-import layout.internal.*;
+import layout.internal.FlowArc;
+import layout.internal.FlowNode;
+import layout.internal.Graph;
+import layout.internal.GraphBuilder;
 import layout.internal.di.BPMNEdge;
 import layout.internal.di.BPMNElement;
 import layout.internal.di.BPMNShape;
@@ -73,7 +76,9 @@ public class BPMNLayoutCreatorDefault implements BPMNLayoutCreator {
     public String createLayout(String process) throws Exception {
         Document doc = parseXML(process);
 
-        traverseProcess(doc);
+        Graph graph = new GraphBuilder().build(doc);
+
+        // traverseProcess(doc);
 
         addDiagramToDefinitions(doc, shapes, edges);
 
@@ -85,8 +90,8 @@ public class BPMNLayoutCreatorDefault implements BPMNLayoutCreator {
         if (start == null) throw new IllegalArgumentException("No start event found");
         traverseNode(start);
 
-        flowNodes.add(createFlowNode(start));
-        drawFlowNode(flowNodes.get(0));
+        // flowNodes.add(createFlowNode(start));
+        // drawFlowNode(flowNodes.get(0));
     }
 
     private void traverseNode(Node node) {
@@ -98,7 +103,7 @@ public class BPMNLayoutCreatorDefault implements BPMNLayoutCreator {
         }
         String nodeName = node.getNodeName();
         addToVisited(node);
-        processNode(node);
+        // processNode(node);
         if (BPMNElement.fromValue(nodeName) == BPMNElement.ENDEVENT) {
             return;
         }
@@ -182,83 +187,83 @@ public class BPMNLayoutCreatorDefault implements BPMNLayoutCreator {
         String targetRef = attributes.getNamedItem("targetRef").getNodeValue();
         return getNodeById(sequenceFlow.getOwnerDocument(), targetRef);
     }
-
-    private void processNode(Node node) {
-        String nodeName = node.getNodeName();
-        if (BPMNElement.fromValue(nodeName) == BPMNElement.SEQUENCEFLOW) {
-            FlowArc flowArc = createFlowArc(node);
-            flowArcs.add(flowArc);
-            drawFlowArc(flowArc);
-        } else {
-            // FlowNode flowNode = createFlowNode(node);
-            // flowNodes.add(flowNode);
-            // drawFlowNode(flowNode);
-        }
-    }
-
-    private FlowNode createFlowNode(Node node) {
-        if (visitedFlowNodes.containsKey(node.getAttributes().getNamedItem("id").getNodeValue())) {
-            return null;
-        }
-        String id = node.getAttributes().getNamedItem("id").getNodeValue();
-        visitedFlowNodes.put(id, true);
-        String nodeName = node.getNodeName();
-        FlowNode flowNode = new FlowNode(id, BPMNElement.fromValue(nodeName));
-        getOutgoingNodes(node).forEach(outgoingNode -> {
-            // don't create a flow node for sequence flows, only for tasks, events, and gateways
-            FlowNode n;
-            if (BPMNElement.fromValue(outgoingNode.getNodeName()) == BPMNElement.SEQUENCEFLOW) {
-                n = createFlowNode(getSequenceFlowTarget(outgoingNode));
-            } else {
-                n = createFlowNode(outgoingNode);
-            }
-            if (n != null) flowNode.addOutgoing(n);
-        });
-        getIncomingNodes(node).forEach(incomingNode -> {
-            // don't create a flow node for sequence flows, only for tasks, events, and gateways
-            FlowNode n;
-            if (BPMNElement.fromValue(incomingNode.getNodeName()) == BPMNElement.SEQUENCEFLOW) {
-                n = createFlowNode(getSequenceFlowSource(incomingNode));
-            } else {
-                n = createFlowNode(incomingNode);
-            }
-            if (n != null) flowNode.addIncoming(n);
-        });
-        return flowNode;
-    }
-
-    private FlowArc createFlowArc(Node node) {
-        String id = node.getAttributes().getNamedItem("id").getNodeValue();
-        FlowNode source = createFlowNode(getSequenceFlowSource(node));
-        FlowNode target = createFlowNode(getSequenceFlowTarget(node));
-        return new FlowArc(id, source, target, BPMNElement.SEQUENCEFLOW);
-    }
-
-    private void drawFlowNode(FlowNode node) {
-        if (drawn.containsKey(node.id)) {
-            return;
-        }
-
-        Bounds bounds = defaultBounds(node);
-        Double gap = 50d; // horizontalGap(lastType); // distance b/w the last and current nodes
-        bounds.x = lastX + gap;
-        bounds.y = lastY + 10;
-        lastX = bounds.x + bounds.width;
-        lastY = bounds.y;
-        BPMNShape shape = new BPMNShape(node.id, false, bounds);
-        shapes.add(shape);
-        // lastType = node.type;
-
-        // position outgoing nodes
-        for (int i = 0; i < node.outgoing.size(); i++) {
-            FlowNode outgoing = (FlowNode) node.outgoing.toArray()[i];
-            Double x = bounds.x + bounds.width + 10;
-            Double y = bounds.y + i * 100;
-            drawFlowNode(outgoing, x, y);
-        }
-
-        drawn.put(node.id, true);
-    }
+    //
+    // private void processNode(Node node) {
+    //     String nodeName = node.getNodeName();
+    //     if (BPMNElement.fromValue(nodeName) == BPMNElement.SEQUENCEFLOW) {
+    //         FlowArc flowArc = createFlowArc(node);
+    //         flowArcs.add(flowArc);
+    //         // drawFlowArc(flowArc);
+    //     } else {
+    //         // FlowNode flowNode = createFlowNode(node);
+    //         // flowNodes.add(flowNode);
+    //         // drawFlowNode(flowNode);
+    //     }
+    // }
+    //
+    // private FlowNode createFlowNode(Node node) {
+    //     if (visitedFlowNodes.containsKey(node.getAttributes().getNamedItem("id").getNodeValue())) {
+    //         return null;
+    //     }
+    //     String id = node.getAttributes().getNamedItem("id").getNodeValue();
+    //     visitedFlowNodes.put(id, true);
+    //     String nodeName = node.getNodeName();
+    //     FlowNode flowNode = new FlowNode(id, BPMNElement.fromValue(nodeName));
+    //     getOutgoingNodes(node).forEach(outgoingNode -> {
+    //         // don't create a flow node for sequence flows, only for tasks, events, and gateways
+    //         FlowNode n;
+    //         if (BPMNElement.fromValue(outgoingNode.getNodeName()) == BPMNElement.SEQUENCEFLOW) {
+    //             n = createFlowNode(getSequenceFlowTarget(outgoingNode));
+    //         } else {
+    //             n = createFlowNode(outgoingNode);
+    //         }
+    //         if (n != null) flowNode.addOutgoing(n);
+    //     });
+    //     getIncomingNodes(node).forEach(incomingNode -> {
+    //         // don't create a flow node for sequence flows, only for tasks, events, and gateways
+    //         FlowNode n;
+    //         if (BPMNElement.fromValue(incomingNode.getNodeName()) == BPMNElement.SEQUENCEFLOW) {
+    //             n = createFlowNode(getSequenceFlowSource(incomingNode));
+    //         } else {
+    //             n = createFlowNode(incomingNode);
+    //         }
+    //         if (n != null) flowNode.addIncoming(n);
+    //     });
+    //     return flowNode;
+    // }
+    //
+    // private FlowArc createFlowArc(Node node) {
+    //     String id = node.getAttributes().getNamedItem("id").getNodeValue();
+    //     FlowNode source = createFlowNode(getSequenceFlowSource(node));
+    //     FlowNode target = createFlowNode(getSequenceFlowTarget(node));
+    //     return new FlowArc(id, source, target, BPMNElement.SEQUENCEFLOW);
+    // }
+    //
+    // private void drawFlowNode(FlowNode node) {
+    //     if (drawn.containsKey(node.id)) {
+    //         return;
+    //     }
+    //
+    //     Bounds bounds = defaultBounds(node);
+    //     Double gap = 50d; // horizontalGap(lastType); // distance b/w the last and current nodes
+    //     bounds.x = lastX + gap;
+    //     bounds.y = lastY + 10;
+    //     lastX = bounds.x + bounds.width;
+    //     lastY = bounds.y;
+    //     BPMNShape shape = new BPMNShape(node.id, false, bounds);
+    //     shapes.add(shape);
+    //     // lastType = node.type;
+    //
+    //     // position outgoing nodes
+    //     for (int i = 0; i < node.outgoing.size(); i++) {
+    //         FlowNode outgoing = (FlowNode) node.outgoing.toArray()[i];
+    //         Double x = bounds.x + bounds.width + 10;
+    //         Double y = bounds.y + i * 100;
+    //         drawFlowNode(outgoing, x, y);
+    //     }
+    //
+    //     drawn.put(node.id, true);
+    // }
 
     private void drawFlowNode(FlowNode node, Double x, Double y) {
         if (drawn.containsKey(node.id)) {

@@ -19,7 +19,6 @@ class BPMNLayoutCreatorDefaultTest {
         );
         String result = (new BPMNLayoutCreatorDefault()).createLayout(bpmnModel);
         assertTrue(result.contains("BPMNShape"));
-        // create file
         Files.write(Paths.get("src/test/resources/LoanApp_simplified_nodi_layout.bpmn"), result.getBytes());
     }
 }
