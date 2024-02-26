@@ -67,6 +67,11 @@ public class App implements Callable<Integer> {
             defaultValue = "false")
     private boolean v2;
 
+    @Option(names = {"-di", "--diagram"},
+            description = "Generate the BPMN DI layout. Omitting it by default because it may take a while depending on the graph size.",
+            defaultValue = "false")
+    private boolean generateDiagram;
+
     public static void main(String[] args) {
         int exitCode = new CommandLine(new App()).execute(args);
         System.exit(exitCode);
@@ -81,8 +86,10 @@ public class App implements Callable<Integer> {
                 return 0;
             }
             runSplitMiner1();
-            logger.info("Generating the BPMN DI layout");
-            addBPMNDI(outputPath);
+            if (generateDiagram) {
+                logger.info("Generating the BPMN DI layout");
+                addBPMNDI(outputPath);
+            }
             return 0;
         } catch (Throwable e) {
             logger.severe(e.getMessage());
