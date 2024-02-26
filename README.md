@@ -13,7 +13,7 @@ gradle shadowJar
 ## Usage
 
 ```
-Usage: discover [-fhlrV] [-v2] [-e=<eta>] -i=<logPath> [-o=<outputPath>]
+Usage: split-miner [-fhlrV] [-v2] [-e=<eta>] -i=<logPath> [-o=<outputPath>]
                 [-p=<epsilon>]
 SplitMiner BPMN model discovery
   -e, --eta=<eta>
@@ -38,7 +38,7 @@ SplitMiner BPMN model discovery
 Run the following command to discover a BPMN model from an event log using the Split Miner 2 technique:
 
 ```bash
-java -jar splitminer-1.5-all.jar -v2 -i event_log.xes
+java -jar split-miner-1.5-all.jar -v2 -i event_log.xes
 ```
 
 > (by A. Augusto, M. Dumas and M. La Rosa)

@@ -4,34 +4,15 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'idea'
     id 'maven-publish'
+    id 'signing'
 }
 
-version = '1.7.0'
+version = '1.7.1'
 
 repositories {
     mavenCentral()
     flatDir {
         dirs 'libs'
-    }
-}
-
-publishing {
-    publications {
-        shadow(MavenPublication) {
-            from components.java
-            artifact shadowJar
-        }
-    }
-
-    repositories {
-        maven {
-            name = "OSSRH"
-            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
-            }
-        }
     }
 }
 
@@ -43,14 +24,66 @@ dependencies {
     implementation fileTree(dir: '../lib', include: '*.jar')
 }
 
+application {
+    mainClass = 'splitminer.App'
+}
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(8))
     }
+    withJavadocJar()
+    withSourcesJar()
 }
 
-application {
-    mainClass = 'splitminer.App'
+publishing {
+    publications {
+        shadow(MavenPublication) {
+            artifactId = 'split-miner'
+            from components.java
+
+            pom {
+                groupId = 'io.github.iharsuvorau'
+                version = version
+                pom {
+                    name = 'Split Miner'
+                    description = 'Trimmed down version of the toolset that contains only Split Miner for discovering BPMN models from event logs.'
+                    url = 'https://github.com/iharsuvorau/split-miner'
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'ihr'
+                            name = 'Ihar Suvorau'
+                            email = 'ihar.suvorau@gmail.com'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:https://github.com/iharsuvorau/split-miner.git'
+                        developerConnection = 'scm:git:https://github.com/iharsuvorau/split-miner.git'
+                        url = 'https://github.com/iharsuvorau/split-miner.git'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "ossrh"
+            def releasesRepoUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
 }
 
 tasks.named('test', Test) {
@@ -61,6 +94,6 @@ tasks.named('shadowJar', Jar) {
     manifest {
         attributes 'Main-Class': 'splitminer.App'
     }
-    archiveBaseName = 'splitminer'
+    archiveBaseName = 'split-miner'
     with(tasks.jar as CopySpec)
 }
