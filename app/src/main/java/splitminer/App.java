@@ -25,10 +25,7 @@ import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
-@Command(
-        name = "discover",
-        mixinStandardHelpOptions = true,
-        description = "SplitMiner BPMN model discovery")
+@Command(name = "split-miner", mixinStandardHelpOptions = true, description = "SplitMiner BPMN model discovery")
 public class App implements Callable<Integer> {
     private final Logger logger = Logger.getLogger("SplitMiner");
 
@@ -131,7 +128,7 @@ public class App implements Callable<Integer> {
     }
 
     /**
-     * Add BPMN Diagram Interchange to the control flow in the given file.
+     * Add BPMN Diagram Interchange to the control flow in the given file by overwriting the file.
      */
     private void addBPMNDI(String bpmnPath) throws Exception {
         Path bpmnModelPath = Paths.get(bpmnPath);
