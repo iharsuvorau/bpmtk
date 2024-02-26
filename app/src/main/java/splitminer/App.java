@@ -1,11 +1,12 @@
 package splitminer;
 
 import com.raffaeleconforti.log.util.LogImporter;
+import ee.ut.cs.pix.bpmn.layout.Generator;
+import ee.ut.cs.pix.bpmn.layout.SchaeferLayout;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.deckfour.xes.factory.XFactoryNaiveImpl;
 import org.deckfour.xes.model.XLog;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
-import org.processmining.plugins.bpmn.BpmnDefinitions;
 import org.processmining.plugins.bpmn.plugins.BpmnExportPlugin;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -17,15 +18,20 @@ import processmining.splitminer.dfgp.DirectlyFollowGraphPlus;
 import processmining.splitminer.ui.dfgp.DFGPUIResult;
 import processmining.splitminer.ui.miner.SplitMinerUIResult;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 @Command(
         name = "discover",
         mixinStandardHelpOptions = true,
         description = "SplitMiner BPMN model discovery")
 public class App implements Callable<Integer> {
+    private final Logger logger = Logger.getLogger("SplitMiner");
+
     @Option(
             names = {"-e", "--eta"},
             defaultValue = "0.5")
@@ -70,14 +76,41 @@ public class App implements Callable<Integer> {
     }
 
     @Override
-    public Integer call() throws Exception {
-        if (v2) {
-            runSplitMiner2();
+    public Integer call() {
+        try {
+            logger.info("Mining the control flow");
+            if (v2) {
+                runSplitMiner2();
+                return 0;
+            }
+            runSplitMiner1();
+            logger.info("Generating the BPMN DI layout");
+            addBPMNDI(outputPath);
             return 0;
+        } catch (Throwable e) {
+            logger.severe(e.getMessage());
         }
+        return 1;
+    }
 
-        runSplitMiner1();
-        return 0;
+    public void runSplitMiner2() throws Exception {
+        double eta = 1.0;
+        boolean parallelismFirst = true;
+        boolean replaceIORs = false;
+        boolean removeLoopActivities = false;
+
+        SimpleLog cLog =
+                LogParser.getComplexLog(
+                        LogImporter.importFromFile(new XFactoryNaiveImpl(), logPath),
+                        new XEventNameClassifier());
+        DirectlyFollowGraphPlus dfgp =
+                new DirectlyFollowGraphPlus(
+                        cLog, eta, epsilon, DFGPUIResult.FilterType.FWG, parallelismFirst);
+
+        dfgp.buildDFGP();
+        SplitMiner sm = new SplitMiner(replaceIORs, removeLoopActivities);
+        BPMNDiagram output = sm.discoverFromDFGP(dfgp);
+        exportControlFlow(output, outputPath);
     }
 
     public void runSplitMiner1() throws Exception {
@@ -94,45 +127,30 @@ public class App implements Callable<Integer> {
                         replaceIORs,
                         removeLoopActivityMarkers,
                         SplitMinerUIResult.StructuringTime.NONE);
-        exportDiagram(output, outputPath);
+        exportControlFlow(output, outputPath);
     }
 
-    public void runSplitMiner2() {
-        double eta = 1.0;
-        boolean parallelismFirst = true;
-        boolean replaceIORs = false;
-        boolean removeLoopActivities = false;
-
-        try {
-            SimpleLog cLog =
-                    LogParser.getComplexLog(
-                            LogImporter.importFromFile(new XFactoryNaiveImpl(), logPath),
-                            new XEventNameClassifier());
-            DirectlyFollowGraphPlus dfgp =
-                    new DirectlyFollowGraphPlus(
-                            cLog, eta, epsilon, DFGPUIResult.FilterType.FWG, parallelismFirst);
-
-            dfgp.buildDFGP();
-            SplitMiner sm = new SplitMiner(replaceIORs, removeLoopActivities);
-            BPMNDiagram diagram = sm.discoverFromDFGP(dfgp);
-            exportDiagram(diagram, outputPath);
-        } catch (Throwable e) {
-            System.out.println("ERROR: - something went wrong");
-            e.printStackTrace();
-        }
+    /**
+     * Add BPMN Diagram Interchange to the control flow in the given file.
+     */
+    private void addBPMNDI(String bpmnPath) throws Exception {
+        Path bpmnModelPath = Paths.get(bpmnPath);
+        InputStream input = Files.newInputStream(bpmnModelPath);
+        // write the XML into memory
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        Generator.addDiagramToDefinitions(input, result, new SchaeferLayout());
+        input.close();
+        // rewrite the BPMN file with the updated XML
+        OutputStream output = Files.newOutputStream(bpmnModelPath);
+        output.write(result.toByteArray());
+        output.close();
     }
 
-    private void exportDiagram(BPMNDiagram diagram, String outputPath) throws IOException {
+    /**
+     * Write the discovered BPMN model to a file at the given path.
+     */
+    private void exportControlFlow(BPMNDiagram output, String outputPath) throws IOException {
         BpmnExportPlugin bpmnExportPlugin = new BpmnExportPlugin();
-        // CLIContext context = new CLIContext();
-        // CLIPluginContext cliPluginContext = new CLIPluginContext(context, "test");
-        // bpmnExportPlugin.export(cliPluginContext, diagram, new File(outputPath));
-        // bpmnExportPlugin.exportNonInteractively(diagram, new File(outputPath));
-
-        BpmnDefinitions.BpmnDefinitionsBuilder definitionsBuilder =
-                new BpmnDefinitions.BpmnDefinitionsBuilder(diagram);
-        BpmnDefinitions definitions = new BpmnDefinitions("definitions", definitionsBuilder);
-        String elements = definitions.exportElements();
-        bpmnExportPlugin.exportWithContent(new File(outputPath), elements);
+        bpmnExportPlugin.export(null, output, new File(outputPath));
     }
 }
